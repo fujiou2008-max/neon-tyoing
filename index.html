@@ -100,7 +100,7 @@
       </div>
       <div class="ticker-wrap flex-1 overflow-hidden relative h-6 flex items-center">
         <div id="newsTickerText" class="ticker-text text-xs text-slate-300 font-medium tracking-wide">
-          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.6: 全方位揺らぎ・リザルト・RTDB同期完全網羅版へアップデート完了。
+          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.7: 全入力リスナー・打鍵エンジン最適化およびハイエンド・サウンド拡張版。
         </div>
       </div>
       <div class="flex items-center gap-3 shrink-0">
@@ -122,7 +122,7 @@
     <section id="viewTitle" class="w-full max-w-3xl mx-auto text-center py-14 sm:py-24 flex flex-col items-center justify-center">
       <div id="secretVersionTrigger" class="mb-5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/90 border border-cyan-400/25 text-cyan-300/90 text-[11px] font-mono-code tracking-[0.22em] select-none cursor-pointer" title="5回連続クリックで管理者パネル">
         <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-        <span>SYSTEM READY // VER 4.6 (CLOUD RTDB)</span>
+        <span>SYSTEM READY // VER 4.7 (CLOUD RTDB)</span>
       </div>
 
       <h1 class="font-display-formal text-5xl sm:text-7xl font-bold tracking-[0.14em] neon-outline-title mb-3">
@@ -732,7 +732,7 @@
       isRTDBActive = false;
     }
 
-    // ==================== 高品質音声・効果音エンジン ====================
+    // ==================== 高音質・大音量サウンドエンジン ====================
     const SoundEngine = {
       ctx: null,
       init() {
@@ -749,16 +749,16 @@
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          const baseFreq = 140 + Math.min(combo * 4.5, 340);
+          const baseFreq = 160 + Math.min(combo * 5, 380);
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(baseFreq, now);
-          osc.frequency.exponentialRampToValueAtTime(Math.max(45, baseFreq * 0.4), now + 0.055);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(50, baseFreq * 0.4), now + 0.06);
+          gain.gain.setValueAtTime(0.45, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.07);
+          osc.stop(now + 0.08);
         } catch (e) {}
       },
       playTapClick() {
@@ -769,14 +769,14 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(200, now);
-          osc.frequency.exponentialRampToValueAtTime(90, now + 0.03);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.04);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.04);
+          osc.stop(now + 0.05);
         } catch (e) {}
       },
       playMiss() {
@@ -787,9 +787,9 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(90, now);
-          osc.frequency.linearRampToValueAtTime(55, now + 0.12);
-          gain.gain.setValueAtTime(0.22, now);
+          osc.frequency.setValueAtTime(100, now);
+          osc.frequency.linearRampToValueAtTime(50, now + 0.12);
+          gain.gain.setValueAtTime(0.3, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -808,7 +808,7 @@
             osc.type = 'sine';
             const start = now + idx * 0.045;
             osc.frequency.setValueAtTime(freq, start);
-            gain.gain.setValueAtTime(0.18, start);
+            gain.gain.setValueAtTime(0.25, start);
             gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
@@ -826,7 +826,7 @@
           const gain = this.ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(isGo ? 880 : 440, now);
-          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.setValueAtTime(0.3, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -1241,12 +1241,23 @@
         }
       });
 
+      // 頑健なグローバル打鍵リスナー (keyup / keydown の確実な捕捉)
       window.addEventListener('keydown', (e) => {
         if (gameState.activeView !== 'viewGame' || gameState.phase !== 'playing') return;
-        if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-          handleTypingKey(e.key.toLowerCase());
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        
+        let char = '';
+        if (e.key.length === 1) {
+          char = e.key.toLowerCase();
+        } else if (e.code && e.code.startsWith('Key')) {
+          char = e.code.replace('Key', '').toLowerCase();
         }
-      });
+
+        if (char && char.length === 1) {
+          e.preventDefault();
+          handleTypingKey(char);
+        }
+      }, { capture: true });
 
       const mobileInput = document.getElementById('mobileHiddenInput');
       if (mobileInput) {
@@ -1403,9 +1414,10 @@
       renderRomajiGuide();
     }
 
+    // スムーズな連続タイピング・ハイライト描画エンジン
     function renderRomajiGuide() {
       let html = '';
-      html += `<span class="text-cyan-800 font-medium">${escapeHtml(gameState.completedRomajiStr)}</span>`;
+      html += `<span class="text-cyan-600 font-medium">${escapeHtml(gameState.completedRomajiStr)}</span>`;
       
       if (gameState.tokenIndex < gameState.tokens.length) {
         const t = gameState.tokens[gameState.tokenIndex];
@@ -1413,7 +1425,9 @@
         const matched = gameState.typedInToken;
         const remaining = primary.slice(matched.length);
 
-        html += `<span class="text-cyan-400 font-bold">${escapeHtml(matched)}</span>`;
+        if (matched.length > 0) {
+          html += `<span class="text-cyan-300 font-bold drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">${escapeHtml(matched)}</span>`;
+        }
         html += `<span class="text-slate-300">${escapeHtml(remaining)}</span>`;
 
         for (let i = gameState.tokenIndex + 1; i < gameState.tokens.length; i++) {
