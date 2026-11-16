@@ -100,7 +100,7 @@
       </div>
       <div class="ticker-wrap flex-1 overflow-hidden relative h-6 flex items-center">
         <div id="newsTickerText" class="ticker-text text-xs text-slate-300 font-medium tracking-wide">
-          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.7: 全入力リスナー・打鍵エンジン最適化およびハイエンド・サウンド拡張版。
+          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.8: 全方位ゆらぎ（tti・促音重複徹底強化）＆サウンドブラッシュアップ版。
         </div>
       </div>
       <div class="flex items-center gap-3 shrink-0">
@@ -122,7 +122,7 @@
     <section id="viewTitle" class="w-full max-w-3xl mx-auto text-center py-14 sm:py-24 flex flex-col items-center justify-center">
       <div id="secretVersionTrigger" class="mb-5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/90 border border-cyan-400/25 text-cyan-300/90 text-[11px] font-mono-code tracking-[0.22em] select-none cursor-pointer" title="5回連続クリックで管理者パネル">
         <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-        <span>SYSTEM READY // VER 4.7 (CLOUD RTDB)</span>
+        <span>SYSTEM READY // VER 4.8 (CLOUD RTDB)</span>
       </div>
 
       <h1 class="font-display-formal text-5xl sm:text-7xl font-bold tracking-[0.14em] neon-outline-title mb-3">
@@ -732,7 +732,7 @@
       isRTDBActive = false;
     }
 
-    // ==================== 高音質・大音量サウンドエンジン ====================
+    // ==================== 高音質・大音量・コンボピッチサウンドエンジン ====================
     const SoundEngine = {
       ctx: null,
       init() {
@@ -749,16 +749,16 @@
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          const baseFreq = 160 + Math.min(combo * 5, 380);
+          const baseFreq = 140 + Math.min(combo * 6, 420);
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(baseFreq, now);
-          osc.frequency.exponentialRampToValueAtTime(Math.max(50, baseFreq * 0.4), now + 0.06);
-          gain.gain.setValueAtTime(0.45, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(45, baseFreq * 0.35), now + 0.07);
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.08);
+          osc.stop(now + 0.09);
         } catch (e) {}
       },
       playTapClick() {
@@ -769,14 +769,14 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(240, now);
-          osc.frequency.exponentialRampToValueAtTime(100, now + 0.04);
-          gain.gain.setValueAtTime(0.35, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.05);
+          gain.gain.setValueAtTime(0.45, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.05);
+          osc.stop(now + 0.06);
         } catch (e) {}
       },
       playMiss() {
@@ -787,14 +787,14 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(100, now);
-          osc.frequency.linearRampToValueAtTime(50, now + 0.12);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          osc.frequency.setValueAtTime(90, now);
+          osc.frequency.linearRampToValueAtTime(40, now + 0.14);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.14);
+          osc.stop(now + 0.16);
         } catch (e) {}
       },
       playPerfectBonus() {
@@ -808,7 +808,7 @@
             osc.type = 'sine';
             const start = now + idx * 0.045;
             osc.frequency.setValueAtTime(freq, start);
-            gain.gain.setValueAtTime(0.25, start);
+            gain.gain.setValueAtTime(0.3, start);
             gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
@@ -826,7 +826,7 @@
           const gain = this.ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(isGo ? 880 : 440, now);
-          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.setValueAtTime(0.35, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -926,7 +926,7 @@
       if (gameState.activeView === 'viewRanking') renderRankingList();
     };
 
-    // ==================== ワードプール (精査済み1,000語規模の精髄) ====================
+    // ==================== ワードプール ====================
     const WORD_POOL = [
       { kanji: 'ネオンタイプ', kana: 'ねおんたいぷ' },
       { kanji: '電脳空間', kana: 'でんのうくうかん' },
@@ -963,15 +963,17 @@
       { kanji: 'リュックサック', kana: 'りゅっくさっく' },
       { kanji: 'リヤカー引いて', kana: 'りゃーかーひいて' },
       { kanji: 'フライパン熱い', kana: 'ふらいぱんあつい' },
-      { kanji: 'フューチャー', kana: 'ふゅーちゃー' }
+      { kanji: 'フューチャー', kana: 'ふゅーちゃー' },
+      { kanji: 'てぃーちんぐ', kana: 'てぃーちんぐ' },
+      { kanji: 'すってぃんぐ', kana: 'すってぃんぐ' }
     ];
 
-    // ==================== 全方位揺らぎ対応 ローマ字マップ ====================
+    // ==================== 全方位・重なる音（tti等）完全対応 ローマ字マップ ====================
     const KANA_ROMAJI_MAP = {
       'あ': ['a'], 'い': ['i', 'yi'], 'う': ['u', 'wu', 'whu'], 'え': ['e'], 'お': ['o'],
       'か': ['ka', 'ca'], 'き': ['ki'], 'く': ['ku', 'cu', 'qu'], 'け': ['ke'], 'こ': ['ko', 'co'],
       'さ': ['sa'], 'し': ['shi', 'sya', 'si', 'sha'], 'す': ['su'], 'せ': ['se', 'ce'], 'そ': ['so'],
-      'た': ['ta'], 'ち': ['chi', 'ti', 'tya'], 'つ': ['tsu', 'tu'], 'て': ['te'], 'と': ['to'],
+      'た': ['ta'], 'ち': ['chi', 'ti', 'tya'], 'つ': ['tsu', 'tu', 'ts'], 'て': ['te'], 'と': ['to'],
       'な': ['na'], 'に': ['ni'], 'ぬ': ['nu'], 'ね': ['ne'], 'の': ['no'],
       'は': ['ha'], 'ひ': ['hi'], 'ふ': ['fu', 'hu', 'hwa'], 'へ': ['he'], 'ほ': ['ho'],
       'ま': ['ma'], 'み': ['mi'], 'む': ['mu'], 'め': ['me'], 'も': ['mo'],
@@ -988,6 +990,9 @@
       'しゃ': ['sha', 'sya', 'cya'], 'しゅ': ['shu', 'syu', 'cyu'], 'しょ': ['sho', 'syo', 'cyo'],
       'ちゃ': ['cha', 'tya', 'cya'], 'ちゅ': ['chu', 'tyu', 'cyu'], 'ちょ': ['cho', 'tyo', 'cyo'],
       'じゃ': ['ja', 'jya', 'zya'], 'じゅ': ['ju', 'jyu', 'zyu'], 'じょ': ['jo', 'jyo', 'zyo'],
+      'てぃ': ['thi', 'tei', 'ti'], 'でぃ': ['dhi', 'dei', 'di'], 'とぅ': ['twu', 'to'], 'どぅ': ['dwu', 'do'],
+      'ふぁ': ['fa', 'fwa'], 'ふぃ': ['fi', 'fwi'], 'ふぇ': ['fe', 'fwe'], 'ふぉ': ['fo', 'fwo'],
+      'うぃ': ['wi', 'whi'], 'うぇ': ['we', 'whe'], 'うぉ': ['who', 'wo'],
       'ぎゃ': ['gya'], 'ぎゅ': ['gyu'], 'ぎょ': ['gyo'],
       'びゃ': ['bya'], 'びゅ': ['byu'], 'びょ': ['byo'],
       'ぴゃ': ['pya'], 'ぴゅ': ['pyu'], 'ぴょ': ['pyo'],
@@ -1003,18 +1008,34 @@
       while (i < kana.length) {
         const ch = kana[i];
         const next = kana[i + 1] || '';
+        const next2 = kana[i + 2] || '';
+        const triple = ch + next + next2;
         const pair = ch + next;
+
+        if (triple === 'てぃー' || triple === 'でぃー') {
+          tokens.push({ kana: triple, options: [triple === 'てぃー' ? 'thi-' : 'dhi-', triple === 'てぃー' ? 'tei-' : 'dei-', triple === 'てぃー' ? 'ti-' : 'di-'] });
+          i += 3;
+          continue;
+        }
+
         if (ch === 'っ' && next) {
-          tokens.push({ kana: 'っ', options: ['ltu', 'xtu', 't' + (KANA_ROMAJI_MAP[next]?.[0]?.[0] || '')], isSokuon: true });
+          const nextOpt = KANA_ROMAJI_MAP[next]?.[0] || next;
+          const sokuonOpts = ['ltu', 'xtu', 't' + nextOpt[0], nextOpt[0] + nextOpt];
+          tokens.push({ kana: 'っ', options: Array.from(new Set(sokuonOpts)), isSokuon: true });
           i += 1;
           continue;
         }
+
         if (ch === 'ん') {
           tokens.push({ kana: 'ん', options: ['nn', 'n', 'xn'], isHatsuon: true });
           i += 1;
           continue;
         }
-        if (next && KANA_ROMAJI_MAP[pair]) {
+
+        if (triple && KANA_ROMAJI_MAP[triple]) {
+          tokens.push({ kana: triple, options: [...KANA_ROMAJI_MAP[triple]] });
+          i += 3;
+        } else if (pair && KANA_ROMAJI_MAP[pair]) {
           tokens.push({ kana: pair, options: [...KANA_ROMAJI_MAP[pair]] });
           i += 2;
         } else if (KANA_ROMAJI_MAP[ch]) {
@@ -1241,7 +1262,6 @@
         }
       });
 
-      // 頑健なグローバル打鍵リスナー (keyup / keydown の確実な捕捉)
       window.addEventListener('keydown', (e) => {
         if (gameState.activeView !== 'viewGame' || gameState.phase !== 'playing') return;
         if (e.ctrlKey || e.altKey || e.metaKey) return;
@@ -1414,10 +1434,9 @@
       renderRomajiGuide();
     }
 
-    // スムーズな連続タイピング・ハイライト描画エンジン
     function renderRomajiGuide() {
       let html = '';
-      html += `<span class="text-cyan-600 font-medium">${escapeHtml(gameState.completedRomajiStr)}</span>`;
+      html += `<span class="text-cyan-700 font-medium">${escapeHtml(gameState.completedRomajiStr)}</span>`;
       
       if (gameState.tokenIndex < gameState.tokens.length) {
         const t = gameState.tokens[gameState.tokenIndex];
@@ -1426,7 +1445,7 @@
         const remaining = primary.slice(matched.length);
 
         if (matched.length > 0) {
-          html += `<span class="text-cyan-300 font-bold drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">${escapeHtml(matched)}</span>`;
+          html += `<span class="text-cyan-400 font-bold drop-shadow-[0_0_10px_rgba(0,243,255,0.9)]">${escapeHtml(matched)}</span>`;
         }
         html += `<span class="text-slate-300">${escapeHtml(remaining)}</span>`;
 
@@ -1449,8 +1468,13 @@
       const nextTyped = gameState.typedInToken + char;
 
       let matchedOpt = null;
+      let fullMatched = false;
       for (const opt of t.options) {
-        if (opt.startsWith(nextTyped)) {
+        if (opt === nextTyped) {
+          matchedOpt = opt;
+          fullMatched = true;
+          break;
+        } else if (opt.startsWith(nextTyped)) {
           matchedOpt = opt;
           break;
         }
@@ -1469,7 +1493,7 @@
         gameState.score += 10;
         document.getElementById('hudScore').textContent = gameState.score;
 
-        if (gameState.typedInToken === matchedOpt) {
+        if (fullMatched || gameState.typedInToken === matchedOpt) {
           gameState.completedRomajiStr += matchedOpt;
           gameState.tokenIndex++;
           gameState.typedInToken = '';
