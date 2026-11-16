@@ -680,34 +680,40 @@
     </section>
 
     <!-- ==================== 8. 管理者パネル ==================== -->
-    <section id="viewAdmin" class="hidden w-full max-w-3xl mx-auto bg-slate-900/95 border border-amber-400/50 rounded-3xl p-5 sm:p-8 neon-glow-gold space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div>
-          <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono-code font-bold">ADMINISTRATOR ACCESS</span>
-          <h2 class="font-display-formal text-xl sm:text-2xl font-bold text-white mt-1">⚙️ 管理者リアルタイム配信パネル</h2>
-        </div>
-        <button type="button" onclick="switchView('viewHome')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 cursor-pointer">
-          ← ホームへ戻る
+  <section id="viewAdmin" class="hidden w-full max-w-4xl mx-auto bg-slate-900/95 border border-amber-400/50 rounded-3xl p-5 sm:p-8 neon-glow-gold space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div>
+        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono-code font-bold">ADMINISTRATOR SUPREME OVERRIDE</span>
+        <h2 class="font-display-formal text-xl sm:text-2xl font-bold text-white mt-1">⚙️ 管理者マルチコントロールパネル</h2>
+      </div>
+      <button type="button" onclick="switchView('viewHome')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 cursor-pointer">
+        ← ホームへ戻る
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-slate-950/80 border border-amber-500/30 rounded-2xl p-5 space-y-4">
+        <h3 class="text-xs font-display-formal font-bold text-amber-300 tracking-wider">📡 ライブニュース電光掲示板配信</h3>
+        <p class="text-xs text-slate-400">全オンラインプレイヤーの画面上部に流れるテキストをリアルタイムで書き換えます。</p>
+        <textarea id="adminNewsInput" rows="3" maxlength="160" placeholder="全プレイヤーに流すニュースメッセージ..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-amber-500/40 focus:border-amber-400 focus:outline-none text-sm text-white"></textarea>
+        <button id="btnPublishLiveNews" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wider shadow-lg hover:scale-[1.01] transition cursor-pointer">
+          ニュースをリアルタイム配信
         </button>
       </div>
 
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-amber-300 mb-1.5">
-            全プレイヤー画面の電光掲示板（LIVE NEWS）をリアルタイム更新
-          </label>
-          <textarea id="adminNewsInput" rows="3" maxlength="160" placeholder="全プレイヤーに流すニュースメッセージを入力してください..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-amber-500/40 focus:border-amber-400 focus:outline-none text-sm text-white"></textarea>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="text-xs text-slate-400">※ 配信ボタンを押すと接続中の全ユーザーの画面上部に即座に反映されます。</span>
-          <button id="btnPublishLiveNews" type="button" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wider shadow-lg hover:scale-[1.02] transition cursor-pointer">
-            📡 全画面にニュースをリアルタイム配信
+      <div class="bg-slate-950/80 border border-rose-500/30 rounded-2xl p-5 space-y-4">
+        <h3 class="text-xs font-display-formal font-bold text-rose-400 tracking-wider">🚨 緊急システムオペレーション</h3>
+        <p class="text-xs text-slate-400">サーバーメンテナンスや異常検知時に、全接続クライアントを強制的に再読込させます。</p>
+        <div class="pt-6">
+          <button id="btnForceEmergencyReload" type="button" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs sm:text-sm tracking-wider shadow-[0_0_15px_rgba(225,29,72,0.4)] transition cursor-pointer">
+            ⚡ 全クライアント強制緊急リロード発動
           </button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-  </main>
+</main>
 
   <!-- ==================== モーダル群 ==================== -->
 
@@ -903,24 +909,33 @@
           osc.type = 'sine';
           osc.frequency.setValueAtTime(isGo ? 880 : 440, now);
           gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + (isGo ? 0.25 : 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + (isGo ? 0.26 : 0.13));
+          osc.stop(now + 0.16);
         } catch (e) {}
       }
     };
 
-    // ==================== 2. 称号データ＆マスター定義（解放条件付き） ====================
+    // ==================== 2. 称号データ＆マスター定義 ====================
     const TITLE_DEFINITIONS = [
       { id: 't1', name: '駆け出しタイパー', desc: '最初から誰でも装備できる初心者称号。', check: () => true },
       { id: 't2', name: 'ネオンの旅人', desc: 'ゲームを合計3回以上プレイすると解放されます。', check: (p) => p.gamesPlayed >= 3 },
-      { id: 't3', name: '高速指先の使い手', desc: 'いずれかのソロモードでスコア1,500ptを突破すると解放されます。', check: (p) => Object.values(p.bestScores || {}).some(s => s >= 1500) },
-      { id: 't4', name: '電脳タイピスト', desc: '対人戦（ランクまたはカジュアル）を累計3勝以上すると解放されます。', check: (p) => p.battleWins >= 3 },
-      { id: 't5', name: 'ノーミス職人', desc: '1回のセッションでノーミス単語を3語以上完走すると解放されます。', check: (p) => (p.maxSessionPerfectWords || 0) >= 3 },
-      { id: 't6', name: '光速のキーパンチャー', desc: 'いずれかのソロモードでスコア3,000ptを突破すると解放されます。', check: (p) => Object.values(p.bestScores || {}).some(s => s >= 3000) }
+      { id: 't3', name: '精密機械', desc: 'ミス率が5%未満かつ累計5回以上プレイすると解放されます。', check: (p) => p.gamesPlayed >= 5 && calculatePlayerMissRateVal(p) < 5.0 },
+      { id: 't4', name: '電脳の魔術師', desc: 'いずれかのソロモードでスコア2,000ptを突破すると解放されます。', check: (p) => Object.values(p.bestScores || {}).some(s => s >= 2000) },
+      { id: 't5', name: '音速の刃', desc: 'いずれかのソロモードでスコア3,500ptを突破すると解放されます。', check: (p) => Object.values(p.bestScores || {}).some(s => s >= 3500) },
+      { id: 't6', name: '無敗の決闘者', desc: 'オンライン対戦（ランク戦）で累計3勝以上すると解放されます。', check: (p) => p.battleWins >= 3 },
+      { id: 't7', name: 'ノーミス職人', desc: '1回のセッションでノーミス単語を3語以上完走すると解放されます。', check: (p) => (p.maxSessionPerfectWords || 0) >= 3 },
+      { id: 't8', name: '絶対零度の指先', desc: '累計正解打鍵数が500打鍵を超えると解放されます。', check: (p) => p.totalKeystrokes >= 500 },
+      { id: 't9', name: '神速のタイパー', desc: 'いずれかのソロモードでスコア5,000ptを突破すると解放されます。', check: (p) => Object.values(p.bestScores || {}).some(s => s >= 5000) }
     ];
+
+    function calculatePlayerMissRateVal(p) {
+      const tot = (p.totalKeystrokes || 0) + (p.totalMisses || 0);
+      if (tot === 0) return 0;
+      return ((p.totalMisses || 0) / tot) * 100;
+    }
 
     let playerProfile = {
       uid: 'local_' + Math.random().toString(36).substring(2, 10),
@@ -2310,6 +2325,19 @@
       }
     });
 
+    document.getElementById('btnForceEmergencyReload').addEventListener('click', async () => {
+      if (!playerProfile.isAdmin) return;
+      if (db && currentUser) {
+        try {
+          const sysRef = doc(db, 'artifacts', appId, 'public', 'data', 'neon_system', 'emergency_signal');
+          await setDoc(sysRef, {
+            reloadToken: Date.now()
+          });
+        } catch (e) {}
+      }
+      window.location.reload();
+    });
+
     // ==================== 13. 初期化 & Firebase ====================
     loadLocalProfileWithCompatibility();
     refreshAllUI();
@@ -2362,6 +2390,13 @@
         onSnapshot(newsRef, (newsSnap) => {
           if (newsSnap.exists() && newsSnap.data().message) {
             document.getElementById('newsTickerText').textContent = newsSnap.data().message;
+          }
+        });
+
+        const sigRef = doc(db, 'artifacts', appId, 'public', 'data', 'neon_system', 'emergency_signal');
+        onSnapshot(sigRef, (sigSnap) => {
+          if (sigSnap.exists() && sigSnap.data().reloadToken) {
+            window.location.reload();
           }
         });
       });
