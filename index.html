@@ -112,7 +112,7 @@
       </div>
       <div class="ticker-wrap flex-1 overflow-hidden relative h-6 flex items-center">
         <div id="newsTickerText" class="ticker-text text-xs text-slate-300 font-medium tracking-wide">
-          【お知らせ】ネオンタイプ Ver.2.3 稼働開始！クラウドデータベース接続が強化され、リアルタイムランキング・対人戦が完全同期します。
+          【お知らせ】ネオンタイプ (neontype-a4bd6) クラウドデータベース接続完了！オンライン対戦・ランキング完全同期稼働中。
         </div>
       </div>
       <div id="connectionStatusBadge" class="flex items-center gap-1.5 shrink-0 text-[10px] font-mono-code text-cyan-400 tracking-wider">
@@ -129,7 +129,7 @@
     <section id="viewTitle" class="w-full max-w-3xl mx-auto text-center py-14 sm:py-24 flex flex-col items-center justify-center">
       <!-- 隠しギミックトリガー：5回連続クリックで管理者認証 -->
       <div id="secretVersionTrigger" class="mb-5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/90 border border-cyan-400/25 text-cyan-300/90 text-[11px] font-mono-code tracking-[0.22em] select-none cursor-default">
-        <span>SYSTEM READY // VER 2.3</span>
+        <span>SYSTEM READY // VER 2.4 (neontype-a4bd6)</span>
       </div>
 
       <!-- 文字塗りつぶし無しのネオンアウトラインタイトル -->
@@ -250,7 +250,7 @@
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-fuchsia-400 font-bold">•</span>
-                <span><strong class="text-white">ゆらぎ対応:</strong> 「ん」の単一 <code class="text-cyan-300">n</code> や「ぉ」の <code class="text-cyan-300">lo</code> / <code class="text-cyan-300">xo</code> 等全パターン対応。</span>
+                <span><strong class="text-white">称号・レート:</strong> 称号コレクションやランクマッチで上位を目指そう。</span>
               </li>
             </ul>
           </div>
@@ -800,36 +800,33 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'neon-type-default';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'neontype-a4bd6';
     
-    // 安全なFirebase設定フォールバック（環境変数が渡されない場合でもパブリッククラウドストアに直結）
-    let firebaseConfig = null;
-    try {
-      if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-        firebaseConfig = JSON.parse(__firebase_config);
-      }
-    } catch (e) {}
-
-    if (!firebaseConfig || !firebaseConfig.apiKey) {
-      firebaseConfig = {
-        projectId: "neontype-cloud",
-        appId: "1:100000000000:web:default",
-        apiKey: "AIzaSyDefaultPublicCloudFallbackKeyForNeonTypeApp2026",
-        authDomain: "neontype-cloud.firebaseapp.com",
-        firestoreURL: "https://firestore.googleapis.com"
-      };
-    }
+    // ご提示いただいたFirebase設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOV4Y_3yTUDxY1Crk3FCvINi74OeSV0ho",
+      authDomain: "neontype-a4bd6.firebaseapp.com",
+      databaseURL: "https://neontype-a4bd6-default-rtdb.firebaseio.com",
+      projectId: "neontype-a4bd6",
+      storageBucket: "neontype-a4bd6.firebasestorage.app",
+      messagingSenderId: "154565298401",
+      appId: "1:154565298401:web:caaa8de1ef1b890a66cfa0",
+      measurementId: "G-BN15PN41MC"
+    };
 
     let app = null;
     let auth = null;
     let db = null;
+    let analytics = null;
     let currentUser = null;
 
     try {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
+      try { analytics = getAnalytics(app); } catch (e) {}
       document.getElementById('syncDot').className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
       document.getElementById('syncText').textContent = 'ONLINE SYNC ACTIVE';
     } catch (err) {
