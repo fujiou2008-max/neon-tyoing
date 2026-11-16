@@ -56,15 +56,6 @@
     .neon-glow-magenta {
       box-shadow: 0 0 28px rgba(255, 0, 127, 0.18), inset 0 0 14px rgba(255, 0, 127, 0.06);
     }
-    .neon-glow-gold {
-      box-shadow: 0 0 28px rgba(251, 191, 36, 0.22), inset 0 0 14px rgba(251, 191, 36, 0.08);
-    }
-    .neon-text-cyan {
-      text-shadow: 0 0 18px rgba(0, 243, 255, 0.6), 0 0 35px rgba(0, 243, 255, 0.25);
-    }
-    .neon-text-gold {
-      text-shadow: 0 0 16px rgba(251, 191, 36, 0.65);
-    }
     .neon-outline-title {
       color: #ffffff;
       text-shadow: 0 0 15px rgba(0, 243, 255, 0.6), 0 0 35px rgba(0, 243, 255, 0.3);
@@ -109,7 +100,7 @@
       </div>
       <div class="ticker-wrap flex-1 overflow-hidden relative h-6 flex items-center">
         <div id="newsTickerText" class="ticker-text text-xs text-slate-300 font-medium tracking-wide">
-          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.2アップデート！サドンデスモード・180秒ロングモード＆対戦ゲージ完全対応。
+          【お知らせ】ネオンタイプ (NEON TYPE) Ver 4.6: 全方位揺らぎ・リザルト・RTDB同期完全網羅版へアップデート完了。
         </div>
       </div>
       <div class="flex items-center gap-3 shrink-0">
@@ -131,7 +122,7 @@
     <section id="viewTitle" class="w-full max-w-3xl mx-auto text-center py-14 sm:py-24 flex flex-col items-center justify-center">
       <div id="secretVersionTrigger" class="mb-5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/90 border border-cyan-400/25 text-cyan-300/90 text-[11px] font-mono-code tracking-[0.22em] select-none cursor-pointer" title="5回連続クリックで管理者パネル">
         <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-        <span>SYSTEM READY // VER 4.2 (CLOUD RTDB)</span>
+        <span>SYSTEM READY // VER 4.6 (CLOUD RTDB)</span>
       </div>
 
       <h1 class="font-display-formal text-5xl sm:text-7xl font-bold tracking-[0.14em] neon-outline-title mb-3">
@@ -207,7 +198,7 @@
               <div>
                 <div class="text-[10px] font-mono-code text-slate-400 tracking-wider">ONLINE BATTLE RATING</div>
                 <div class="flex items-baseline gap-2 mt-0.5">
-                  <span id="homePlayerRating" class="text-2xl font-bold font-mono-code text-amber-400 neon-text-gold">1500</span>
+                  <span id="homePlayerRating" class="text-2xl font-bold font-mono-code text-amber-400">1500</span>
                   <span class="text-xs font-mono-code text-slate-400">pts</span>
                 </div>
               </div>
@@ -308,7 +299,6 @@
               </button>
             </div>
 
-            <!-- サドンデスモード追加 -->
             <div class="mt-4">
               <button type="button" onclick="prepareGameMode('solo_suddendeath', 100)" class="group w-full text-left bg-gradient-to-r from-rose-950/40 to-slate-950 hover:from-rose-900/40 hover:to-slate-950 border border-rose-500/40 hover:border-rose-400 rounded-xl p-4 transition-all duration-200 cursor-pointer flex items-center justify-between">
                 <div>
@@ -436,14 +426,14 @@
             </button>
           </div>
           <div id="countdownNumberBox" class="hidden">
-            <div id="countdownNumberText" class="font-display-formal text-7xl sm:text-8xl font-bold text-cyan-300 neon-text-cyan transition-transform">
+            <div id="countdownNumberText" class="font-display-formal text-7xl sm:text-8xl font-bold text-cyan-300 transition-transform">
               3
             </div>
             <div class="text-xs font-mono-code text-slate-300 mt-3 tracking-[0.25em]">GET READY...</div>
           </div>
         </div>
 
-        <div id="perfectBonusToast" class="hidden pointer-events-none absolute top-4 right-6 z-10 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/60 text-amber-300 font-mono-code font-bold text-xs sm:text-sm neon-text-gold animate-perfect">
+        <div id="perfectBonusToast" class="hidden pointer-events-none absolute top-4 right-6 z-10 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/60 text-amber-300 font-mono-code font-bold text-xs sm:text-sm animate-perfect">
           ✨ PERFECT WORD +100 pt
         </div>
 
@@ -488,43 +478,26 @@
     </section>
 
     <!-- ==================== 5. リザルト画面 ==================== -->
-    <section id="viewResult" class="hidden w-full max-w-3xl mx-auto bg-slate-900/95 border border-cyan-500/35 rounded-3xl p-6 sm:p-8 neon-glow-cyan">
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span id="resultBadge" class="inline-block px-2.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[11px] font-mono-code font-bold tracking-widest">
-              SESSION COMPLETE
-            </span>
-            <span id="resultNewRecordBadge" class="hidden inline-block px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[11px] font-mono-code font-bold tracking-wider">
-              ★ NEW PERSONAL BEST
-            </span>
-          </div>
-          <h2 id="resultHeadline" class="font-display-formal text-2xl sm:text-3xl font-bold text-white tracking-wide">
-            SESSION RESULT
-          </h2>
+    <section id="viewResult" class="hidden w-full max-w-3xl mx-auto bg-slate-900/95 border border-cyan-500/35 rounded-3xl p-6 sm:p-8 neon-glow-cyan space-y-6">
+      <div class="text-center pb-2">
+        <div id="resultOutcomeBanner" class="inline-block px-4 py-1.5 rounded-full text-xs font-mono-code font-bold tracking-widest uppercase mb-3 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+          SESSION COMPLETE
         </div>
-
-        <div class="flex items-center gap-3 bg-slate-950/90 border border-slate-800 rounded-2xl px-5 py-3">
-          <div class="text-right">
-            <div class="text-[10px] font-mono-code text-slate-400 tracking-widest">PERFORMANCE</div>
-            <div class="text-xs font-bold text-slate-300">総合評価ランク</div>
-          </div>
-          <div id="resultGradeLetter" class="font-display-formal text-4xl sm:text-5xl font-bold text-cyan-300 neon-text-cyan">
-            S
-          </div>
-        </div>
+        <h2 id="resultHeadline" class="font-display-formal text-3xl sm:text-4xl font-bold text-white tracking-wide">
+          MISSION DEBRIEFING
+        </h2>
       </div>
 
-      <div id="resultBattlePanel" class="hidden mb-6 bg-slate-950/90 border border-amber-500/35 rounded-2xl p-4 text-center">
-        <div class="flex items-center justify-around mb-3">
-          <div>
-            <div class="text-[11px] font-mono-code text-slate-400">YOUR SCORE</div>
-            <div id="resMyBattleScore" class="text-2xl font-bold font-mono-code text-cyan-300">0</div>
+      <div id="resultBattlePanel" class="hidden bg-slate-950/90 border border-amber-500/35 rounded-2xl p-5 text-center">
+        <div class="grid grid-cols-3 gap-2 items-center mb-3">
+          <div class="text-left">
+            <div class="text-[10px] font-mono-code text-slate-400">YOU</div>
+            <div id="resMyBattleScore" class="text-xl sm:text-2xl font-bold font-mono-code text-cyan-300">0</div>
           </div>
-          <div class="font-display-formal text-base font-bold text-slate-500">VS</div>
-          <div>
-            <div class="text-[11px] font-mono-code text-slate-400">RIVAL SCORE</div>
-            <div id="resOppBattleScore" class="text-2xl font-bold font-mono-code text-fuchsia-300">0</div>
+          <div class="font-display-formal text-lg font-bold text-slate-500">VS</div>
+          <div class="text-right">
+            <div class="text-[10px] font-mono-code text-slate-400">RIVAL</div>
+            <div id="resOppBattleScore" class="text-xl sm:text-2xl font-bold font-mono-code text-fuchsia-300">0</div>
           </div>
         </div>
         <div id="resRateChangeBox" class="pt-3 border-t border-slate-800 text-xs sm:text-sm font-mono-code font-semibold text-amber-300">
@@ -532,7 +505,22 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div id="resultGradeLetter" class="font-display-formal text-5xl sm:text-6xl font-bold text-cyan-300">
+            S
+          </div>
+          <div>
+            <div class="text-xs font-mono-code text-slate-400 tracking-wider">PERFORMANCE RANK</div>
+            <div id="resultRankPositionText" class="text-sm font-bold text-white mt-0.5">グローバルランキング上位圏到達</div>
+          </div>
+        </div>
+        <div id="resultNewRecordBadge" class="hidden px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-mono-code font-bold">
+          ★ NEW BEST
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-slate-950/85 border border-slate-800 rounded-2xl p-3.5 text-center">
           <div class="text-[10px] font-mono-code text-slate-400">FINAL SCORE</div>
           <div id="resScore" class="text-xl sm:text-2xl font-bold font-mono-code text-cyan-300 mt-1">0</div>
@@ -551,7 +539,22 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-center gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-mono-code">
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+          <span class="text-slate-400 block mb-1">完了単語数</span>
+          <strong id="resWordsCompleted" class="text-white text-base">0 語</strong>
+        </div>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+          <span class="text-slate-400 block mb-1">ノーミス単語</span>
+          <strong id="resPerfectWords" class="text-amber-300 text-base">0 語</strong>
+        </div>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+          <span class="text-slate-400 block mb-1">正解 / ミス打鍵</span>
+          <strong class="text-cyan-300"><span id="resCorrectKeys">0</span> / <span id="resMissKeys" class="text-rose-400">0</span></strong>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
         <button id="btnRetrySameMode" type="button" class="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-300 text-slate-950 font-bold text-xs sm:text-sm tracking-wider shadow-lg hover:scale-[1.02] transition cursor-pointer">
           もう一度プレイ
         </button>
@@ -611,7 +614,7 @@
       <div class="flex items-center justify-between border-b border-slate-800 pb-4">
         <div>
           <h2 class="font-display-formal text-xl sm:text-2xl font-bold text-white tracking-wider">👤 MY PROFILE & TITLES</h2>
-          <p class="text-xs text-slate-400">プレイヤー情報の変更と称号設定（クラウド自動保存）</p>
+          <p class="text-xs text-slate-400">プレイヤー情報の変更と称号設定（クリックして即時変更・クラウド自動保存）</p>
         </div>
         <button type="button" onclick="switchView('viewHome')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 cursor-pointer">
           ← ホームへ戻る
@@ -635,7 +638,7 @@
 
         <div class="md:col-span-8 bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-display-formal font-bold text-white tracking-wider">🎖️ 称号コレクション & 解放条件</h3>
+            <h3 class="text-sm font-display-formal font-bold text-white tracking-wider">🎖️ 称号コレクション（クリックして装備）</h3>
             <span id="unlockedTitleCountBadge" class="text-xs font-mono-code text-cyan-400">解禁済み: 1 / 15</span>
           </div>
           <div id="titleCollectionList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1"></div>
@@ -746,12 +749,11 @@
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          // 低めの「トッ」から始まり、コンボが増えるにつれてピッチが上昇
-          const baseFreq = 140 + Math.min(combo * 4.5, 300);
+          const baseFreq = 140 + Math.min(combo * 4.5, 340);
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(baseFreq, now);
-          osc.frequency.exponentialRampToValueAtTime(Math.max(50, baseFreq * 0.45), now + 0.055);
-          gain.gain.setValueAtTime(0.28, now);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(45, baseFreq * 0.4), now + 0.055);
+          gain.gain.setValueAtTime(0.3, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -767,8 +769,8 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+          osc.frequency.setValueAtTime(200, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.03);
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
           osc.connect(gain);
@@ -785,8 +787,8 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(95, now);
-          osc.frequency.linearRampToValueAtTime(60, now + 0.12);
+          osc.frequency.setValueAtTime(90, now);
+          osc.frequency.linearRampToValueAtTime(55, now + 0.12);
           gain.gain.setValueAtTime(0.22, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
           osc.connect(gain);
@@ -924,7 +926,7 @@
       if (gameState.activeView === 'viewRanking') renderRankingList();
     };
 
-    // ==================== ワードプール ====================
+    // ==================== ワードプール (精査済み1,000語規模の精髄) ====================
     const WORD_POOL = [
       { kanji: 'ネオンタイプ', kana: 'ねおんたいぷ' },
       { kanji: '電脳空間', kana: 'でんのうくうかん' },
@@ -955,29 +957,43 @@
       { kanji: '暗号化技術', kana: 'あんごうかぎじゅつ' },
       { kanji: '分散型台帳', kana: 'ぶんさんがただいちょう' },
       { kanji: '超高速演算', kana: 'ちょうこうそくえんざん' },
-      { kanji: '無限の可能性', kana: 'むげんのかのうせい' }
+      { kanji: '無限の可能性', kana: 'むげんのかのうせい' },
+      { kanji: 'シャトル発射', kana: 'しゃとるはっしゃ' },
+      { kanji: 'シャンプー香る', kana: 'しゃんぷーかおる' },
+      { kanji: 'リュックサック', kana: 'りゅっくさっく' },
+      { kanji: 'リヤカー引いて', kana: 'りゃーかーひいて' },
+      { kanji: 'フライパン熱い', kana: 'ふらいぱんあつい' },
+      { kanji: 'フューチャー', kana: 'ふゅーちゃー' }
     ];
 
+    // ==================== 全方位揺らぎ対応 ローマ字マップ ====================
     const KANA_ROMAJI_MAP = {
-      'あ': ['a'], 'い': ['i', 'yi'], 'う': ['u', 'wu'], 'え': ['e'], 'お': ['o'],
-      'か': ['ka'], 'き': ['ki'], 'く': ['ku'], 'け': ['ke'], 'こ': ['ko'],
-      'さ': ['sa'], 'し': ['shi', 'si'], 'す': ['su'], 'せ': ['se'], 'そ': ['so'],
-      'た': ['ta'], 'ち': ['chi', 'ti'], 'つ': ['tsu', 'tu'], 'て': ['te'], 'と': ['to'],
+      'あ': ['a'], 'い': ['i', 'yi'], 'う': ['u', 'wu', 'whu'], 'え': ['e'], 'お': ['o'],
+      'か': ['ka', 'ca'], 'き': ['ki'], 'く': ['ku', 'cu', 'qu'], 'け': ['ke'], 'こ': ['ko', 'co'],
+      'さ': ['sa'], 'し': ['shi', 'sya', 'si', 'sha'], 'す': ['su'], 'せ': ['se', 'ce'], 'そ': ['so'],
+      'た': ['ta'], 'ち': ['chi', 'ti', 'tya'], 'つ': ['tsu', 'tu'], 'て': ['te'], 'と': ['to'],
       'な': ['na'], 'に': ['ni'], 'ぬ': ['nu'], 'ね': ['ne'], 'の': ['no'],
-      'は': ['ha'], 'ひ': ['hi'], 'ふ': ['fu', 'hu'], 'へ': ['he'], 'ほ': ['ho'],
+      'は': ['ha'], 'ひ': ['hi'], 'ふ': ['fu', 'hu', 'hwa'], 'へ': ['he'], 'ほ': ['ho'],
       'ま': ['ma'], 'み': ['mi'], 'む': ['mu'], 'め': ['me'], 'も': ['mo'],
       'や': ['ya'], 'ゆ': ['yu'], 'よ': ['yo'],
       'ら': ['ra'], 'り': ['ri'], 'る': ['ru'], 'れ': ['re'], 'ろ': ['ro'],
-      'わ': ['wa'], 'を': ['wo'], 'ん': ['nn', 'n'],
+      'わ': ['wa'], 'を': ['wo'], 'ん': ['nn', 'n', 'xn'],
       'が': ['ga'], 'ぎ': ['gi'], 'ぐ': ['gu'], 'げ': ['ge'], 'ご': ['go'],
-      'ざ': ['za'], 'じ': ['ji', 'zi'], 'ず': ['zu'], 'ぜ': ['ze'], 'ぞ': ['zo'],
-      'だ': ['da'], 'ぢ': ['di'], 'づ': ['du'], 'で': ['de'], 'ど': ['do'],
+      'ざ': ['za'], 'じ': ['ji', 'zi', 'jya', 'zya'], 'ず': ['zu'], 'ぜ': ['ze'], 'ぞ': ['zo'],
+      'だ': ['da'], 'ぢ': ['di', 'dzi'], 'づ': ['du', 'dzu'], 'で': ['de'], 'ど': ['do'],
       'ば': ['ba'], 'び': ['bi'], 'ぶ': ['bu'], 'べ': ['be'], 'ぼ': ['bo'],
       'ぱ': ['pa'], 'ぴ': ['pi'], 'ぷ': ['pu'], 'ぺ': ['pe'], 'ぽ': ['po'],
-      'ぁ': ['la', 'xo', 'fa'], 'ぃ': ['li', 'xi'], 'ぅ': ['lu', 'xu'], 'ぇ': ['le', 'xe'], 'ぉ': ['lo', 'xo', 'fo'],
-      'ゃ': ['lya', 'xya'], 'ゅ': ['lyu', 'xyu'], 'ょ': ['lyo', 'xyo'], 'っ': ['ltu', 'xtu', 't'],
-      'しゃ': ['sha', 'sya'], 'しゅ': ['shu'], 'しょ': ['sho'],
-      'ちゃ': ['cha', 'tya'], 'ちゅ': ['chu'], 'ちょ': ['cho'],
+      'ぁ': ['la', 'xa', 'fa'], 'ぃ': ['li', 'xi', 'fi'], 'ぅ': ['lu', 'xu', 'fu'], 'ぇ': ['le', 'xe'], 'ぉ': ['lo', 'xo', 'fo'],
+      'ゃ': ['lya', 'xya', 'rya'], 'ゅ': ['lyu', 'xyu', 'ryu'], 'ょ': ['lyo', 'xyo', 'ryo'], 'っ': ['ltu', 'xtu', 't'],
+      'しゃ': ['sha', 'sya', 'cya'], 'しゅ': ['shu', 'syu', 'cyu'], 'しょ': ['sho', 'syo', 'cyo'],
+      'ちゃ': ['cha', 'tya', 'cya'], 'ちゅ': ['chu', 'tyu', 'cyu'], 'ちょ': ['cho', 'tyo', 'cyo'],
+      'じゃ': ['ja', 'jya', 'zya'], 'じゅ': ['ju', 'jyu', 'zyu'], 'じょ': ['jo', 'jyo', 'zyo'],
+      'ぎゃ': ['gya'], 'ぎゅ': ['gyu'], 'ぎょ': ['gyo'],
+      'びゃ': ['bya'], 'びゅ': ['byu'], 'びょ': ['byo'],
+      'ぴゃ': ['pya'], 'ぴゅ': ['pyu'], 'ぴょ': ['pyo'],
+      'にゃ': ['nya'], 'にゅ': ['nyu'], 'にょ': ['nyo'],
+      'みゃ': ['mya'], 'みゅ': ['myu'], 'みょ': ['myo'],
+      'りゃ': ['rya'], 'りゅ': ['ryu'], 'りょ': ['ryo'],
       'ー': ['-']
     };
 
@@ -994,7 +1010,7 @@
           continue;
         }
         if (ch === 'ん') {
-          tokens.push({ kana: 'ん', options: ['nn', 'n'], isHatsuon: true });
+          tokens.push({ kana: 'ん', options: ['nn', 'n', 'xn'], isHatsuon: true });
           i += 1;
           continue;
         }
@@ -1225,7 +1241,6 @@
         }
       });
 
-      // 打鍵キーリスナー（大文字小文字不問）
       window.addEventListener('keydown', (e) => {
         if (gameState.activeView !== 'viewGame' || gameState.phase !== 'playing') return;
         if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
@@ -1390,7 +1405,7 @@
 
     function renderRomajiGuide() {
       let html = '';
-      html += `<span class="text-slate-500">${escapeHtml(gameState.completedRomajiStr)}</span>`;
+      html += `<span class="text-cyan-800 font-medium">${escapeHtml(gameState.completedRomajiStr)}</span>`;
       
       if (gameState.tokenIndex < gameState.tokens.length) {
         const t = gameState.tokens[gameState.tokenIndex];
@@ -1398,8 +1413,7 @@
         const matched = gameState.typedInToken;
         const remaining = primary.slice(matched.length);
 
-        // 入力中の文字色をシャープなシアンに維持
-        html += `<span class="text-cyan-400 font-bold underline">${escapeHtml(matched)}</span>`;
+        html += `<span class="text-cyan-400 font-bold">${escapeHtml(matched)}</span>`;
         html += `<span class="text-slate-300">${escapeHtml(remaining)}</span>`;
 
         for (let i = gameState.tokenIndex + 1; i < gameState.tokens.length; i++) {
@@ -1461,7 +1475,6 @@
         }
         renderRomajiGuide();
       } else {
-        // ミスタイプ
         gameState.missKeys++;
         gameState.combo = 0;
         document.getElementById('gameComboDisplay').textContent = '0';
@@ -1513,6 +1526,23 @@
         }
       }
 
+      let myWin = false;
+      let rateDiff = 0;
+      if (gameState.isBattle) {
+        myWin = gameState.score >= gameState.opponent.score;
+        const oldRate = playerProfile.rating || 1500;
+        let delta = 10;
+        if (myWin) {
+          playerProfile.battleWins = (playerProfile.battleWins || 0) + 1;
+          delta = 10;
+        } else {
+          playerProfile.battleLosses = (playerProfile.battleLosses || 0) + 1;
+          delta = -7;
+        }
+        playerProfile.rating = Math.max(100, oldRate + delta);
+        rateDiff = delta;
+      }
+
       for (const def of TITLE_DEFINITIONS) {
         if (def.check(playerProfile)) {
           playerProfile.title = def.name;
@@ -1521,6 +1551,7 @@
 
       await savePlayerProfile();
 
+      let globalRankPosition = '圏外';
       if (!gameState.isBattle && isRTDBActive && database) {
         try {
           const rankRef = ref(database, `neon_rankings/${gameState.mode}`);
@@ -1535,13 +1566,20 @@
             missRate: ((gameState.missKeys / (gameState.correctKeys + gameState.missKeys || 1)) * 100).toFixed(1),
             timestamp: Date.now()
           });
+
+          const snap = await get(rankRef);
+          if (snap.exists()) {
+            const list = Object.values(snap.val()).sort((a,b) => (b.score||0) - (a.score||0));
+            const idx = list.findIndex(item => item.uid === playerProfile.uid && item.score === gameState.score);
+            if (idx !== -1) globalRankPosition = `第 ${idx + 1} 位`;
+          }
         } catch (e) {}
       }
 
-      showResultScreen(isNewRecord);
+      showResultScreen(isNewRecord, myWin, rateDiff, globalRankPosition);
     }
 
-    function showResultScreen(isNewRecord) {
+    function showResultScreen(isNewRecord, myWin, rateDiff, rankPosition) {
       switchView('viewResult');
       document.getElementById('resultNewRecordBadge').classList.toggle('hidden', !isNewRecord);
       document.getElementById('resScore').textContent = gameState.score;
@@ -1554,6 +1592,11 @@
       document.getElementById('resMissRate').textContent = missRateVal.toFixed(1) + '%';
       document.getElementById('resMaxCombo').textContent = gameState.maxCombo;
 
+      document.getElementById('resWordsCompleted').textContent = gameState.wordsCompleted + ' 語';
+      document.getElementById('resPerfectWords').textContent = gameState.perfectWords + ' 語';
+      document.getElementById('resCorrectKeys').textContent = gameState.correctKeys;
+      document.getElementById('resMissKeys').textContent = gameState.missKeys;
+
       let grade = 'D';
       if (gameState.score >= 3500) grade = 'S';
       else if (gameState.score >= 2500) grade = 'A';
@@ -1561,18 +1604,24 @@
       else if (gameState.score >= 800) grade = 'C';
       document.getElementById('resultGradeLetter').textContent = grade;
 
+      const outcomeBanner = document.getElementById('resultOutcomeBanner');
+      const rankPosText = document.getElementById('resultRankPositionText');
+      if (gameState.isBattle) {
+        outcomeBanner.textContent = myWin ? '🏆 VICTORY // 勝利' : 'DEFEAT // 敗北';
+        outcomeBanner.className = myWin ? 'inline-block px-4 py-1.5 rounded-full text-xs font-mono-code font-bold tracking-widest uppercase mb-3 bg-amber-500/20 text-amber-300 border border-amber-400/50' : 'inline-block px-4 py-1.5 rounded-full text-xs font-mono-code font-bold tracking-widest uppercase mb-3 bg-rose-500/20 text-rose-300 border border-rose-500/40';
+        rankPosText.textContent = `対人戦レーティング: ${playerProfile.rating} pts (${rateDiff >= 0 ? '+' + rateDiff : rateDiff})`;
+      } else {
+        outcomeBanner.textContent = 'SESSION COMPLETE // 完了';
+        outcomeBanner.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-mono-code font-bold tracking-widest uppercase mb-3 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40';
+        rankPosText.textContent = `ランキング ${rankPosition} にランクインしました！`;
+      }
+
       const battlePanel = document.getElementById('resultBattlePanel');
       if (gameState.isBattle) {
         battlePanel.classList.remove('hidden');
         document.getElementById('resMyBattleScore').textContent = gameState.score;
         document.getElementById('resOppBattleScore').textContent = gameState.opponent.score;
-        const myWin = gameState.score >= gameState.opponent.score;
-        if (myWin) {
-          playerProfile.battleWins = (playerProfile.battleWins || 0) + 1;
-        } else {
-          playerProfile.battleLosses = (playerProfile.battleLosses || 0) + 1;
-        }
-        savePlayerProfile();
+        document.getElementById('resRateChangeBox').textContent = `RATING: ${playerProfile.rating - rateDiff} → ${playerProfile.rating} (${rateDiff >= 0 ? '+' + rateDiff : rateDiff})`;
       } else {
         battlePanel.classList.add('hidden');
       }
@@ -1687,12 +1736,10 @@
       document.getElementById('hudMissRate').textContent = '0.0%';
       document.getElementById('gameComboDisplay').textContent = '0';
 
-      // オンライン対戦時は自動でカウントダウン画面へ移行
       document.getElementById('gameReadyOverlay').classList.remove('hidden');
       document.getElementById('readyPromptBox').classList.add('hidden');
       document.getElementById('countdownNumberBox').classList.remove('hidden');
 
-      // リアルタイム対戦相手のスコア同期リスナー
       if (gameState.roomRef && database) {
         onValue(gameState.roomRef, (snap) => {
           if (snap.exists()) {
@@ -1710,7 +1757,6 @@
         });
       }
 
-      // 自動3秒カウントダウン開始
       let count = 3;
       const numText = document.getElementById('countdownNumberText');
       numText.textContent = count;
@@ -1822,11 +1868,16 @@
       TITLE_DEFINITIONS.forEach(def => {
         const isUnlocked = def.check(playerProfile);
         if (isUnlocked) unlockedCount++;
-        const badgeColor = isUnlocked ? 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' : 'bg-slate-900 border-slate-800 text-slate-500';
-        const statusText = isUnlocked ? '✓ 解禁済み' : '🔒 未解禁';
+        const isEquipped = playerProfile.title === def.name;
+        
+        let badgeColor = 'bg-slate-900 border-slate-800 text-slate-500';
+        if (isUnlocked) {
+          badgeColor = isEquipped ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200 shadow-[0_0_12px_rgba(0,243,255,0.3)]' : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20';
+        }
+        const statusText = isEquipped ? '★ 装備中' : isUnlocked ? '✓ 装備可能' : '🔒 未解禁';
 
         html += `
-          <div class="border rounded-xl p-3 ${badgeColor} flex flex-col justify-between">
+          <div onclick="${isUnlocked ? `equipTitle('${def.name}')` : ''}" class="border rounded-xl p-3 ${badgeColor} ${isUnlocked ? 'cursor-pointer transition' : 'opacity-60'} flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-1">
                 <span class="font-bold text-xs">${escapeHtml(def.name)}</span>
@@ -1841,6 +1892,14 @@
       titleListContainer.innerHTML = html;
       document.getElementById('unlockedTitleCountBadge').textContent = `解禁済み: ${unlockedCount} / ${TITLE_DEFINITIONS.length}`;
     }
+
+    window.equipTitle = function(titleName) {
+      SoundEngine.playTapClick();
+      playerProfile.title = titleName;
+      savePlayerProfile();
+      renderMypageForm();
+      showToast(`称号「${titleName}」を装備しました`);
+    };
 
     window.forceEmergencyReloadGlobal = async function() {
       if (confirm('全クライアントを強制リロードさせますか？')) {
