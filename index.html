@@ -1,29 +1,30 @@
-```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NEONTYPE v1.0 | サイバーネオン・タイピングゲーム</title>
+  <title>NEONTYPE | Ranked Neon Typing Game</title>
+
   <!-- Tailwind CSS の読み込み -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts (Orbitron / JetBrains Mono / Noto Sans JP) -->
+
+  <!-- Google Fonts (ネオン・サイバー感のあるフォントと日本語フォント) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <style>
-    /* ============================================================================
-       カスタムCSS: NEONTYPE サイバーフォーマル・ネオンテーマ
-       ============================================================================ */
+    /* =========================================================================
+       カスタムCSS: ネオンエフェクト・アニメーション・テーマ設定
+       ========================================================================= */
     :root {
-      --bg-dark: #06080d;
-      --bg-panel: #0c101a;
-      --bg-card: #111726;
-      --cyan: #00f3ff;
-      --magenta: #ff007f;
-      --green: #00ff66;
-      --orange: #ff9900;
+      --bg-deep: #05070a;
+      --bg-panel: #0b0f19;
+      --neon-cyan: #00f3ff;
+      --neon-magenta: #ff007f;
+      --neon-green: #00ff88;
+      --neon-orange: #ff9900;
+      --neon-dim: #263145;
     }
 
     * {
@@ -32,348 +33,3516 @@
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--bg-deep);
       color: #e2e8f0;
       font-family: 'Noto Sans JP', sans-serif;
       overflow-x: hidden;
+      min-height: 100vh;
       background-image:
         radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.06) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 127, 0.05) 0%, transparent 45%),
-        linear-gradient(rgba(0, 243, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.025) 1px, transparent 1px);
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 127, 0.06) 0%, transparent 45%),
+        linear-gradient(rgba(0, 243, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.02) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
     }
 
     .font-orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
 
-    /* ネオングロー効果 */
-    .glow-cyan {
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3), inset 0 0 8px rgba(0, 243, 255, 0.15);
-    }
-    .glow-cyan-strong {
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.55), 0 0 50px rgba(0, 243, 255, 0.2);
-    }
-    .text-glow-cyan {
-      text-shadow: 0 0 12px rgba(0, 243, 255, 0.7), 0 0 28px rgba(0, 243, 255, 0.35);
-    }
-    .glow-magenta {
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.35), inset 0 0 8px rgba(255, 0, 127, 0.15);
-    }
-    .text-glow-magenta {
-      text-shadow: 0 0 12px rgba(255, 0, 127, 0.75);
-    }
-    .glow-green {
-      box-shadow: 0 0 15px rgba(0, 255, 102, 0.3), inset 0 0 8px rgba(0, 255, 102, 0.12);
-    }
-    .glow-orange {
-      box-shadow: 0 0 15px rgba(255, 153, 0, 0.35), inset 0 0 8px rgba(255, 153, 0, 0.12);
+    /* ネオンテキスト発光効果 */
+    .neon-text-cyan {
+      color: #ffffff;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 12px var(--neon-cyan),
+        0 0 24px var(--neon-cyan),
+        0 0 42px rgba(0, 243, 255, 0.7);
     }
 
-    /* 電光掲示板（ニュースティッカー）アニメーション */
-    @keyframes tickerScroll {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .ticker-content {
-      display: inline-block;
-      white-space: nowrap;
-      animation: tickerScroll 26s linear infinite;
-    }
-    .ticker-wrap:hover .ticker-content {
-      animation-play-state: paused;
+    .neon-text-magenta {
+      color: #ffffff;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 12px var(--neon-magenta),
+        0 0 24px var(--neon-magenta),
+        0 0 42px rgba(255, 0, 127, 0.7);
     }
 
-    /* ミスタイプ時の画面シェイク */
-    @keyframes shakeError {
+    /* タイピング画面：消灯したネオン管 と 点灯したシアンネオン管 */
+    .char-unlit {
+      color: #2c384f;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
+      transition: color 0.05s ease, text-shadow 0.05s ease;
+    }
+
+    .char-lit {
+      color: #e0ffff;
+      text-shadow:
+        0 0 4px #ffffff,
+        0 0 10px #00f3ff,
+        0 0 20px #00f3ff,
+        0 0 32px rgba(0, 243, 255, 0.85);
+    }
+
+    .char-cursor {
+      border-bottom: 3px solid var(--neon-cyan);
+      box-shadow: 0 4px 10px -2px var(--neon-cyan);
+    }
+
+    /* ミスタイプ時の画面フラッシュアニメーション */
+    @keyframes mistypeShake {
       0%, 100% { transform: translateX(0); }
       20% { transform: translateX(-6px); }
       40% { transform: translateX(6px); }
       60% { transform: translateX(-4px); }
       80% { transform: translateX(4px); }
     }
-    .animate-shake {
-      animation: shakeError 0.22s ease-in-out;
+    .shake-error {
+      animation: mistypeShake 0.22s ease-in-out;
+      border-color: var(--neon-magenta) !important;
+      box-shadow: 0 0 24px rgba(255, 0, 127, 0.45) !important;
     }
 
-    /* 称号レアリティ別カラー（レア度記号はUIに出さず色のみで表現） */
-    .rarity-R   { color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.3); }
-    .rarity-RR  { color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,0.5); }
-    .rarity-RRR { color: #c084fc; text-shadow: 0 0 10px rgba(192,132,252,0.6); }
-    .rarity-SR  { color: #fb923c; text-shadow: 0 0 10px rgba(251,146,60,0.65); }
-    .rarity-UR  { color: #facc15; text-shadow: 0 0 12px rgba(250,204,21,0.8); }
-    .rarity-GR  { color: #f43f5e; text-shadow: 0 0 14px rgba(244,63,94,0.9); }
-    .rarity-S   { color: #cbd5e1; text-shadow: 0 0 10px rgba(203,213,225,0.75); }
+    /* ネオン枠線パネル */
+    .neon-panel {
+      background: rgba(11, 15, 25, 0.92);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.06), inset 0 0 15px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    /* モードボタンのカラー設定（指定通り：ソロ60/120/180はシアン、サドンデスはマゼンタ、カジュアルは緑、レートはオレンジ） */
+    .btn-cyan {
+      background: linear-gradient(135deg, rgba(0, 243, 255, 0.14), rgba(0, 120, 180, 0.22));
+      border: 1.5px solid #00f3ff;
+      color: #e0ffff;
+      box-shadow: 0 0 14px rgba(0, 243, 255, 0.25), inset 0 0 10px rgba(0, 243, 255, 0.12);
+      transition: all 0.18s ease;
+    }
+    .btn-cyan:hover, .btn-cyan:active {
+      background: rgba(0, 243, 255, 0.28);
+      box-shadow: 0 0 24px rgba(0, 243, 255, 0.65), inset 0 0 14px rgba(0, 243, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-magenta {
+      background: linear-gradient(135deg, rgba(255, 0, 127, 0.16), rgba(160, 0, 80, 0.24));
+      border: 1.5px solid #ff007f;
+      color: #ffe4f2;
+      box-shadow: 0 0 14px rgba(255, 0, 127, 0.28), inset 0 0 10px rgba(255, 0, 127, 0.15);
+      transition: all 0.18s ease;
+    }
+    .btn-magenta:hover, .btn-magenta:active {
+      background: rgba(255, 0, 127, 0.3);
+      box-shadow: 0 0 24px rgba(255, 0, 127, 0.65), inset 0 0 14px rgba(255, 0, 127, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.14), rgba(0, 150, 80, 0.22));
+      border: 1.5px solid #00ff88;
+      color: #e2fff0;
+      box-shadow: 0 0 14px rgba(0, 255, 136, 0.25), inset 0 0 10px rgba(0, 255, 136, 0.12);
+      transition: all 0.18s ease;
+    }
+    .btn-green:hover, .btn-green:active {
+      background: rgba(0, 255, 136, 0.28);
+      box-shadow: 0 0 24px rgba(0, 255, 136, 0.65), inset 0 0 14px rgba(0, 255, 136, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, rgba(255, 153, 0, 0.16), rgba(180, 90, 0, 0.24));
+      border: 1.5px solid #ff9900;
+      color: #fff3e0;
+      box-shadow: 0 0 14px rgba(255, 153, 0, 0.28), inset 0 0 10px rgba(255, 153, 0, 0.14);
+      transition: all 0.18s ease;
+    }
+    .btn-orange:hover, .btn-orange:active {
+      background: rgba(255, 153, 0, 0.3);
+      box-shadow: 0 0 24px rgba(255, 153, 0, 0.65), inset 0 0 14px rgba(255, 153, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* 電光掲示板（ニュースティッカー）のスクロールアニメーション */
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      background: rgba(4, 8, 16, 0.95);
+      border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+      white-space: nowrap;
+    }
+    .ticker-move {
+      display: inline-block;
+      padding-left: 100%;
+      animation: tickerScroll 24s linear infinite;
+    }
+    .ticker-wrap:hover .ticker-move {
+      animation-play-state: paused;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    /* 称号レア度別の色設定（記号そのものは非表示・色分けのみに使用） */
+    .rarity-R   { color: #ffffff; text-shadow: 0 0 6px rgba(255, 255, 255, 0.35); border-color: rgba(255, 255, 255, 0.35); }
+    .rarity-RR  { color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.55); border-color: rgba(56, 189, 248, 0.5); }
+    .rarity-RRR { color: #c084fc; text-shadow: 0 0 9px rgba(192, 132, 252, 0.65); border-color: rgba(192, 132, 252, 0.55); }
+    .rarity-SR  { color: #fb923c; text-shadow: 0 0 10px rgba(251, 146, 60, 0.7); border-color: rgba(251, 146, 60, 0.6); }
+    .rarity-UR  { color: #facc15; text-shadow: 0 0 12px rgba(250, 204, 21, 0.85); border-color: rgba(250, 204, 21, 0.75); }
+    .rarity-GR  { color: #f87171; text-shadow: 0 0 14px rgba(239, 68, 68, 0.9); border-color: rgba(239, 68, 68, 0.8); }
+    .rarity-S   {
+      color: #e2e8f0;
+      background: linear-gradient(90deg, #94a3b8, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 6px rgba(226, 232, 240, 0.7));
+      border-color: rgba(203, 213, 225, 0.7);
+    }
 
     /* カスタムスクロールバー */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #06080d; }
+    ::-webkit-scrollbar-track { background: #070a10; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #00f3ff; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body class="antialiased selection:bg-cyan-500 selection:text-black">
 
-  <!-- ============================================================================
-       通知トースト（alert()の代わりに使用する非ブロッキングメッセージボックス）
-       ============================================================================ -->
-  <div id="toast-container" class="fixed top-12 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-2"></div>
+  <!-- =========================================================================
+       通知トースト（称号アンロックやシステム通知用・alert()の代替）
+       ========================================================================= -->
+  <div id="toastContainer" class="fixed top-12 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-xs sm:max-w-sm"></div>
 
-  <!-- ============================================================================
-       画面1: スタート画面 (START SCREEN)
-       ============================================================================ -->
-  <section id="screen-start" class="min-h-screen flex flex-col items-center justify-center relative px-4 py-10">
-    <!-- 背景装飾リング -->
-    <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full border border-cyan-500/20 absolute animate-pulse pointer-events-none"></div>
-    <div class="w-56 h-56 sm:w-80 sm:h-80 rounded-full border border-fuchsia-500/15 absolute pointer-events-none"></div>
-
-    <div class="text-center z-10 max-w-xl w-full">
-      <p class="font-orbitron text-xs sm:text-sm tracking-[0.4em] text-cyan-400/80 mb-3 uppercase">
-        CYBERNETIC TYPING PROTOCOL
+  <!-- =========================================================================
+       BAN警告オーバーレイ（管理者にBANされたプレイヤーがオンライン等を使う際の制限）
+       ========================================================================= -->
+  <div id="banOverlay" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+    <div class="neon-panel border-red-500 rounded-2xl p-6 max-w-md w-full text-center space-y-4">
+      <div class="text-red-500 font-orbitron text-2xl font-black tracking-widest">ACCESS RESTRICTED</div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        あなたのアカウントは管理者により制限（BAN）されています。<br>
+        オンライン対戦およびランキングへの参加は制限されています。
       </p>
-      <h1 class="font-orbitron text-5xl sm:text-7xl font-black tracking-wider text-white text-glow-cyan mb-4">
-        NEON<span class="text-cyan-400">TYPE</span>
-      </h1>
-      <p class="text-slate-400 text-sm sm:text-base mb-10 leading-relaxed">
-        極限のスピードと正確性を競うリアルタイム・ネオンタイピング。<br class="hidden sm:inline">
-        PC・スマートフォン両対応 ／ 全国ランキング・オンライン対戦搭載
-      </p>
-
-      <!-- メインSTARTボタン -->
-      <button id="btn-start-game"
-        class="group relative inline-flex items-center justify-center px-12 py-4 font-orbitron font-extrabold text-lg sm:text-xl tracking-widest text-black bg-cyan-400 rounded-xl glow-cyan-strong hover:bg-cyan-300 active:scale-95 transition-all duration-200 cursor-pointer">
-        <span>START</span>
-        <svg class="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+      <button onclick="document.getElementById('banOverlay').classList.add('hidden')" class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm">
+        閉じる
       </button>
+    </div>
+  </div>
 
-      <!-- スタート画面の隠しコマンド入力ヒント（極小表示） -->
-      <div class="mt-8 flex justify-center">
-        <input id="start-secret-input" type="password" autocomplete="off" placeholder="••••••••"
-          class="bg-transparent border-b border-transparent focus:border-cyan-500/40 text-center text-xs text-slate-600 focus:text-cyan-300 outline-none w-32 transition-colors"
-          title="Hidden Terminal" />
+  <!-- =========================================================================
+       1. スタート画面 (Start Screen)
+       ========================================================================= -->
+  <section id="screen-start" class="relative min-h-screen flex flex-col items-center justify-center p-6 select-none">
+    <div class="text-center space-y-6 max-w-2xl w-full">
+      <div class="inline-block px-3 py-1 rounded-full border border-cyan-500/40 bg-cyan-950/30 text-cyan-300 text-xs font-mono-tech tracking-widest">
+        RANKED CYBER TYPING ARENA
+      </div>
+
+      <h1 class="font-orbitron text-5xl sm:text-7xl md:text-8xl font-black tracking-wider neon-text-cyan">
+        NEONTYPE
+      </h1>
+
+      <p class="text-slate-400 text-xs sm:text-sm tracking-widest">
+        暗闇のネオンをその指先で灯せ — リアルタイム対戦＆ランキング対応タイピング
+      </p>
+
+      <div class="pt-6">
+        <button id="btnStartGame" class="btn-cyan font-orbitron text-xl sm:text-2xl font-bold tracking-widest px-12 py-4 rounded-xl cursor-pointer">
+          START
+        </button>
       </div>
     </div>
 
-    <!-- 右下バージョン表示（5回連続タップ/クリックで隠し管理者認証モーダルも起動可能） -->
-    <button id="version-badge"
-      class="fixed bottom-4 right-5 font-mono-code text-xs text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer select-none">
-      Ver 1.0
-    </button>
+    <!-- 右下のバージョン表示（指定：ver1.0） -->
+    <div class="fixed bottom-4 right-5 font-mono-tech text-xs sm:text-sm text-cyan-400/80 tracking-widest">
+      ver1.0
+    </div>
   </section>
 
-  <!-- ============================================================================
-       画面2: メインアプリケーションシェル（ホーム・マイページ・称号・ランキング・ゲーム等）
-       ============================================================================ -->
+  <!-- =========================================================================
+       メインアプリシェル（ホーム・ゲーム・マイページ・ランキング等）
+       ========================================================================= -->
   <div id="app-shell" class="hidden min-h-screen flex flex-col">
 
-    <!-- 最上部: 電光掲示板（ニュースティッカー） -->
-    <div class="w-full bg-[#080c14] border-b border-cyan-500/30 py-1.5 px-3 flex items-center gap-3 overflow-hidden">
-      <span class="shrink-0 px-2 py-0.5 text-[10px] font-orbitron font-bold tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 rounded">
-        NEWS
-      </span>
-      <div class="ticker-wrap flex-1 overflow-hidden">
-        <div id="news-ticker-text" class="ticker-content text-xs sm:text-sm text-cyan-200 font-medium tracking-wide">
-          NEONTYPE Ver 1.0 正式リリース！ソロモードやオンライン対戦で頂点を目指そう！
-        </div>
-      </div>
-      <!-- 接続ステータス表示 -->
-      <div id="firebase-status-badge" class="shrink-0 flex items-center gap-1.5 text-[11px] font-mono-code text-emerald-400">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-        <span>ONLINE</span>
+    <!-- 上部電光掲示板（管理者がリアルタイム更新できる1行ニュース） -->
+    <div class="ticker-wrap py-1.5 text-xs sm:text-sm font-mono-tech text-cyan-300 flex items-center">
+      <div class="ticker-move" id="newsTickerText">
+        [SYSTEM] NEONTYPE ver1.0 へようこそ！ オンライン対戦・ソロランキング開催中！
       </div>
     </div>
 
-    <!-- 上部ナビゲーションバー（ホームの上の方にマイページ・称号リスト・ランキングを配置） -->
-    <header class="w-full bg-[#0a0e17]/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
-      <div class="max-w-6xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-        <!-- ロゴ（クリックでホームへ戻る） -->
-        <button onclick="navigateTo('home')" class="flex items-center gap-2 text-left cursor-pointer group">
-          <span class="font-orbitron text-xl sm:text-2xl font-black tracking-wider text-white group-hover:text-cyan-300 transition-colors">
-            NEON<span class="text-cyan-400">TYPE</span>
-          </span>
-          <span class="text-[10px] font-mono-code text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">v1.0</span>
+    <!-- ヘッダーナビゲーション -->
+    <header class="border-b border-slate-800/80 bg-[#070a12]/90 backdrop-blur sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+        <!-- ロゴ（クリックでホームへ） -->
+        <button onclick="navigateTo('home')" class="font-orbitron text-xl sm:text-2xl font-black tracking-wider text-cyan-400 hover:text-cyan-300 transition flex items-center gap-2">
+          <span>NEONTYPE</span>
+          <span id="connStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" title="サーバー接続状態"></span>
         </button>
 
-        <!-- 上部主要メニュー: マイページ / 称号リスト / ランキング / 要望DM / 音量 -->
-        <nav class="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
-          <button onclick="navigateTo('home')" data-nav="home"
-            class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-400/40 hover:bg-cyan-500/25 transition-all cursor-pointer">
-            ホーム
+        <!-- 右側メニュー：サウンド切替・ランキング・マイページ -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button id="btnToggleMute" onclick="toggleMute()" class="p-2.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 text-xs sm:text-sm transition" title="効果音 ON/OFF">
+            🔊 ON
           </button>
-          <button onclick="navigateTo('mypage')" data-nav="mypage"
-            class="nav-btn relative px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
-            マイページ
-            <!-- 管理者未読DM通知バッジ「！」 -->
-            <span id="admin-nav-alert" class="hidden absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow">!</span>
+
+          <button onclick="navigateTo('ranking')" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 text-xs sm:text-sm font-bold transition">
+            🏆 ランキング
           </button>
-          <button onclick="navigateTo('titles')" data-nav="titles"
-            class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
-            称号リスト
+
+          <button onclick="navigateTo('mypage')" class="relative flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 transition">
+            <img id="headerAvatar" src="" alt="avatar" class="w-7 h-7 rounded-full object-cover border border-cyan-400 bg-slate-800" />
+            <div class="text-left hidden sm:block">
+              <div id="headerUsername" class="text-xs font-bold text-white leading-tight max-w-[110px] truncate">Guest</div>
+              <div id="headerRate" class="text-[10px] font-mono-tech text-orange-400">RATE: 1500</div>
+            </div>
+            <!-- 管理者宛て未読DMがある場合の「！」バッジ -->
+            <span id="headerAdminAlert" class="hidden absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-600 text-white text-xs font-black flex items-center justify-center animate-bounce shadow-[0_0_10px_#ef4444]">!</span>
           </button>
-          <button onclick="navigateTo('ranking')" data-nav="ranking"
-            class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
-            ランキング
-          </button>
-          <button onclick="openDmModal()"
-            class="px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-fuchsia-300 border border-fuchsia-500/40 hover:bg-fuchsia-500/15 transition-all cursor-pointer">
-            要望DM
-          </button>
-          <button id="btn-toggle-sound" onclick="toggleSound()" title="効果音 ON/OFF"
-            class="p-2 rounded-lg bg-slate-900 border border-slate-700 text-cyan-400 hover:border-cyan-400 transition-all cursor-pointer">
-            🔊
-          </button>
-        </nav>
+        </div>
       </div>
     </header>
 
-    <!-- BAN警告バナー（BANされたプレイヤーのみ表示） -->
-    <div id="ban-banner" class="hidden bg-rose-950/90 border-b border-rose-500 text-rose-200 text-center py-2.5 px-4 text-xs sm:text-sm font-bold">
-      ⚠️ あなたのアカウントは管理者により制限（BAN）されています。オンライン対戦およびランキング登録は利用できません。
-    </div>
+    <!-- メインコンテンツ領域 -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
 
-    <!-- ============================================================================
-         メインコンテンツ領域
-         ============================================================================ -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-6">
+      <!-- =====================================================================
+           2. ホーム画面 (Home Screen)
+           ===================================================================== -->
+      <section id="screen-home" class="space-y-8">
 
-      <!-- --------------------------------------------------------------------------
-           ビューA: ホーム画面 (HOME)
-           -------------------------------------------------------------------------- -->
-      <div id="view-home" class="space-y-6">
         <!-- プレイヤー簡易ステータスバー -->
-        <div class="bg-[#0c101a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <img id="home-avatar" src="" alt="Avatar"
-              class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border-2 border-cyan-400/60 bg-slate-900" />
+        <div class="neon-panel rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <img id="homeAvatar" src="" alt="avatar" class="w-14 h-14 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_12px_rgba(0,243,255,0.4)] bg-slate-800" />
             <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="home-equipped-title" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-700 rarity-R">
-                  駆け出しタイパー
-                </span>
-                <span id="home-admin-tag" class="hidden text-[10px] font-orbitron font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/50">
-                  ADMIN
-                </span>
+              <div id="homeTitleBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded border mb-1 rarity-R">
+                駆け出しタイパー
               </div>
-              <h2 id="home-username" class="text-lg sm:text-xl font-bold text-white mt-1">Player</h2>
-              <p class="text-xs text-slate-400 font-mono-code mt-0.5">
-                RATE: <span id="home-rate" class="text-orange-400 font-bold">1500</span> ／
-                BEST WPM: <span id="home-best-wpm" class="text-cyan-400 font-bold">0.0</span> ／
-                PLAYS: <span id="home-plays" class="text-slate-200">0</span>
-              </p>
+              <div class="flex items-center gap-2">
+                <h2 id="homeUsername" class="text-lg sm:text-xl font-bold text-white">Guest</h2>
+                <span id="homeAdminTag" class="hidden text-[10px] px-1.5 py-0.5 rounded bg-red-950 border border-red-500 text-red-400 font-mono-tech">ADMIN</span>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onclick="navigateTo('mypage')"
-              class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition-all cursor-pointer">
-              プロフィール・アイコン編集
+          <div class="flex items-center gap-4 sm:gap-6 font-mono-tech">
+            <div class="text-center">
+              <div class="text-[11px] text-slate-400">RATING</div>
+              <div id="homeRate" class="text-xl sm:text-2xl font-bold text-orange-400">1500</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[11px] text-slate-400">MAX WPM</div>
+              <div id="homeMaxWpm" class="text-xl sm:text-2xl font-bold text-cyan-400">0</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[11px] text-slate-400">PLAYS</div>
+              <div id="homeTotalPlays" class="text-xl sm:text-2xl font-bold text-slate-200">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ソロモード選択（ボタン内にはゲーム名のみ記載・説明小文字なし） -->
+        <div class="space-y-3">
+          <h3 class="font-orbitron text-sm sm:text-base font-bold tracking-widest text-cyan-400 flex items-center gap-2">
+            <span class="w-2 h-2 bg-cyan-400 rounded-full"></span>
+            SOLO MODE
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 30秒：FRASH（シアン） -->
+            <button onclick="prepareSoloMode('FRASH')" class="btn-cyan font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-2xl cursor-pointer">
+              FRASH
+            </button>
+
+            <!-- 60秒：SPEED（シアン） -->
+            <button onclick="prepareSoloMode('SPEED')" class="btn-cyan font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-2xl cursor-pointer">
+              SPEED
+            </button>
+
+            <!-- 180秒：OVERDRIVE（シアン） -->
+            <button onclick="prepareSoloMode('OVERDRIVE')" class="btn-cyan font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-2xl cursor-pointer">
+              OVERDRIVE
+            </button>
+
+            <!-- 300秒：MARATHON（シアン） -->
+            <button onclick="prepareSoloMode('MARATHON')" class="btn-cyan font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-2xl cursor-pointer">
+              MARATHON
+            </button>
+
+            <!-- 100秒1ミス即終了：SADDEN DEATH（マゼンタ） -->
+            <button onclick="prepareSoloMode('SADDEN DEATH')" class="btn-magenta font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-2xl cursor-pointer sm:col-span-2 lg:col-span-2">
+              SADDEN DEATH
             </button>
           </div>
         </div>
 
-        <!-- ソロモード選択セクション（60秒・180秒・300秒はシアン / サドンデスはマゼンタ） -->
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-            <h3 class="font-orbitron text-base sm:text-lg font-bold text-white tracking-wider">SOLO MODE <span class="text-xs font-sans text-slate-400 font-normal ml-1">ソロプレイ（スペースキーで開始）</span></h3>
+        <!-- オンライン対戦モード選択 -->
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="font-orbitron text-sm sm:text-base font-bold tracking-widest text-fuchsia-400 flex items-center gap-2">
+              <span class="w-2 h-2 bg-fuchsia-400 rounded-full"></span>
+              ONLINE BATTLE
+            </h3>
+
+            <!-- リアルタイム待機人数表示 -->
+            <div class="flex items-center gap-3 text-xs font-mono-tech bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-full">
+              <span class="text-emerald-400">● CASUAL待機: <strong id="casualWaitingCount">0</strong>人</span>
+              <span class="text-slate-600">|</span>
+              <span class="text-orange-400">● RATE待機: <strong id="rateWaitingCount">0</strong>人</span>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- 60秒：短い長さの部門（シアン） -->
-            <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-orbitron text-xs font-bold text-cyan-400">SHORT / 60s</span>
-                  <span class="text-xs text-slate-400">短い単語</span>
-                </div>
-                <h4 class="text-lg font-bold text-white mb-1">60秒・短文部門</h4>
-                <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  「かんばん」「いし」等のシンプルな単語中心。瞬発力と初速が試される基本モード。
-                </p>
-              </div>
-              <button onclick="prepareSoloGame('solo60')"
-                class="w-full py-3 rounded-xl font-bold text-sm text-black bg-cyan-400 hover:bg-cyan-300 glow-cyan active:scale-95 transition-all cursor-pointer">
-                60秒モードをプレイ
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- カジュアル対戦（緑色ボタン + 合言葉入力欄） -->
+            <div class="neon-panel rounded-2xl p-4 border-emerald-500/30 flex flex-col justify-between gap-3">
+              <button onclick="startOnlineMatchmaking('casual')" class="btn-green font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-xl w-full cursor-pointer">
+                CASUAL BATTLE
               </button>
+              <div class="flex items-center gap-2">
+                <input id="casualPasscodeInput" type="text" maxlength="20" placeholder="合言葉（空欄でランダム対戦）"
+                  class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-400 rounded-lg px-3 py-2 text-xs sm:text-sm text-white outline-none" />
+              </div>
             </div>
 
-            <!-- 180秒：中くらいの長さの部門（シアン） -->
-            <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-orbitron text-xs font-bold text-cyan-400">MEDIUM / 180s</span>
-                  <span class="text-xs text-slate-400">四字熟語・ことわざ</span>
-                </div>
-                <h4 class="text-lg font-bold text-white mb-1">180秒・中文部門</h4>
-                <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  四字熟語やことわざ・短文が出題される3分間の持久＆スピードバランス部門。
-                </p>
-              </div>
-              <button onclick="prepareSoloGame('solo180')"
-                class="w-full py-3 rounded-xl font-bold text-sm text-black bg-cyan-400 hover:bg-cyan-300 glow-cyan active:scale-95 transition-all cursor-pointer">
-                180秒モードをプレイ
+            <!-- レーティング対戦（オレンジ色ボタン） -->
+            <div class="neon-panel rounded-2xl p-4 border-orange-500/30 flex flex-col justify-between gap-3">
+              <button onclick="startOnlineMatchmaking('rate')" class="btn-orange font-orbitron text-xl sm:text-2xl font-black tracking-wider py-6 px-4 rounded-xl w-full cursor-pointer">
+                RATE BATTLE
               </button>
+              <div class="text-center text-xs font-mono-tech text-slate-400 py-1.5">
+                YOUR RATE: <span id="homeRateInline" class="text-orange-400 font-bold">1500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           3. オンラインマッチング待機＆VS演出画面
+           ===================================================================== -->
+      <section id="screen-matchmaking" class="hidden max-w-2xl mx-auto py-8">
+        <!-- マッチング検索中 -->
+        <div id="matchSearchingView" class="neon-panel rounded-2xl p-8 text-center space-y-6">
+          <div class="w-16 h-16 mx-auto rounded-full border-4 border-cyan-500/30 border-t-cyan-400 animate-spin"></div>
+          <div class="space-y-2">
+            <h2 id="matchModeLabel" class="font-orbitron text-2xl font-black text-cyan-400">RATE BATTLE</h2>
+            <p class="text-slate-300 text-sm sm:text-base animate-pulse">対戦相手を探しています...（リアルタイムマッチング中）</p>
+            <p id="matchSubInfo" class="text-xs font-mono-tech text-slate-400"></p>
+          </div>
+
+          <div class="inline-block px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono-tech text-cyan-300">
+            現在の待機人数: <span id="matchQueueLiveCount">1</span>人
+          </div>
+
+          <div>
+            <button onclick="cancelOnlineMatchmaking()" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-red-950 border border-slate-600 hover:border-red-500 text-slate-200 hover:text-red-300 text-sm font-bold transition">
+              キャンセル
+            </button>
+          </div>
+        </div>
+
+        <!-- マッチ成立！5秒間のVS画面 -->
+        <div id="matchFoundView" class="hidden neon-panel rounded-2xl p-6 sm:p-8 text-center space-y-6 border-fuchsia-500/50">
+          <div class="font-orbitron text-2xl sm:text-3xl font-black neon-text-magenta tracking-wider">
+            マッチしました！
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 py-4">
+            <!-- 自分 -->
+            <div class="bg-slate-950/90 border border-cyan-500/50 rounded-xl p-4 space-y-2">
+              <img id="vsMyAvatar" src="" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-cyan-400" />
+              <div id="vsMyTitle" class="text-[11px] font-bold rarity-R">称号</div>
+              <div id="vsMyName" class="font-bold text-white truncate">YOU</div>
+              <div class="text-xs font-mono-tech text-orange-400">RATE: <span id="vsMyRate">1500</span></div>
+              <div class="text-[11px] font-mono-tech text-slate-400">ミス率: <span id="vsMyMiss">0.0%</span></div>
             </div>
 
-            <!-- 300秒：長い部門（シアン） -->
-            <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-orbitron text-xs font-bold text-cyan-400">LONG / 300s</span>
-                  <span class="text-xs text-slate-400">長文・名言</span>
-                </div>
-                <h4 class="text-lg font-bold text-white mb-1">300秒・長文部門</h4>
-                <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  長いフレーズや格言を5分間打ち続ける本格派向けマラソン部門。コンボ維持が鍵。
-                </p>
-              </div>
-              <button onclick="prepareSoloGame('solo300')"
-                class="w-full py-3 rounded-xl font-bold text-sm text-black bg-cyan-400 hover:bg-cyan-300 glow-cyan active:scale-95 transition-all cursor-pointer">
-                300秒モードをプレイ
-              </button>
+            <!-- VS -->
+            <div class="font-orbitron text-4xl font-black text-white">
+              <span class="text-cyan-400">V</span><span class="text-fuchsia-500">S</span>
             </div>
 
-            <!-- サドンデスモード100秒（マゼンタ） -->
-            <div class="bg-[#0c101a] border border-fuchsia-500/40 hover:border-fuchsia-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-orbitron text-xs font-bold text-fuchsia-400">SUDDEN DEATH / 100s</span>
-                  <span class="text-xs text-fuchsia-300 font-bold">ノーミス限定</span>
-                </div>
-                <h4 class="text-lg font-bold text-white mb-1">サドンデス 100秒</h4>
-                <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  <span class="text-fuchsia-400 font-bold">1回でもミスタイプした瞬間に即終了！</span>極限の集中力で100秒間を駆け抜けろ。
-                </p>
+            <!-- 相手 -->
+            <div class="bg-slate-950/90 border border-fuchsia-500/50 rounded-xl p-4 space-y-2">
+              <img id="vsOppAvatar" src="" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-fuchsia-400" />
+              <div id="vsOppTitle" class="text-[11px] font-bold rarity-R">称号</div>
+              <div id="vsOppName" class="font-bold text-white truncate">OPPONENT</div>
+              <div class="text-xs font-mono-tech text-orange-400">RATE: <span id="vsOppRate">1500</span></div>
+              <div class="text-[11px] font-mono-tech text-slate-400">ミス率: <span id="vsOppMiss">0.0%</span></div>
+            </div>
+          </div>
+
+          <div class="font-orbitron text-lg text-cyan-300">
+            BATTLE START IN <span id="vsCountdownNum" class="text-2xl font-black text-white">5</span>...
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           4. タイピングゲームプレイ画面 (Solo & Online Shared Arena)
+           ===================================================================== -->
+      <section id="screen-game" class="hidden max-w-4xl mx-auto space-y-4">
+
+        <!-- オンライン対戦時の綱引きスコアゲージ（残り30秒で非表示になる） -->
+        <div id="onlineBattleBar" class="hidden neon-panel rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between text-xs sm:text-sm font-bold">
+            <div class="flex items-center gap-2 text-cyan-400">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <span id="battleMyName">YOU</span>
+              <span id="battleMyScoreDisplay" class="font-mono-tech">0</span>
+            </div>
+            <div class="text-[11px] font-mono-tech text-slate-400">VS</div>
+            <div class="flex items-center gap-2 text-fuchsia-400">
+              <span id="battleOppScoreDisplay" class="font-mono-tech">0</span>
+              <span id="battleOppName">OPPONENT</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-400"></span>
+            </div>
+          </div>
+
+          <!-- 優勢・劣勢ゲージ（シアン vs マゼンタ） -->
+          <div id="tugOfWarContainer" class="w-full h-3.5 rounded-full bg-slate-900 overflow-hidden flex border border-slate-700">
+            <div id="tugMyFill" class="bg-cyan-400 shadow-[0_0_12px_#00f3ff] transition-all duration-200" style="width: 50%;"></div>
+            <div id="tugOppFill" class="bg-fuchsia-500 shadow-[0_0_12px_#ff007f] transition-all duration-200" style="width: 50%;"></div>
+          </div>
+
+          <!-- 残り30秒以下でゲージを隠すマスク -->
+          <div id="tugHiddenNotice" class="hidden text-center text-xs font-orbitron tracking-widest text-fuchsia-400 py-0.5 animate-pulse">
+            FINAL 30 SECONDS — SCORE GAUGE HIDDEN
+          </div>
+        </div>
+
+        <!-- 上部リアルタイムステータス（残り時間・スコア・WPM・ミス率・COMBO・リタイア） -->
+        <div class="neon-panel rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-4 sm:gap-6 font-mono-tech">
+            <div>
+              <div class="text-[10px] text-slate-400">TIME</div>
+              <div id="hudTime" class="text-xl sm:text-2xl font-black text-white">60.0s</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">SCORE</div>
+              <div id="hudScore" class="text-xl sm:text-2xl font-black text-cyan-400">0</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">WPM</div>
+              <div id="hudWpm" class="text-lg sm:text-xl font-bold text-emerald-400">0</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">MISS RATE</div>
+              <div id="hudMissRate" class="text-lg sm:text-xl font-bold text-fuchsia-400">0.0%</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">COMBO</div>
+              <div id="hudCombo" class="text-lg sm:text-xl font-bold text-amber-400">0</div>
+            </div>
+          </div>
+
+          <button onclick="openRetireModal()" class="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-red-950 border border-slate-700 hover:border-red-500 text-xs font-bold text-slate-300 hover:text-red-300 transition">
+            リタイア
+          </button>
+        </div>
+
+        <!-- メインネオンタイピングボックス（タップでスマホキーボードも起動） -->
+        <div id="typingCard" onclick="focusMobileInput()" class="neon-panel rounded-2xl p-6 sm:p-10 min-h-[260px] sm:min-h-[300px] flex flex-col items-center justify-center text-center relative cursor-text select-none transition-all">
+
+          <!-- 開始前待機 / カウントダウンオーバーレイ -->
+          <div id="gameReadyOverlay" class="absolute inset-0 z-20 bg-[#070b14]/95 rounded-2xl flex flex-col items-center justify-center p-6 text-center">
+            <div id="readyModeTitle" class="font-orbitron text-2xl sm:text-3xl font-black text-cyan-400 mb-3">SPEED</div>
+            <p id="readyInstruction" class="text-base sm:text-xl font-bold text-white animate-pulse">
+              SPACEキー（または画面タップ）を押してスタート
+            </p>
+            <div id="countdownNumber" class="hidden font-orbitron text-6xl sm:text-7xl font-black neon-text-cyan">
+              3
+            </div>
+          </div>
+
+          <!-- 問題表示エリア -->
+          <div class="w-full space-y-4">
+            <!-- ひらがな読み -->
+            <div id="wordKana" class="text-sm sm:text-lg text-cyan-300/80 font-medium tracking-widest min-h-[1.5rem]">
+              ねおんたいぷ
+            </div>
+
+            <!-- 日本語表記（漢字かな混じり） -->
+            <div id="wordDisplay" class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-wide leading-snug break-words">
+              NEONTYPE
+            </div>
+
+            <!-- ローマ字ネオンサイン（打つとシアンに光る） -->
+            <div id="wordRomaji" class="font-mono-tech text-2xl sm:text-4xl md:text-5xl tracking-[0.14em] pt-3 break-all leading-relaxed">
+              <!-- JSで1文字ずつ span.char-unlit / span.char-lit を描画 -->
+            </div>
+          </div>
+
+          <!-- スマホ・タブレット用バーチャルキーボード呼び出し用透明インプット -->
+          <input id="mobileHiddenInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            class="opacity-0 absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-8 pointer-events-auto" aria-label="Typing Input" />
+
+          <div class="mt-6 text-[11px] text-slate-500 sm:hidden">
+            ※スマホの場合はここをタップしてキーボードを表示
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           5. リザルト画面 (Result Screen)
+           ===================================================================== -->
+      <section id="screen-result" class="hidden max-w-2xl mx-auto">
+        <div class="neon-panel rounded-2xl p-6 sm:p-8 text-center space-y-6">
+          <div id="resultModeLabel" class="font-orbitron text-sm tracking-widest text-cyan-400">MODE RESULT</div>
+
+          <!-- ソロランク評価 (S/A/B/C/D) または オンライン勝敗 (WIN / LOSE) -->
+          <div id="resultHeadline" class="font-orbitron text-5xl sm:text-7xl font-black neon-text-cyan">
+            RANK S
+          </div>
+
+          <!-- ランキング入賞メッセージやオンライン点差・レート変動メッセージ -->
+          <div id="resultSubMessage" class="text-sm sm:text-base font-bold text-amber-300 min-h-[1.5rem]"></div>
+
+          <!-- オンライン対戦時のレート変動ボックス -->
+          <div id="resultRateBox" class="hidden bg-slate-950/90 border border-orange-500/40 rounded-xl p-4 font-mono-tech">
+            <div class="text-xs text-slate-400 mb-1">RATING CHANGE</div>
+            <div id="resultRateDiff" class="text-2xl sm:text-3xl font-black text-orange-400">1500 → 1510 (+10)</div>
+            <div id="resultScoreCompare" class="text-xs text-slate-300 mt-2">YOU: 0 pts / OPPONENT: 0 pts</div>
+          </div>
+
+          <!-- プレイ詳細スタッツ -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono-tech">
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+              <div class="text-[10px] text-slate-400">SCORE</div>
+              <div id="resScore" class="text-xl font-black text-cyan-400">0</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+              <div class="text-[10px] text-slate-400">AVG WPM</div>
+              <div id="resWpm" class="text-xl font-black text-emerald-400">0</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+              <div class="text-[10px] text-slate-400">MAX WPM</div>
+              <div id="resMaxWpm" class="text-xl font-black text-amber-400">0</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+              <div class="text-[10px] text-slate-400">MISS RATE</div>
+              <div id="resMissRate" class="text-xl font-black text-fuchsia-400">0.0%</div>
+            </div>
+          </div>
+
+          <!-- リトライ ＆ ホームボタン -->
+          <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <button id="btnRetryGame" onclick="retryLastMode()" class="btn-cyan font-orbitron text-base sm:text-lg font-bold px-8 py-3.5 rounded-xl cursor-pointer">
+              RETRY
+            </button>
+            <button onclick="navigateTo('home')" class="px-8 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 font-orbitron text-base sm:text-lg font-bold text-white transition">
+              HOME
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           6. ランキング画面 (Top 50 Leaderboards per Mode)
+           ===================================================================== -->
+      <section id="screen-ranking" class="hidden space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h2 class="font-orbitron text-2xl font-black text-cyan-400">RANKING TOP 50</h2>
+          <button onclick="navigateTo('home')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">
+            ← ホームへ戻る
+          </button>
+        </div>
+
+        <!-- モード切替タブ -->
+        <div class="flex flex-wrap gap-2" id="rankingTabs">
+          <button onclick="selectRankingTab('FRASH')" data-tab="FRASH" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-cyan-500 text-black">FRASH</button>
+          <button onclick="selectRankingTab('SPEED')" data-tab="SPEED" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-slate-300 border border-slate-700">SPEED</button>
+          <button onclick="selectRankingTab('OVERDRIVE')" data-tab="OVERDRIVE" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-slate-300 border border-slate-700">OVERDRIVE</button>
+          <button onclick="selectRankingTab('MARATHON')" data-tab="MARATHON" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-slate-300 border border-slate-700">MARATHON</button>
+          <button onclick="selectRankingTab('SADDEN DEATH')" data-tab="SADDEN DEATH" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-slate-300 border border-slate-700">SADDEN DEATH</button>
+          <button onclick="selectRankingTab('RATE')" data-tab="RATE" class="rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-orange-400 border border-slate-700">RATE TOP 50</button>
+        </div>
+
+        <!-- ランキングテーブル（上位50名・空欄時はUnknown） -->
+        <div class="neon-panel rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 bg-slate-950/80 text-[11px] font-mono-tech text-slate-400">
+                  <th class="py-3 px-4 w-16">RANK</th>
+                  <th class="py-3 px-4">PLAYER</th>
+                  <th class="py-3 px-4 text-right" id="rankValueHeader">SCORE</th>
+                  <th class="py-3 px-4 text-right hidden sm:table-cell">MAX WPM</th>
+                </tr>
+              </thead>
+              <tbody id="rankingTableBody" class="divide-y divide-slate-800/60 text-sm">
+                <!-- JSで1位〜50位を生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           7. マイページ (My Page: Icon, Name, Title, Stats, Admin DM)
+           ===================================================================== -->
+      <section id="screen-mypage" class="hidden max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="font-orbitron text-2xl font-black text-cyan-400">MY PAGE</h2>
+          <button onclick="navigateTo('home')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">
+            ← ホームへ戻る
+          </button>
+        </div>
+
+        <!-- プロフィール編集カード -->
+        <div class="neon-panel rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <!-- アイコン変更（PC/スマホから画像ファイルアップロード） -->
+          <div class="flex flex-col items-center space-y-3">
+            <img id="myPageAvatarPreview" src="" alt="avatar" class="w-24 h-24 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_16px_rgba(0,243,255,0.4)] bg-slate-800" />
+            <label class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-cyan-950 border border-cyan-500/40 text-xs font-bold text-cyan-300 cursor-pointer transition">
+              画像を変更
+              <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)" />
+            </label>
+          </div>
+
+          <!-- 名前変更・装備中称号・称号リストボタン -->
+          <div class="md:col-span-2 space-y-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">プレイヤー名</label>
+              <div class="flex gap-2">
+                <input id="myPageUsernameInput" type="text" maxlength="16" class="flex-1 bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-lg px-3.5 py-2 text-sm text-white outline-none" />
+                <button onclick="saveUsernameFromInput()" class="btn-cyan px-4 py-2 rounded-lg text-xs font-bold cursor-pointer">
+                  保存
+                </button>
               </div>
-              <button onclick="prepareSoloGame('sudden100')"
-                class="w-full py-3 rounded-xl font-bold text-sm text-white bg-fuchsia-600 hover:bg-fuchsia-500 glow-magenta active:scale-95 transition-all cursor-pointer">
-                サドンデスに挑戦
-              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div>
+                <div class="text-xs text-slate-400 mb-1">装備中の称号</div>
+                <span id="myPageEquippedTitle" class="inline-block text-sm font-bold px-3 py-1 rounded border rarity-R">
+                  駆け出しタイパー
+                </span>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button onclick="openTitlesModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-xs sm:text-sm font-bold text-cyan-300 transition">
+                  🎖 称号リスト (<span id="unlockedTitleCount">1</span>/<span id="visibleTitleTotal">40</span>)
+                </button>
+
+                <!-- 管理者のみ表示される管理者パネルボタン -->
+                <button id="btnOpenAdminPanel" onclick="navigateTo('admin')" class="hidden relative px-4 py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-500 text-xs sm:text-sm font-bold text-red-200 transition">
+                  ⚙ 管理者パネル
+                  <span id="myPageAdminAlert" class="hidden absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-black flex items-center justify-center">!</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- オンライン対戦セクション（カジュアル＝緑 / レーティング＝オレンジ / AI戦なし） -->
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <span class="w-1.5 h-5 bg-fuchsia-500 rounded-full"></span>
-            <h3 class="font-orbitron text-base sm:text-lg font-bold text-white tracking-wider">ONLINE BATTLE <span class="text-xs font-sans text-slate-400 font-normal ml-1">リアルタイム対人戦（120秒スコア勝負・AI戦なし）</span></h3>
+        <!-- 戦績データ一覧 -->
+        <div class="neon-panel rounded-2xl p-6 space-y-5">
+          <h3 class="font-orbitron text-sm font-bold tracking-widest text-cyan-400">BATTLE & TYPING RECORDS</h3>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono-tech">
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400">RATING</div>
+              <div id="statRate" class="text-2xl font-black text-orange-400">1500</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400">MAX WPM</div>
+              <div id="statMaxWpm" class="text-2xl font-black text-cyan-400">0</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400">AVG WPM</div>
+              <div id="statAvgWpm" class="text-2xl font-black text-emerald-400">0.0</div>
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400">AVG MISS RATE</div>
+              <div id="statAvgMiss" class="text-2xl font-black text-fuchsia-400">0.0%</div>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- カジュアルバトル（緑色） -->
-            <div class="bg-[#0c101a] border border-emerald-500/35 hover:border-emerald-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
+          <!-- モード別勝利数・ハイスコア -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="font-bold text-slate-300 border-b border-slate-800 pb-1">モード別 勝利数 / 完走数</div>
+              <div class="flex justify-between"><span>レートバトル勝利数:</span><span id="statRateWins" class="font-mono-tech text-orange-400 font-bold">0勝</span></div>
+              <div class="flex justify-between"><span>カジュアルバトル勝利数:</span><span id="statCasualWins" class="font-mono-tech text-emerald-400 font-bold">0勝</span></div>
+              <div class="flex justify-between"><span>サドンデス完走数:</span><span id="statSuddenClears" class="font-mono-tech text-fuchsia-400 font-bold">0回</span></div>
+              <div class="flex justify-between"><span>累計プレイ回数:</span><span id="statTotalPlays" class="font-mono-tech text-cyan-400 font-bold">0回</span></div>
+            </div>
+
+            <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="font-bold text-slate-300 border-b border-slate-800 pb-1">ソロ自己ベストスコア</div>
+              <div class="flex justify-between"><span>FRASH:</span><span id="bestFrash" class="font-mono-tech text-cyan-300">0</span></div>
+              <div class="flex justify-between"><span>SPEED:</span><span id="bestSpeed" class="font-mono-tech text-cyan-300">0</span></div>
+              <div class="flex justify-between"><span>OVERDRIVE:</span><span id="bestOverdrive" class="font-mono-tech text-cyan-300">0</span></div>
+              <div class="flex justify-between"><span>MARATHON:</span><span id="bestMarathon" class="font-mono-tech text-cyan-300">0</span></div>
+              <div class="flex justify-between"><span>SADDEN DEATH:</span><span id="bestSudden" class="font-mono-tech text-fuchsia-300">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- マイページ下部の小さな「管理者へ要望・DMを送る」ボタン -->
+        <div class="pt-4 flex justify-center">
+          <button onclick="openAdminDmModal()" class="text-xs text-slate-500 hover:text-cyan-400 underline underline-offset-4 transition">
+            管理者へ要望・メッセージ（DM）を送る
+          </button>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           8. 管理者パネル (Admin Panel: admin11233認証後に解放)
+           ===================================================================== -->
+      <section id="screen-admin" class="hidden max-w-5xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="font-orbitron text-2xl font-black text-red-400">ADMIN CONTROL PANEL</h2>
+          <button onclick="navigateTo('mypage')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">
+            ← マイページへ戻る
+          </button>
+        </div>
+
+        <!-- 管理者タブ -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="switchAdminTab('news')" id="adminTabBtn-news" class="px-4 py-2 rounded-lg text-xs font-bold bg-red-600 text-white">① 電光掲示板ニュース</button>
+          <button onclick="switchAdminTab('players')" id="adminTabBtn-players" class="relative px-4 py-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700">
+            ② プレイヤーリスト・BAN・DM
+            <span id="adminTabPlayerAlert" class="hidden ml-1 px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px]">!</span>
+          </button>
+          <button onclick="switchAdminTab('words')" id="adminTabBtn-words" class="px-4 py-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700">③ ワードリスト管理（大中小）</button>
+          <button onclick="switchAdminTab('system')" id="adminTabBtn-system" class="px-4 py-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700">④ システム管理ツール</button>
+        </div>
+
+        <!-- ① 電光掲示板更新 -->
+        <div id="adminPane-news" class="neon-panel rounded-2xl p-6 space-y-4">
+          <h3 class="font-bold text-cyan-400">上部電光掲示板ニュースのリアルタイム更新</h3>
+          <p class="text-xs text-slate-400">全プレイヤーの画面上部に流れるニュースメッセージを即座に更新します。</p>
+          <input id="adminNewsInput" type="text" maxlength="160" placeholder="例：【お知らせ】第1回NEONTYPE大会開催中！"
+            class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-lg px-4 py-2.5 text-sm text-white outline-none" />
+          <button onclick="adminUpdateNews()" class="btn-cyan px-6 py-2.5 rounded-lg text-xs font-bold cursor-pointer">
+            ニュースを配信する
+          </button>
+        </div>
+
+        <!-- ② プレイヤーリスト（1デバイス1プレイヤー・オンライン状態・BAN/解除・DM確認） -->
+        <div id="adminPane-players" class="hidden neon-panel rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-cyan-400">登録プレイヤー一覧（重複なし実プレイヤーのみ）</h3>
+            <span id="adminPlayerCount" class="text-xs font-mono-tech text-slate-400">0人</span>
+          </div>
+          <div id="adminPlayerListContainer" class="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+            <!-- JSでプレイヤーカードを生成 -->
+          </div>
+        </div>
+
+        <!-- ③ ワードリスト追加・削除（大・中・小 ＋ ローマ字・ゆらぎ自動変換プレビュー） -->
+        <div id="adminPane-words" class="hidden neon-panel rounded-2xl p-6 space-y-5">
+          <h3 class="font-bold text-cyan-400">ワードリストの追加・削除（ゆらぎ自動対応）</h3>
+
+          <!-- 新規ワード追加フォーム -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-orbitron text-xs font-bold text-emerald-400">CASUAL MATCH</span>
-                  <span class="text-xs text-emerald-300">レート変動なし</span>
+                <label class="block text-[11px] text-slate-400 mb-1">サイズ区分</label>
+                <select id="adminWordCategory" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                  <option value="small">小（短い単語）</option>
+                  <option value="medium">中（四字熟語・ことわざ・短文）</option>
+                  <option value="large">大（長文・名言）</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">表示テキスト（漢字かな）</label>
+                <input id="adminWordDisplay" type="text" placeholder="例：電光石火"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">ひらがな読み（必須・正確に入力）</label>
+                <input id="adminWordKana" type="text" placeholder="例：でんこうせっか" oninput="previewAdminWordRomaji()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
+              </div>
+            </div>
+
+            <!-- ローマ字自動生成＆ゆらぎ確認プレビュー -->
+            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-lg p-3 text-xs">
+              <div class="text-slate-400 mb-1">ローマ字読み・ゆらぎ自動解析プレビュー:</div>
+              <div id="adminWordPreviewOutput" class="font-mono-tech text-cyan-300 break-all">
+                ひらがなを入力するとここに標準ローマ字と全ゆらぎ許容パターンが表示されます
+              </div>
+            </div>
+
+            <button onclick="adminAddWord()" class="btn-cyan px-5 py-2 rounded-lg text-xs font-bold cursor-pointer">
+              ワードを追加して全端末に反映
+            </button>
+          </div>
+
+          <!-- 登録済みワード一覧フィルター -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400">表示フィルター:</span>
+            <button onclick="renderAdminWordList('all')" class="px-3 py-1 rounded bg-slate-800 text-xs text-white">すべて</button>
+            <button onclick="renderAdminWordList('small')" class="px-3 py-1 rounded bg-slate-800 text-xs text-cyan-300">小</button>
+            <button onclick="renderAdminWordList('medium')" class="px-3 py-1 rounded bg-slate-800 text-xs text-emerald-300">中</button>
+            <button onclick="renderAdminWordList('large')" class="px-3 py-1 rounded bg-slate-800 text-xs text-fuchsia-300">大</button>
+          </div>
+
+          <div id="adminWordListContainer" class="max-h-80 overflow-y-auto space-y-1.5 pr-1 text-xs">
+            <!-- JSでワード一覧を表示 -->
+          </div>
+        </div>
+
+        <!-- ④ システム管理ツール（あると便利な管理者機能） -->
+        <div id="adminPane-system" class="hidden neon-panel rounded-2xl p-6 space-y-4">
+          <h3 class="font-bold text-cyan-400">システムメンテナンスツール</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="font-bold text-sm text-white">マッチング待機列のリセット</div>
+              <p class="text-xs text-slate-400">通信切断などで残った古い待機データをクリアします。</p>
+              <button onclick="adminClearQueues()" class="px-4 py-2 rounded-lg bg-amber-900/60 hover:bg-amber-800 border border-amber-500 text-xs font-bold text-amber-200">
+                待機キューをリセット
+              </button>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="font-bold text-sm text-white">ソロランキングのリセット</div>
+              <p class="text-xs text-slate-400">選択したモードのランキングデータを初期化します。</p>
+              <div class="flex gap-2">
+                <select id="adminResetRankMode" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  <option value="FRASH">FRASH</option>
+                  <option value="SPEED">SPEED</option>
+                  <option value="OVERDRIVE">OVERDRIVE</option>
+                  <option value="MARATHON">MARATHON</option>
+                  <option value="SADDEN DEATH">SADDEN DEATH</option>
+                </select>
+                <button onclick="adminResetLeaderboard()" class="px-3 py-1.5 rounded-lg bg-red-900/60 hover:bg-red-800 border border-red-500 text-xs font-bold text-red-200">
+                  初期化
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       モーダル群（称号リスト・リタイア確認・プレイヤー詳細・管理者DM送信）
+       ========================================================================= -->
+
+  <!-- モーダル1: 称号リスト（色分けのみ・レア度記号は非表示・シークレットは未獲得時非表示） -->
+  <div id="modal-titles" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="neon-panel rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+        <h3 class="font-orbitron text-lg font-black text-cyan-400">TITLE COLLECTION</h3>
+        <button onclick="closeModal('modal-titles')" class="text-slate-400 hover:text-white text-xl px-2">✕</button>
+      </div>
+      <div id="titlesGridContainer" class="p-4 sm:p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- JSで全称号カードを生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル2: リタイア確認（ワンクッション） -->
+  <div id="modal-retire" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="neon-panel rounded-2xl p-6 max-w-sm w-full text-center space-y-5 border-fuchsia-500/50">
+      <h3 class="text-lg font-bold text-white">本当にリタイアしますか？</h3>
+      <p class="text-xs text-slate-400">※オンライン対戦中の場合、リタイアした方の負け扱いとなります。</p>
+      <div class="flex justify-center gap-3">
+        <button onclick="confirmRetire()" class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold transition">
+          はい（リタイア）
+        </button>
+        <button onclick="closeModal('modal-retire')" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold transition">
+          いいえ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル3: ランキングプレイヤーのプロフィール閲覧 -->
+  <div id="modal-player-profile" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="neon-panel rounded-2xl p-6 max-w-md w-full space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <span class="font-orbitron text-sm font-bold text-cyan-400">PLAYER PROFILE</span>
+        <button onclick="closeModal('modal-player-profile')" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div id="inspectedProfileContent" class="space-y-4">
+        <!-- JSで選択プレイヤーの戦績・ミスタイプ率・最高WPMなどを描画 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル4: 管理者への要望・DM送信 -->
+  <div id="modal-admin-dm" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="neon-panel rounded-2xl p-6 max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-cyan-400">管理者へ要望・メッセージを送る</h3>
+        <button onclick="closeModal('modal-admin-dm')" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <p class="text-xs text-slate-400">追加してほしい単語や改善要望などを管理者に直接送信できます。</p>
+      <textarea id="adminDmTextarea" rows="4" maxlength="300" placeholder="要望メッセージを入力してください..."
+        class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl p-3 text-sm text-white outline-none"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('modal-admin-dm')" class="px-4 py-2 rounded-lg bg-slate-800 text-xs text-slate-300">キャンセル</button>
+        <button onclick="sendAdminDm()" class="btn-cyan px-5 py-2 rounded-lg text-xs font-bold cursor-pointer">送信する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       JavaScript メインロジック（Firebase連携・音響・ゆらぎ変換・辞書・ゲーム進行）
+       ========================================================================= -->
+  <script type="module">
+    // =========================================================================
+    // 1. Firebase SDK のインポートと初期化（指定された設定値を使用）
+    // =========================================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import {
+      getDatabase, ref, set, get, update, remove, push, onValue, off, onDisconnect, runTransaction
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOV4Y_3yTUDxY1Crk3FCvINi74OeSV0ho",
+      authDomain: "neontype-a4bd6.firebaseapp.com",
+      databaseURL: "https://neontype-a4bd6-default-rtdb.firebaseio.com",
+      projectId: "neontype-a4bd6",
+      storageBucket: "neontype-a4bd6.firebasestorage.app",
+      messagingSenderId: "154565298401",
+      appId: "1:154565298401:web:caaa8de1ef1b890a66cfa0",
+      measurementId: "G-BN15PN41MC"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (e) { /* アナリティクス制限環境でも続行 */ }
+    const db = getDatabase(app);
+
+    // =========================================================================
+    // 2. Web Audio API 効果音エンジン（「トッ」というコンボ連動音・単語完了音・ノーミス音）
+    // =========================================================================
+    const SoundEngine = {
+      ctx: null,
+      muted: false,
+
+      // ユーザー操作時にAudioContextを初期化
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      // 正解タイプ時の「トッ」というパーカッシブな電子音（COMBO数に応じて音程上昇）
+      playTypeSound(combo) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        // 基本周波数220Hzから始まり、COMBOごとに半音〜全音ずつ滑らかに上昇（上限880Hz）
+        const freq = Math.min(880, 220 * Math.pow(1.018, Math.max(0, combo)));
+
+        osc.type = 'triangle';
+        // 「トッ」というアタック感を出すため一瞬高い周波数から素早く落とす
+        osc.frequency.setValueAtTime(freq * 1.35, now);
+        osc.frequency.exponentialRampToValueAtTime(freq, now + 0.025);
+
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.07);
+      },
+
+      // ミスタイプ時の低いブザー音
+      playMissSound() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(115, now);
+        osc.frequency.linearRampToValueAtTime(85, now + 0.12);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.14);
+      },
+
+      // 1単語打ち終わった時の効果音（通常完了）
+      playWordComplete() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25]; // ド・ミ
+        notes.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + idx * 0.045);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.045);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.045 + 0.16);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.045);
+          osc.stop(now + idx * 0.045 + 0.17);
+        });
+      },
+
+      // 1単語ノーミスで打ち終えた時の豪華なアルペジオ和音効果音
+      playPerfectWordComplete() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        // シアンに輝くようなキラキラした4音アルペジオ（ド・ミ・ソ・高いド）
+        const notes = [587.33, 739.99, 880.00, 1174.66];
+        notes.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const startTime = now + idx * 0.04;
+          osc.frequency.setValueAtTime(f, startTime);
+          gain.gain.setValueAtTime(0.18, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.3);
+        });
+      }
+    };
+
+    window.toggleMute = function () {
+      SoundEngine.muted = !SoundEngine.muted;
+      const btn = document.getElementById('btnToggleMute');
+      btn.textContent = SoundEngine.muted ? '🔇 OFF' : '🔊 ON';
+    };
+
+    // =========================================================================
+    // 3. 日本語ローマ字変換＆全パターンゆらぎ対応エンジン（最重要コアモジュール）
+    //    管理者が後からどんな単語を追加しても、ひらがなから全通りの入力候補を自動生成します。
+    // =========================================================================
+    const KANA_ROMAJI_MAP = {
+      // 基本五十音（複数表記すべて網羅）
+      'あ': ['a'], 'い': ['i', 'yi'], 'う': ['u', 'wu', 'whu'], 'え': ['e'], 'お': ['o'],
+      'か': ['ka', 'ca'], 'き': ['ki'], 'く': ['ku', 'cu', 'qu'], 'け': ['ke'], 'こ': ['ko', 'co'],
+      'さ': ['sa'], 'し': ['shi', 'si', 'ci'], 'す': ['su'], 'せ': ['se', 'ce'], 'そ': ['so'],
+      'た': ['ta'], 'ち': ['chi', 'ti'], 'つ': ['tsu', 'tu'], 'て': ['te'], 'と': ['to'],
+      'な': ['na'], 'に': ['ni'], 'ぬ': ['nu'], 'ね': ['ne'], 'の': ['no'],
+      'は': ['ha'], 'ひ': ['hi'], 'ふ': ['fu', 'hu'], 'へ': ['he'], 'ほ': ['ho'],
+      'ま': ['ma'], 'み': ['mi'], 'む': ['mu'], 'め': ['me'], 'も': ['mo'],
+      'や': ['ya'], 'ゆ': ['yu'], 'よ': ['yo'],
+      'ら': ['ra'], 'り': ['ri'], 'る': ['ru'], 'れ': ['re'], 'ろ': ['ro'],
+      'わ': ['wa'], 'を': ['wo'], 'ん': ['nn', "n'"],
+
+      // 濁音・半濁音
+      'が': ['ga'], 'ぎ': ['gi'], 'ぐ': ['gu'], 'げ': ['ge'], 'ご': ['go'],
+      'ざ': ['za'], 'じ': ['ji', 'zi'], 'ず': ['zu'], 'ぜ': ['ze'], 'ぞ': ['zo'],
+      'だ': ['da'], 'ぢ': ['di'], 'づ': ['du', 'zu'], 'で': ['de'], 'ど': ['do'],
+      'ば': ['ba'], 'び': ['bi'], 'ぶ': ['bu'], 'べ': ['be'], 'ぼ': ['bo'],
+      'ぱ': ['pa'], 'ぴ': ['pi'], 'ぷ': ['pu'], 'ぺ': ['pe'], 'ぽ': ['po'],
+      'ゔ': ['vu'],
+
+      // 小書き文字（xo / lo 両対応）
+      'ぁ': ['xa', 'la'], 'ぃ': ['xi', 'li', 'xyi', 'lyi'], 'ぅ': ['xu', 'lu'],
+      'ぇ': ['xe', 'le', 'xye', 'lye'], 'ぉ': ['xo', 'lo'],
+      'ゃ': ['xya', 'lya'], 'ゅ': ['xyu', 'lyu'], 'ょ': ['xyo', 'lyo'],
+      'ゎ': ['xwa', 'lwa'],
+      'っ': ['xtu', 'xtsu', 'ltu', 'ltsu'],
+
+      // 拗音（2文字セット＋分解入力の両方に対応）
+      'きゃ': ['kya', 'kixya', 'kilya'], 'きゅ': ['kyu', 'kixyu', 'kilyu'], 'きょ': ['kyo', 'kixyo', 'kilyo'],
+      'ぎゃ': ['gya', 'gixya', 'gilya'], 'ぎゅ': ['gyu', 'gixyu', 'gilyu'], 'ぎょ': ['gyo', 'gixyo', 'gilyo'],
+      'しゃ': ['sha', 'sya', 'shixya', 'sixya', 'shilya', 'silya'],
+      'しゅ': ['shu', 'syu', 'shixyu', 'sixyu', 'shilyu', 'silyu'],
+      'しょ': ['sho', 'syo', 'shixyo', 'sixyo', 'shilyo', 'silyo'],
+      'しぇ': ['she', 'sye', 'shixe', 'sixe', 'shile', 'sile'],
+      'じゃ': ['ja', 'jya', 'zya', 'jixya', 'zixya', 'jilya', 'zilya'],
+      'じゅ': ['ju', 'jyu', 'zyu', 'jixyu', 'zixyu', 'jilyu', 'zilyu'],
+      'じょ': ['jo', 'jyo', 'zyo', 'jixyo', 'zixyo', 'jilyo', 'zilyo'],
+      'じぇ': ['je', 'jye', 'zye', 'jixe', 'zixe', 'jile', 'zile'],
+      'ちゃ': ['cha', 'tya', 'cya', 'chixya', 'tixya', 'chilya', 'tilya'],
+      'ちゅ': ['chu', 'tyu', 'cyu', 'chixyu', 'tixyu', 'chilyu', 'tilyu'],
+      'ちょ': ['cho', 'tyo', 'cyo', 'chixyo', 'tixyo', 'chilyo', 'tilyo'],
+      'ちぇ': ['che', 'tye', 'cye', 'chixe', 'tixe', 'chile', 'tile'],
+      'ぢゃ': ['dya', 'dixya', 'dilya'], 'ぢゅ': ['dyu', 'dixyu', 'dilyu'], 'ぢょ': ['dyo', 'dixyo', 'dilyo'],
+      'にゃ': ['nya', 'nixya', 'nilya'], 'にゅ': ['nyu', 'nixyu', 'nilyu'], 'にょ': ['nyo', 'nixyo', 'nilyo'],
+      'ひゃ': ['hya', 'hixya', 'hilya'], 'ひゅ': ['hyu', 'hixyu', 'hilyu'], 'ひょ': ['hyo', 'hixyo', 'hilyo'],
+      'びゃ': ['bya', 'bixya', 'bilya'], 'びゅ': ['byu', 'bixyu', 'bilyu'], 'びょ': ['byo', 'bixyo', 'bilyo'],
+      'ぴゃ': ['pya', 'pixya', 'pilya'], 'ぴゅ': ['pyu', 'pixyu', 'pilyu'], 'ぴょ': ['pyo', 'pixyo', 'pilyo'],
+      'みゃ': ['mya', 'mixya', 'milya'], 'みゅ': ['myu', 'mixyu', 'milyu'], 'みょ': ['myo', 'mixyo', 'milyo'],
+      'りゃ': ['rya', 'rixya', 'rilya'], 'りゅ': ['ryu', 'rixyu', 'rilyu'], 'りょ': ['ryo', 'rixyo', 'rilyo'],
+
+      // 外来音・特殊音（てぃ・ふぁ・うぃ・ヴぁ 等）
+      'てぃ': ['thi', 'texi', 'teli'], 'てゅ': ['thu', 'texyu', 'telyu'],
+      'でぃ': ['dhi', 'dexi', 'deli'], 'でゅ': ['dhu', 'dexyu', 'delyu'],
+      'とぅ': ['twu', 'toxu', 'tolu'], 'どぅ': ['dwu', 'doxu', 'dolu'],
+      'ふぁ': ['fa', 'fuxa', 'huxa', 'fula', 'hula'],
+      'ふぃ': ['fi', 'fuxi', 'huxi', 'fuli', 'huli'],
+      'ふぇ': ['fe', 'fuxe', 'huxe', 'fule', 'hule'],
+      'ふぉ': ['fo', 'fuxo', 'huxo', 'fulo', 'hulo'],
+      'うぃ': ['wi', 'uxi', 'uli', 'whi'],
+      'うぇ': ['we', 'uxe', 'ule', 'whe'],
+      'うぉ': ['wo', 'uxo', 'ulo', 'who'],
+      'くぁ': ['qa', 'kuxa', 'kula'], 'くぃ': ['qi', 'kuxi', 'kuli'],
+      'くぇ': ['qe', 'kuxe', 'kule'], 'くぉ': ['qo', 'kuxo', 'kulo'],
+      'ゔぁ': ['va', 'vuxa', 'vula'], 'ゔぃ': ['vi', 'vuxi', 'vuli'],
+      'ゔぇ': ['ve', 'vuxe', 'vule'], 'ゔぉ': ['vo', 'vuxo', 'vulo'],
+
+      // 記号・伸ばし棒・句読点
+      'ー': ['-'], '、': [','], '。': ['.'], '！': ['!'], '？': ['?'], '・': ['/'], ' ': [' ']
+    };
+
+    // カタカナが混ざっていてもひらがなに正規化するヘルパー
+    function normalizeToHiragana(str) {
+      return str.replace(/[\u30a1-\u30f6]/g, ch =>
+        String.fromCharCode(ch.charCodeAt(0) - 0x60)
+      ).trim();
+    }
+
+    /**
+     * ひらがな文字列を「音節トークン配列（各音節ごとの全ゆらぎ候補リスト）」にコンパイルする
+     * 例：「しんぶん」 -> [['shi','si','ci'], ['nn',"n'",'n'], ['bu'], ['nn',"n'"]]
+     */
+    function compileKanaTokens(rawKana) {
+      const kana = normalizeToHiragana(rawKana);
+      const tokens = [];
+      let i = 0;
+
+      while (i < kana.length) {
+        const ch = kana[i];
+        const next = kana[i + 1] || '';
+
+        // 1. 促音「っ」の処理：次の音節の子音重ね（kk, ss, tt, tch 等）＋ xtu/ltu 両対応
+        if (ch === 'っ' && next) {
+          // 次の音節の候補を取得（2文字拗音か1文字か）
+          const afterNext = kana[i + 2] || '';
+          const nextPair = next + afterNext;
+          const nextVariants = KANA_ROMAJI_MAP[nextPair] || KANA_ROMAJI_MAP[next] || [];
+
+          const sokuonVariants = new Set(['xtu', 'xtsu', 'ltu', 'ltsu']);
+          nextVariants.forEach(rom => {
+            const firstChar = rom[0];
+            // 母音とn以外の子音なら重ね打ちを許可
+            if (firstChar && !'aiueon-'.includes(firstChar)) {
+              sokuonVariants.add(firstChar);
+              // 「っち」系では tchi も一般的
+              if (rom.startsWith('ch')) {
+                sokuonVariants.add('t');
+              }
+            }
+          });
+          tokens.push(Array.from(sokuonVariants));
+          i += 1;
+          continue;
+        }
+
+        // 2. 撥音「ん」の処理：後ろに母音・や行・な行が来ない場合は単体「n」も許容！
+        if (ch === 'ん') {
+          const nVariants = ['nn', "n'"];
+          if (next) {
+            const nextPair = next + (kana[i + 2] || '');
+            const nextVariants = KANA_ROMAJI_MAP[nextPair] || KANA_ROMAJI_MAP[next] || [];
+            // 次の音の先頭文字がすべて母音・y・n・記号でなければ単体「n」を許可
+            const canUseSingleN = nextVariants.length > 0 && nextVariants.every(rom => {
+              const c = rom[0];
+              return c && !'aiueoyn-,.!? '.includes(c);
+            });
+            if (canUseSingleN) {
+              nVariants.push('n');
+            }
+          }
+          tokens.push(nVariants);
+          i += 1;
+          continue;
+        }
+
+        // 3. 2文字の拗音・外来音（しゃ、ちゅ、てぃ等）を優先チェック
+        const pair = ch + next;
+        if (next && KANA_ROMAJI_MAP[pair]) {
+          tokens.push([...KANA_ROMAJI_MAP[pair]]);
+          i += 2;
+          continue;
+        }
+
+        // 4. 通常の1文字かな
+        if (KANA_ROMAJI_MAP[ch]) {
+          tokens.push([...KANA_ROMAJI_MAP[ch]]);
+          i += 1;
+          continue;
+        }
+
+        // 5. 英数字などが直接含まれていた場合は小文字でそのまま許容
+        if (/[a-zA-Z0-9\-]/.test(ch)) {
+          tokens.push([ch.toLowerCase()]);
+        }
+        i += 1;
+      }
+
+      return tokens;
+    }
+
+    /**
+     * 現在のタイピング進行状態を管理するステートマシン
+     * ユーザーが途中まで打った文字列にマッチする最適パスを動的に計算し、
+     * 消灯ネオンのガイド文字列をリアルタイムに更新します。
+     */
+    class RomajiTypingTracker {
+      constructor(kana) {
+        this.tokens = compileKanaTokens(kana);
+        this.tokenIndex = 0;     // 現在入力中の音節インデックス
+        this.currentBuffer = ''; // 現在の音節で既に打ち終わった文字（例: 's' や 'sh'）
+        this.typedHistory = '';  // 単語全体で確定済みの入力文字
+        this.mistypedInWord = false; // この単語で一度でもミスしたか
+      }
+
+      // 現在のガイド文字列（打った部分＋残りの標準候補）を返す
+      getDisplayGuide() {
+        let remaining = '';
+        if (this.tokenIndex < this.tokens.length) {
+          const candidates = this.tokens[this.tokenIndex];
+          const matched = candidates.find(c => c.startsWith(this.currentBuffer)) || candidates[0];
+          remaining += matched.slice(this.currentBuffer.length);
+
+          for (let i = this.tokenIndex + 1; i < this.tokens.length; i++) {
+            remaining += this.tokens[i][0];
+          }
+        }
+        return {
+          lit: this.typedHistory,
+          unlit: remaining
+        };
+      }
+
+      // 1キー入力された時の判定処理
+      inputChar(rawChar) {
+        const ch = rawChar.toLowerCase();
+        if (this.tokenIndex >= this.tokens.length) {
+          return { valid: false, wordCompleted: true, perfect: !this.mistypedInWord };
+        }
+
+        const nextBuffer = this.currentBuffer + ch;
+        const candidates = this.tokens[this.tokenIndex];
+
+        // 現在の音節のゆらぎ候補の中に nextBuffer で始まるものがあるか確認
+        const matchingCandidates = candidates.filter(c => c.startsWith(nextBuffer));
+
+        if (matchingCandidates.length > 0) {
+          this.typedHistory += ch;
+          // 完全一致した候補があり、かつ他の長い候補への継続（例：'n' と 'nn'）がない場合は音節確定
+          const exactMatch = matchingCandidates.find(c => c === nextBuffer);
+          const longerMatches = matchingCandidates.filter(c => c.length > nextBuffer.length);
+
+          if (exactMatch && longerMatches.length === 0) {
+            this.tokenIndex += 1;
+            this.currentBuffer = '';
+          } else {
+            // 'n' のように単体でも確定できるが 'nn' も打てるケース
+            this.currentBuffer = nextBuffer;
+          }
+
+          const completed = this.tokenIndex >= this.tokens.length;
+          return {
+            valid: true,
+            wordCompleted: completed,
+            perfect: completed && !this.mistypedInWord
+          };
+        }
+
+        // 特殊ケース：「ん」で単体 'n' を打った直後に、次の音節の1文字目が入力された場合
+        if (this.currentBuffer === 'n' && candidates.includes('n') && this.tokenIndex + 1 < this.tokens.length) {
+          const nextTokenCandidates = this.tokens[this.tokenIndex + 1];
+          const nextMatch = nextTokenCandidates.filter(c => c.startsWith(ch));
+          if (nextMatch.length > 0) {
+            // 前の「ん」を 'n' で確定し、次の音節へ進む
+            this.tokenIndex += 1;
+            this.typedHistory += ch;
+            if (nextMatch.includes(ch) && nextMatch.every(c => c.length === 1)) {
+              this.tokenIndex += 1;
+              this.currentBuffer = '';
+            } else {
+              this.currentBuffer = ch;
+            }
+            const completed = this.tokenIndex >= this.tokens.length;
+            return {
+              valid: true,
+              wordCompleted: completed,
+              perfect: completed && !this.mistypedInWord
+            };
+          }
+        }
+
+        // どの候補にも一致しない場合はミスタイプ
+        this.mistypedInWord = true;
+        return { valid: false, wordCompleted: false, perfect: false };
+      }
+    }
+
+    // =========================================================================
+    // 4. 厳選300語ワードリスト（小：100語、中：100語、大：100語）
+    //    読みと表記の正確性を徹底検証したデフォルト辞書
+    // =========================================================================
+    const DEFAULT_WORDS = [
+      // --- 【小】短い単語（100語） ---
+      { id: 's001', category: 'small', display: '看板', kana: 'かんばん' },
+      { id: 's002', category: 'small', display: '石', kana: 'いし' },
+      { id: 's003', category: 'small', display: 'ネオン', kana: 'ねおん' },
+      { id: 's004', category: 'small', display: '時計', kana: 'とけい' },
+      { id: 's005', category: 'small', display: '光', kana: 'ひかり' },
+      { id: 's006', category: 'small', display: '未来', kana: 'みらい' },
+      { id: 's007', category: 'small', display: '都市', kana: 'とし' },
+      { id: 's008', category: 'small', display: '夜景', kana: 'やけい' },
+      { id: 's009', category: 'small', display: '流星', kana: 'りゅうせい' },
+      { id: 's010', category: 'small', display: '雷鳴', kana: 'らいめい' },
+      { id: 's011', category: 'small', display: '閃光', kana: 'せんこう' },
+      { id: 's012', category: 'small', display: '疾風', kana: 'しっぷう' },
+      { id: 's013', category: 'small', display: '桜', kana: 'さくら' },
+      { id: 's014', category: 'small', display: '紅葉', kana: 'もみじ' },
+      { id: 's015', category: 'small', display: '雪国', kana: 'ゆきぐに' },
+      { id: 's016', category: 'small', display: '銀河', kana: 'ぎんが' },
+      { id: 's017', category: 'small', display: '彗星', kana: 'すいせい' },
+      { id: 's018', category: 'small', display: '宇宙', kana: 'うちゅう' },
+      { id: 's019', category: 'small', display: '惑星', kana: 'わくせい' },
+      { id: 's020', category: 'small', display: '衛星', kana: 'えいせい' },
+      { id: 's021', category: 'small', display: '海原', kana: 'うなばら' },
+      { id: 's022', category: 'small', display: '深海', kana: 'しんかい' },
+      { id: 's023', category: 'small', display: '山頂', kana: 'さんちょう' },
+      { id: 's024', category: 'small', display: '森林', kana: 'しんりん' },
+      { id: 's025', category: 'small', display: '砂漠', kana: 'さばく' },
+      { id: 's026', category: 'small', display: '氷河', kana: 'ひょうが' },
+      { id: 's027', category: 'small', display: '火山', kana: 'かざん' },
+      { id: 's028', category: 'small', display: '虹', kana: 'にじ' },
+      { id: 's029', category: 'small', display: '朝焼け', kana: 'あさやけ' },
+      { id: 's030', category: 'small', display: '夕暮れ', kana: 'ゆうぐれ' },
+      { id: 's031', category: 'small', display: '真夜中', kana: 'まよなか' },
+      { id: 's032', category: 'small', display: '白夜', kana: 'びゃくや' },
+      { id: 's033', category: 'small', display: 'オーロラ', kana: 'おーろら' },
+      { id: 's034', category: 'small', display: '水晶', kana: 'すいしょう' },
+      { id: 's035', category: 'small', display: '琥珀', kana: 'こはく' },
+      { id: 's036', category: 'small', display: '翡翠', kana: 'ひすい' },
+      { id: 's037', category: 'small', display: '真珠', kana: 'しんじゅ' },
+      { id: 's038', category: 'small', display: '黄金', kana: 'おうごん' },
+      { id: 's039', category: 'small', display: '白銀', kana: 'はくぎん' },
+      { id: 's040', category: 'small', display: '鋼鉄', kana: 'こうてつ' },
+      { id: 's041', category: 'small', display: '歯車', kana: 'はぐるま' },
+      { id: 's042', category: 'small', display: '羅針盤', kana: 'らしんばん' },
+      { id: 's043', category: 'small', display: '望遠鏡', kana: 'ぼうえんきょう' },
+      { id: 's044', category: 'small', display: '顕微鏡', kana: 'けんびきょう' },
+      { id: 's045', category: 'small', display: '図書館', kana: 'としょかん' },
+      { id: 's046', category: 'small', display: '美術館', kana: 'びじゅつかん' },
+      { id: 's047', category: 'small', display: '博物館', kana: 'はくぶつかん' },
+      { id: 's048', category: 'small', display: '水族館', kana: 'すいぞくかん' },
+      { id: 's049', category: 'small', display: '天文台', kana: 'てんもんだい' },
+      { id: 's050', category: 'small', display: '駅伝', kana: 'えきでん' },
+      { id: 's051', category: 'small', display: '新幹線', kana: 'しんかんせん' },
+      { id: 's052', category: 'small', display: '飛行機', kana: 'ひこうき' },
+      { id: 's053', category: 'small', display: '潜水艦', kana: 'せんすいかん' },
+      { id: 's054', category: 'small', display: '宇宙船', kana: 'うちゅうせん' },
+      { id: 's055', category: 'small', display: '信号機', kana: 'しんごうき' },
+      { id: 's056', category: 'small', display: '交差点', kana: 'こうさてん' },
+      { id: 's057', category: 'small', display: '歩道橋', kana: 'ほどうきょう' },
+      { id: 's058', category: 'small', display: '摩天楼', kana: 'まてんろう' },
+      { id: 's059', category: 'small', display: '地下鉄', kana: 'ちかてつ' },
+      { id: 's060', category: 'small', display: '空港', kana: 'くうこう' },
+      { id: 's061', category: 'small', display: '灯台', kana: 'とうだい' },
+      { id: 's062', category: 'small', display: '風車', kana: 'ふうしゃ' },
+      { id: 's063', category: 'small', display: '水車', kana: 'すいしゃ' },
+      { id: 's064', category: 'small', display: '花火', kana: 'はなび' },
+      { id: 's065', category: 'small', display: '祭り', kana: 'まつり' },
+      { id: 's066', category: 'small', display: '風鈴', kana: 'ふうりん' },
+      { id: 's067', category: 'small', display: '提灯', kana: 'ちょうちん' },
+      { id: 's068', category: 'small', display: '折り紙', kana: 'おりがみ' },
+      { id: 's069', category: 'small', display: '万華鏡', kana: 'まんげきょう' },
+      { id: 's070', category: 'small', display: '竹林', kana: 'ちくりん' },
+      { id: 's071', category: 'small', display: '庭園', kana: 'ていえん' },
+      { id: 's072', category: 'small', display: '茶室', kana: 'ちゃしつ' },
+      { id: 's073', category: 'small', display: '抹茶', kana: 'まっちゃ' },
+      { id: 's074', category: 'small', display: '和菓子', kana: 'わがし' },
+      { id: 's075', category: 'small', display: '寿司', kana: 'すし' },
+      { id: 's076', category: 'small', display: '天ぷら', kana: 'てんぷら' },
+      { id: 's077', category: 'small', display: '蕎麦', kana: 'そば' },
+      { id: 's078', category: 'small', display: 'ラーメン', kana: 'らーめん' },
+      { id: 's079', category: 'small', display: '珈琲', kana: 'こーひー' },
+      { id: 's080', category: 'small', display: '紅茶', kana: 'こうちゃ' },
+      { id: 's081', category: 'small', display: '檸檬', kana: 'れもん' },
+      { id: 's082', category: 'small', display: '林檎', kana: 'りんご' },
+      { id: 's083', category: 'small', display: '葡萄', kana: 'ぶどう' },
+      { id: 's084', category: 'small', display: '向日葵', kana: 'ひまわり' },
+      { id: 's085', category: 'small', display: '紫陽花', kana: 'あじさい' },
+      { id: 's086', category: 'small', display: '椿', kana: 'つばき' },
+      { id: 's087', category: 'small', display: '白鳥', kana: 'はくちょう' },
+      { id: 's088', category: 'small', display: '鷹', kana: 'たか' },
+      { id: 's089', category: 'small', display: '梟', kana: 'ふくろう' },
+      { id: 's090', category: 'small', display: '鯨', kana: 'くじら' },
+      { id: 's091', category: 'small', display: '海豚', kana: 'いるか' },
+      { id: 's092', category: 'small', display: '狐', kana: 'きつね' },
+      { id: 's093', category: 'small', display: '狼', kana: 'おおかみ' },
+      { id: 's094', category: 'small', display: '龍', kana: 'りゅう' },
+      { id: 's095', category: 'small', display: '鳳凰', kana: 'ほうおう' },
+      { id: 's096', category: 'small', display: '電子', kana: 'でんし' },
+      { id: 's097', category: 'small', display: '暗号', kana: 'あんごう' },
+      { id: 's098', category: 'small', display: '記録', kana: 'きろく' },
+      { id: 's099', category: 'small', display: '挑戦', kana: 'ちょうせん' },
+      { id: 's100', category: 'small', display: '勝利', kana: 'しょうり' },
+
+      // --- 【中】四字熟語・ことわざ・短文（100語） ---
+      { id: 'm001', category: 'medium', display: '一期一会', kana: 'いちごいちえ' },
+      { id: 'm002', category: 'medium', display: '電光石火', kana: 'でんこうせっか' },
+      { id: 'm003', category: 'medium', display: '疾風迅雷', kana: 'しっぷうじんらい' },
+      { id: 'm004', category: 'medium', display: '明鏡止水', kana: 'めいきょうしすい' },
+      { id: 'm005', category: 'medium', display: '花鳥風月', kana: 'かちょうふうげつ' },
+      { id: 'm006', category: 'medium', display: '温故知新', kana: 'おんこちしん' },
+      { id: 'm007', category: 'medium', display: '因果応報', kana: 'いんがおうほう' },
+      { id: 'm008', category: 'medium', display: '以心伝心', kana: 'いしんでんしん' },
+      { id: 'm009', category: 'medium', display: '一石二鳥', kana: 'いっせきにちょう' },
+      { id: 'm010', category: 'medium', display: '十人十色', kana: 'じゅうにんといろ' },
+      { id: 'm011', category: 'medium', display: '四面楚歌', kana: 'しめんそか' },
+      { id: 'm012', category: 'medium', display: '起死回生', kana: 'きしかいせい' },
+      { id: 'm013', category: 'medium', display: '百発百中', kana: 'ひゃっぱつひゃくちゅう' },
+      { id: 'm014', category: 'medium', display: '千載一遇', kana: 'せんざいいちぐう' },
+      { id: 'm015', category: 'medium', display: '臨機応変', kana: 'りんきおうへん' },
+      { id: 'm016', category: 'medium', display: '臥薪嘗胆', kana: 'がしんしょうたん' },
+      { id: 'm017', category: 'medium', display: '勇往邁進', kana: 'ゆうおうまいしん' },
+      { id: 'm018', category: 'medium', display: '不撓不屈', kana: 'ふとうふくつ' },
+      { id: 'm019', category: 'medium', display: '初志貫徹', kana: 'しょしかんてつ' },
+      { id: 'm020', category: 'medium', display: '森羅万象', kana: 'しんらばんしょう' },
+      { id: 'm021', category: 'medium', display: '晴耕雨読', kana: 'せいこううどく' },
+      { id: 'm022', category: 'medium', display: '自画自賛', kana: 'じがじさん' },
+      { id: 'm023', category: 'medium', display: '単刀直入', kana: 'たんとうちょくにゅう' },
+      { id: 'm024', category: 'medium', display: '日進月歩', kana: 'にっしんげっぽ' },
+      { id: 'm025', category: 'medium', display: '試行錯誤', kana: 'しこうさくご' },
+      { id: 'm026', category: 'medium', display: '有言実行', kana: 'ゆうげんじっこう' },
+      { id: 'm027', category: 'medium', display: '無我夢中', kana: 'むがむちゅう' },
+      { id: 'm028', category: 'medium', display: '一心不乱', kana: 'いっしんふらん' },
+      { id: 'm029', category: 'medium', display: '前人未到', kana: 'ぜんじんみとう' },
+      { id: 'm030', category: 'medium', display: '空前絶後', kana: 'くうぜんぜつご' },
+      { id: 'm031', category: 'medium', display: '猿も木から落ちる', kana: 'さるもきからおちる' },
+      { id: 'm032', category: 'medium', display: '犬も歩けば棒に当たる', kana: 'いぬもあるけばぼうにあたる' },
+      { id: 'm033', category: 'medium', display: '塵も積もれば山となる', kana: 'ちりもつもればやまとなる' },
+      { id: 'm034', category: 'medium', display: '石の上にも三年', kana: 'いしのうえにもさんねん' },
+      { id: 'm035', category: 'medium', display: '急がば回れ', kana: 'いそがばまわれ' },
+      { id: 'm036', category: 'medium', display: '七転び八起き', kana: 'ななころびやおき' },
+      { id: 'm037', category: 'medium', display: '継続は力なり', kana: 'けいぞくはちからなり' },
+      { id: 'm038', category: 'medium', display: '光陰矢の如し', kana: 'こういんやのごとし' },
+      { id: 'm039', category: 'medium', display: '百聞は一見に如かず', kana: 'ひゃくぶんはいっけんにしかず' },
+      { id: 'm040', category: 'medium', display: '案ずるより産むが易し', kana: 'あんずるよりうむがやすし' },
+      { id: 'm041', category: 'medium', display: '能ある鷹は爪を隠す', kana: 'のうあるたかはつめをかくす' },
+      { id: 'm042', category: 'medium', display: '弘法にも筆の誤り', kana: 'こうぼうにもふでのあやまり' },
+      { id: 'm043', category: 'medium', display: '二兎を追う者は一兎をも得ず', kana: 'にとをおうものはいっとをもえず' },
+      { id: 'm044', category: 'medium', display: '覆水盆に返らず', kana: 'ふくすいぼんにかえらず' },
+      { id: 'm045', category: 'medium', display: '灯台下暗し', kana: 'とうだいもとくらし' },
+      { id: 'm046', category: 'medium', display: '花より団子', kana: 'はなよりだんご' },
+      { id: 'm047', category: 'medium', display: '類は友を呼ぶ', kana: 'るいはともをよぶ' },
+      { id: 'm048', category: 'medium', display: '善は急げ', kana: 'ぜんはいそげ' },
+      { id: 'm049', category: 'medium', display: '鉄は熱いうちに打て', kana: 'てつはあついうちにうて' },
+      { id: 'm050', category: 'medium', display: '笑う門には福来る', kana: 'わらうかどにはふくきたる' },
+      { id: 'm051', category: 'medium', display: '夜空に輝くネオンの光', kana: 'よぞらにかがやくねおんのひかり' },
+      { id: 'm052', category: 'medium', display: '静寂を切り裂くタイピング音', kana: 'せいじゃくをきりさくたいぴんぐおん' },
+      { id: 'm053', category: 'medium', display: '指先から生まれる無限の速度', kana: 'ゆびさきからうまれるむげんのそくど' },
+      { id: 'm054', category: 'medium', display: '限界を超えて自己ベスト更新', kana: 'げんかいをこえてじこべすとこうしん' },
+      { id: 'm055', category: 'medium', display: '正確な入力が勝利への近道', kana: 'せいかくなにゅうりょくがしょうりへのちかみち' },
+      { id: 'm056', category: 'medium', display: '青白い光が闇夜を照らす', kana: 'あおじろいひかりがやみよをてらす' },
+      { id: 'm057', category: 'medium', display: '瞬きする間に勝負が決まる', kana: 'まばたきするまにしょうぶがきまる' },
+      { id: 'm058', category: 'medium', display: '心の平静を保ち鍵盤を叩く', kana: 'こころのへいせいをたもちけんばんをたたく' },
+      { id: 'm059', category: 'medium', display: '未知なる領域への挑戦が始まる', kana: 'みちなるりょういきへのちょうせんがはじまる' },
+      { id: 'm060', category: 'medium', display: '頂点を目指して突き進む', kana: 'ちょうてんをめざしてつきすすむ' },
+      { id: 'm061', category: 'medium', display: '水滴石を穿つ', kana: 'すいてきいしをうがつ' },
+      { id: 'm062', category: 'medium', display: '虎穴に入らずんば虎子を得ず', kana: 'こけつにいらずんばこじをえず' },
+      { id: 'm063', category: 'medium', display: '禍を転じて福と為す', kana: 'わざわいをてんじてふくとなす' },
+      { id: 'm064', category: 'medium', display: '雨降って地固まる', kana: 'あめふってじかたまる' },
+      { id: 'm065', category: 'medium', display: '可愛い子には旅をさせよ', kana: 'かわいいこにはたびをさせよ' },
+      { id: 'm066', category: 'medium', display: '情けは人の為ならず', kana: 'なさけはひとのためならず' },
+      { id: 'm067', category: 'medium', display: '出る杭は打たれる', kana: 'でるくいはうたれる' },
+      { id: 'm068', category: 'medium', display: '郷に入っては郷に従え', kana: 'ごうにいってはごうにしたがえ' },
+      { id: 'm069', category: 'medium', display: '良薬は口に苦し', kana: 'りょうやくはくちににがし' },
+      { id: 'm070', category: 'medium', display: '背水の陣を敷く', kana: 'はいすいのじんをしく' },
+      { id: 'm071', category: 'medium', display: '画竜点睛を欠く', kana: 'がりょうてんせいをかく' },
+      { id: 'm072', category: 'medium', display: '五十歩百歩', kana: 'ごじっぽひゃっぽ' },
+      { id: 'm073', category: 'medium', display: '朝令暮改', kana: 'ちょうれいぼかい' },
+      { id: 'm074', category: 'medium', display: '傍若無人', kana: 'ぼうじゃくぶじん' },
+      { id: 'm075', category: 'medium', display: '五里霧中', kana: 'ごりむちゅう' },
+      { id: 'm076', category: 'medium', display: '疑心暗鬼', kana: 'ぎしんあんき' },
+      { id: 'm077', category: 'medium', display: '絶体絶命', kana: 'ぜったいぜつめい' },
+      { id: 'm078', category: 'medium', display: '九死一生', kana: 'きゅうしいっしょう' },
+      { id: 'm079', category: 'medium', display: '千変万化', kana: 'せんぺんばんか' },
+      { id: 'm080', category: 'medium', display: '縦横無尽', kana: 'じゅうおうむじん' },
+      { id: 'm081', category: 'medium', display: '天真爛漫', kana: 'てんしんらんまん' },
+      { id: 'm082', category: 'medium', display: '品行方正', kana: 'ひんこうほうせい' },
+      { id: 'm083', category: 'medium', display: '公明正大', kana: 'こうめいせいだい' },
+      { id: 'm084', category: 'medium', display: '博学多才', kana: 'はくがくたさい' },
+      { id: 'm085', category: 'medium', display: '才色兼備', kana: 'さいしょくけんび' },
+      { id: 'm086', category: 'medium', display: '文武両道', kana: 'ぶんぶりょうどう' },
+      { id: 'm087', category: 'medium', display: '質実剛健', kana: 'しつじつごうけん' },
+      { id: 'm088', category: 'medium', display: '堅忍不抜', kana: 'けんにんふばつ' },
+      { id: 'm089', category: 'medium', display: '唯我独尊', kana: 'ゆいがどくそん' },
+      { id: 'm090', category: 'medium', display: '諸行無常', kana: 'しょぎょうむじょう' },
+      { id: 'm091', category: 'medium', display: '色即是空', kana: 'しきそくぜくう' },
+      { id: 'm092', category: 'medium', display: '切磋琢磨', kana: 'せっさたくま' },
+      { id: 'm093', category: 'medium', display: '和衷協同', kana: 'わちゅうきょうどう' },
+      { id: 'm094', category: 'medium', display: '大同小異', kana: 'だいどうしょうい' },
+      { id: 'm095', category: 'medium', display: '取捨選択', kana: 'しゅしゃせんたく' },
+      { id: 'm096', category: 'medium', display: '本末転倒', kana: 'ほんまつてんとう' },
+      { id: 'm097', category: 'medium', display: '針小棒大', kana: 'しんしょうぼうだい' },
+      { id: 'm098', category: 'medium', display: '荒唐無稽', kana: 'こうとうむけい' },
+      { id: 'm099', category: 'medium', display: '支離滅裂', kana: 'しりめつれつ' },
+      { id: 'm100', category: 'medium', display: '完全無欠', kana: 'かんぜんむけつ' },
+
+      // --- 【大】長めの文章・名言・ことわざ（100語） ---
+      { id: 'l001', category: 'large', display: '千里の道も一歩から始まる', kana: 'せんりのみちもいっぽからはじまる' },
+      { id: 'l002', category: 'large', display: '少年よ大志を抱けという言葉がある', kana: 'しょうねんよたいしをいだけということばがある' },
+      { id: 'l003', category: 'large', display: '失敗は成功のもとと信じて前へ進む', kana: 'しっぱいはせいこうのもととしんじてまえへすすむ' },
+      { id: 'l004', category: 'large', display: '精神一到何事か成らざらん', kana: 'せいしんいっとうなにごとかならざらん' },
+      { id: 'l005', category: 'large', display: '天は自ら助くる者を助くという格言', kana: 'てんはみずからたすくるものをたすくというかくげん' },
+      { id: 'l006', category: 'large', display: '暗い夜道にネオンの看板が鮮やかに浮かび上がる', kana: 'くらいよみちにねおんのかんばんがあざやかにうかびあがる' },
+      { id: 'l007', category: 'large', display: '一文字も間違えずに最後まで駆け抜ける快感', kana: 'ひともじもまちがえずにさいごまでかけぬけるかいかん' },
+      { id: 'l008', category: 'large', display: '日々の小さな積み重ねがやがて大きな実を結ぶ', kana: 'ひびのちいさなつみかさねがやがておおきなみをむすぶ' },
+      { id: 'l009', category: 'large', display: 'どんな困難な壁も諦めなければ必ず乗り越えられる', kana: 'どんなこんなんなかべもあきらめなければかならずのりこえられる' },
+      { id: 'l010', category: 'large', display: '風林火山のように静かに構え雷のように素早く動く', kana: 'ふうりんかざんのようにしずかにかまえかみなりようにすばやくうごく' },
+      { id: 'l011', category: 'large', display: '春はあけぼのやうやう白くなりゆく山際少し明かりて', kana: 'はるはあけぼのようようしろくなりゆくやまぎわすこしあかりて' },
+      { id: 'l012', category: 'large', display: '祇園精舎の鐘の声諸行無常の響きあり', kana: 'ぎおんしょうじゃのかねのこえしょぎょうむじょうのひびきあり' },
+      { id: 'l013', category: 'large', display: 'ゆく河の流れは絶えずしてしかももとの水にあらず', kana: 'ゆくかわのながれはたえずしてしかももとのみずにあらず' },
+      { id: 'l014', category: 'large', display: 'つれづれなるままに日暮らし硯にむかひて', kana: 'つれづれなるままにひぐらしすずりにむかいて' },
+      { id: 'l015', category: 'large', display: '国境の長いトンネルを抜けると雪国であった', kana: 'こっきょうのながいとんねるをぬけるとゆきぐにであった' },
+      { id: 'l016', category: 'large', display: '吾輩は猫である名前はまだ無いどこで生れたか', kana: 'わがはいはねこであるなまえはまだないどこでうまれたか' },
+      { id: 'l017', category: 'large', display: 'メロスは激怒した必ず邪智暴虐の王を除かなければならぬ', kana: 'めろすはげきどしたかならずじゃちぼうぎゃくのおうをのぞかなければならぬ' },
+      { id: 'l018', category: 'large', display: '雨ニモマケズ風ニモマケズ雪ニモ夏ノ暑サニモマケヌ', kana: 'あめにもまけずかぜにもまけずゆきにもなつのあつさにもまけぬ' },
+      { id: 'l019', category: 'large', display: '銀河鉄道の夜に星めぐりの歌が静かに響き渡る', kana: 'ぎんがてつどうのよるにほしめぐりのうたがしずかにひびきわたる' },
+      { id: 'l020', category: 'large', display: '人事を尽くして天命を待つのが真の勝負師だ', kana: 'じんじをつくしててんめいをまつのがしんのしょうぶしだ' },
+      { id: 'l021', category: 'large', display: '速さだけでなく正確さを極めることで真の強さになる', kana: 'はやさだけでなくせいかくさをきわめることでしんのつよさになる' },
+      { id: 'l022', category: 'large', display: '未来の自分を変えるのは今この瞬間の行動だけだ', kana: 'みらいのじぶんをかえるのはいまこのしゅんかんのこうどうだけだ' },
+      { id: 'l023', category: 'large', display: '知恵は万代の宝であり誰にも奪うことができない', kana: 'ちえはばんだいのたからでありだれにもうばうことができない' },
+      { id: 'l024', category: 'large', display: '夢なき者に理想なし理想なき者に計画なし', kana: 'ゆめなきものにりそうなしりそうなきものにけいかくなし' },
+      { id: 'l025', category: 'large', display: '敵を知り己を知れば百戦危うからずと孫子は説いた', kana: 'てきをしりおのれをしればひゃくせんあやうからずとそんしはといた' },
+      { id: 'l026', category: 'large', display: '思い立ったが吉日という言葉通りすぐに行動しよう', kana: 'おもいたったがきちじつということばとおりすぐにこうどうしよう' },
+      { id: 'l027', category: 'large', display: '深夜のサイバー空間で世界中のライバルと競い合う', kana: 'しんやのさいばーくうかんでせかいじゅうのらいばるときそいあう' },
+      { id: 'l028', category: 'large', display: 'シアンとマゼンタの光の線が勝敗の行方を映し出す', kana: 'しあんとまぜんたのひかりのせんがしょうはいのゆくえをうつしだす' },
+      { id: 'l029', category: 'large', display: 'コンボが繋がるたびに電子音が心地よく高まっていく', kana: 'こんぼがつながるたびにでんしおんがここちよくたかまっていく' },
+      { id: 'l030', category: 'large', display: '最後の三十秒はスコアゲージが消えて緊張感が走る', kana: 'さいごのさんじゅうびょうはすこあげーじがきえてきんちょうかんがはしる' },
+      { id: 'l031', category: 'large', display: '昨日の自分よりも一歩でも前へ進むことが大切だ', kana: 'きのうのじぶんよりもいっぽでもまえへすすむことがたいせつだ' },
+      { id: 'l032', category: 'large', display: '練習は不可能を可能にする最高の魔法である', kana: 'れんしゅうはふかのうをかのうにするさいこうのまほうである' },
+      { id: 'l033', category: 'large', display: '強い者が勝つのではなく勝った者が強いのだ', kana: 'つよいものがかつのではなくかったものがつよいのだ' },
+      { id: 'l034', category: 'large', display: '集中力を研ぎ澄ませて次の単語を瞬時に読み取る', kana: 'しゅうちゅうりょくをとぎすませてつぎのたんごをしゅんじによみとる' },
+      { id: 'l035', category: 'large', display: 'キーボードを叩くリズムがまるで音楽のように響く', kana: 'きーぼーどをたたくりずむがまるでおんがくのようにひびく' },
+      { id: 'l036', category: 'large', display: 'どんな長い文章でも一文字ずつ丁寧に打ち込めば終わる', kana: 'どんなながいぶんしょうでもひともじずつていねいにうちこめばおわる' },
+      { id: 'l037', category: 'large', display: '満天の星空の下で静かに流れる時間を味わう', kana: 'まんてんのほしぞらのしたでしずかにながれるじかんをあじわう' },
+      { id: 'l038', category: 'large', display: '四季折々の美しい自然が日本の風景を彩っている', kana: 'しきおりおりのうつくしいしぜんがにほんのふうけいをいろどっている' },
+      { id: 'l039', category: 'large', display: '知識を蓄えるだけでなく実際に使うことで力になる', kana: 'ちしきをたくわえるだけでなくじっさいにつかうことでちからになる' },
+      { id: 'l040', category: 'large', display: '他人の評価を気にしすぎず自分の信じる道を歩もう', kana: 'たにんのひょうかをきにしすぎずじぶんのしんじるみちをあゆもう' },
+      { id: 'l041', category: 'large', display: '困難な状況こそ自分の真価が試される絶好の機会だ', kana: 'こんなんなじょうきょうこそじぶんのしんかがためされるぜっこうのきかいだ' },
+      { id: 'l042', category: 'large', display: '小さな親切が巡り巡って大きな幸せを運んでくる', kana: 'ちいさなしんせつがめぐりめぐっておおきなしあわせをはこんでくる' },
+      { id: 'l043', category: 'large', display: '朝起きるたびに新しい一日という贈り物を受け取る', kana: 'あさおきるたびにあたらしいいちにちというおくりものをうけとる' },
+      { id: 'l044', category: 'large', display: '読書は先人たちの知恵と対話できる素晴らしい習慣だ', kana: 'どくしょはせんじんたちのちえとたいわできるすばらしいしゅうかんだ' },
+      { id: 'l045', category: 'large', display: '目標を明確にすれば迷うことなく全力で走り出せる', kana: 'もくひょうをめいかくにすればまようことなくぜんりょくではしりだせる' },
+      { id: 'l046', category: 'large', display: '失敗を恐れて何もしないことこそが最大の失敗である', kana: 'しっぱいをおそれてなにもしないことこそがさいだいのしっぱいである' },
+      { id: 'l047', category: 'large', display: '笑顔は人と人との心の距離を一瞬で縮める力を持つ', kana: 'えがおはひととひととのこころのきょりをいっしゅんでちぢめるちからをもつ' },
+      { id: 'l048', category: 'large', display: '感謝の気持ちを言葉にして伝えることで絆が深まる', kana: 'かんしゃのきもちをことばにしてつたえることできずながふかまる' },
+      { id: 'l049', category: 'large', display: '自分の限界を決めているのはいつも自分自身の心だ', kana: 'じぶんのげんかいをきめているのはいつもじぶんじしんのこころだ' },
+      { id: 'l050', category: 'large', display: '栄光の座を掴み取るために今日も戦いの幕が上がる', kana: 'えいこうのざをつかみとるためにきょうもたたかいのまくがあがる' },
+      { id: 'l051', category: 'large', display: '暗闇の中でこそ一筋の光のありがたさがよく分かる', kana: 'くらやみのなかでこそひとすじのひかりのありがたさがよくわかる' },
+      { id: 'l052', category: 'large', display: '時間が解決してくれることもあれば行動が必要な時もある', kana: 'じかんがかいけつしてくれることもあればこうどうがひつようなときもある' },
+      { id: 'l053', category: 'large', display: '新しい技術が次々と誕生し私たちの暮らしを豊かにする', kana: 'あたらしいぎじゅつがつぎつぎとたんじょうしわたしたちのくらしをゆたかにする' },
+      { id: 'l054', category: 'large', display: '海に沈む夕日を眺めながら今日一日の出来事を振り返る', kana: 'うみにしずむゆうひをながめながらきょういちにちのできごとをふりかえる' },
+      { id: 'l055', category: 'large', display: '山頂から見下ろす景色は登り切った者だけの特権だ', kana: 'さんちょうからみおろすけしきはのぼりきったものだけのとっけんだ' },
+      { id: 'l056', category: 'large', display: '一秒を削り出す集中力がランキングの順位を押し上げる', kana: 'いちびょうをけずりだすしゅうちゅうりょくがらんきんぐのじゅんいをおしあげる' },
+      { id: 'l057', category: 'large', display: 'ライバルの存在があるからこそ人はどこまでも強くなれる', kana: 'らいばるのそんざいがあるからこそひとはどこまでもつよくなれる' },
+      { id: 'l058', category: 'large', display: '正しい姿勢でリラックスして打つことが疲労を防ぐコツ', kana: 'ただしいしせいでりらっくすしてうつことがひろうをふせぐこつ' },
+      { id: 'l059', category: 'large', display: '雨上がりのアスファルトに街のネオンが美しく反射する', kana: 'あめあがりのあすふぁるとにまちのねおんがうつくしくはんしゃする' },
+      { id: 'l060', category: 'large', display: '歴史を学ぶことで現代の課題を解決するヒントが見つかる', kana: 'れきしをまなぶことでげんだいのかだいをかいけつするひんとがみつかる' },
+      { id: 'l061', category: 'large', display: '言葉には人の心を動かす不思議な力が宿っている', kana: 'ことばにはひとのこころをうごかすふしぎなちからがやどっている' },
+      { id: 'l062', category: 'large', display: '小さな違和感を見逃さずに確認することが大きなミスを防ぐ', kana: 'ちいさないわかんをみのがさずにかくにんすることがおおきなみすをふせぐ' },
+      { id: 'l063', category: 'large', display: '世界中の人々とリアルタイムで繋がれる素晴らしい時代だ', kana: 'せかいじゅうのひとびととりあるたいむでつながれるすばらしいじだいだ' },
+      { id: 'l064', category: 'large', display: '自分の得意な分野を伸ばすことで誰にも負けない武器になる', kana: 'じぶんのとくいなぶんやをのばすことでだれにもまけないぶきになる' },
+      { id: 'l065', category: 'large', display: '焦らず慌てず一歩ずつ確実にゴールへ向かって歩もう', kana: 'あせらずあわてずいっぽずつかくじつにごーるへむかってあゆもう' },
+      { id: 'l066', category: 'large', display: 'どんなに高い山でも最初の一歩を踏み出さなければ登れない', kana: 'どんなにたかいやま でもさいしょのいっぽをふみださなければのぼれない'.replace(' ', '') },
+      { id: 'l067', category: 'large', display: '静かな図書館でページをめくる音だけが聞こえてくる', kana: 'しずかなとしょかんでぺーじをめくるおとだけがきこえてくる' },
+      { id: 'l068', category: 'large', display: '冬が終わり暖かい春風が吹くと桜のつぼみが膨らみ始める', kana: 'ふゆがおわりあたたかいはるかぜがふくとさくらのつぼみがふくらみはじめる' },
+      { id: 'l069', category: 'large', display: '夏の夜空に大輪の花火が打ち上がり歓声が沸き起こる', kana: 'なつのよぞらにたいりんのはなびがうちあがりかんせいがわきおこる' },
+      { id: 'l070', category: 'large', display: '秋の夜長に虫の声を聞きながら温かいお茶をいただく', kana: 'あきのよながにむしのこえをききながらあたたかいおちゃをいただく' },
+      { id: 'l071', category: 'large', display: '冬の朝に窓の外を見ると一面が真っ白な銀世界だった', kana: 'ふゆのあさにまどのそとをみるといちめんがまっしろなぎんせかいだった' },
+      { id: 'l072', category: 'large', display: '好奇心を持ち続けることがいつまでも若々しくいる秘訣だ', kana: 'こうきしんをもちつづけることがいつまでもわかわかしくいるひけつだ' },
+      { id: 'l073', category: 'large', display: '約束を守る誠実な態度が周囲からの厚い信頼を築く', kana: 'やくそくをまもるせいじつなたいどがしゅういからのあついしんらいをきずく' },
+      { id: 'l074', category: 'large', display: 'ピンチはチャンスと捉えて前向きに立ち向かう勇気を持とう', kana: 'ぴんちはちゃんすととらえてまえむきにたちむかうゆうきをもとう' },
+      { id: 'l075', category: 'large', display: '一つのことを極めた人の言葉には深い説得力がある', kana: 'ひとつのことをきわめたひとのことばにはふかいせっとくりょくがある' },
+      { id: 'l076', category: 'large', display: '音楽は国境や言語の壁を越えて人々の心を一つにする', kana: 'おんがくはこっきょうやげんごのかべをこえてひとびとのこころをひとつにする' },
+      { id: 'l077', category: 'large', display: '健康な体と健全な精神があってこそ最高のパフォーマンスが出る', kana: 'けんこうなからだとけんぜんなせいしんがあってこそさいこうのぱふぉーまんすがでる' },
+      { id: 'l078', category: 'large', display: '新しい環境へ飛び込むときは誰でも少しの不安を感じるものだ', kana: 'あたらしいかんきょうへとびこむときはだれでもすこしのふあんをかんじるものだ' },
+      { id: 'l079', category: 'large', display: '自分の過ちを素直に認められる人こそ本当に強い人間だ', kana: 'じぶんのあやまちをすなおにみとめられるひとこそほんとうにつよいにんげんだ' },
+      { id: 'l080', category: 'large', display: '夜明け前が一番暗いという言葉を信じて希望を持ち続ける', kana: 'よあけまえがいちばんくらいということばをしんじてきぼうをもちつづける' },
+      { id: 'l081', category: 'large', display: '効率を追求しながらも丁寧さを忘れない仕事ぶりが光る', kana: 'こうりつをついきゅうしながらもていねいさをわすれないしごとぶりがひかる' },
+      { id: 'l082', category: 'large', display: '遠くの親戚より近くの他人というように日頃の付き合いが大事', kana: 'とおくのしんせきよりちかくのたにんというようにひごろのつきあいがだいじ' },
+      { id: 'l083', category: 'large', display: '見ざる聞かざる言わざるの三猿は日光の彫刻として有名だ', kana: 'みざるきかざるいわざるのさんざるはにっこうのちょうこくとしてゆうめいだ' },
+      { id: 'l084', category: 'large', display: '急いでいるときほど深呼吸をして落ち着きを取り戻そう', kana: 'いそいでいるときほどしんこきゅうをしておちつきをとりもどそう' },
+      { id: 'l085', category: 'large', display: '地球は青かったという有名な言葉を残して宇宙飛行士は帰還した', kana: 'ちきゅうはあおかったというゆうめいなことばをのこしてうちゅうひこうしはきかんした' },
+      { id: 'l086', category: 'large', display: '創意工夫を凝らして誰も思いつかないアイデアを実現する', kana: 'そういくふうをこらしてだれもおもいつかないあいであをじつげんする' },
+      { id: 'l087', category: 'large', display: '勝利の美酒を味わうために厳しいトレーニングを乗り越える', kana: 'しょうりのびしゅをあじわうためにきびしいとれーにんぐをのりこえる' },
+      { id: 'l088', category: 'large', display: '情報の海の中から本当に価値のある真実を見極める目を持つ', kana: 'じょうほうのうみのなかからほんとうにかちのあるしんじつをみきわめるめをもつ' },
+      { id: 'l089', category: 'large', display: '一期一会の出会いを大切にして毎日を悔いなく生きよう', kana: 'いちごいちえのであいをたいせつにしてまいにちをくいなくいきよう' },
+      { id: 'l090', category: 'large', display: '光速を超えるような圧倒的なスピードで画面の文字を制覇する', kana: 'こうそくをこえるようなあっとうてきなすぴーどでがめんのもじをせいはする' },
+      { id: 'l091', category: 'large', display: 'サドンデスモードではたった一度のミスも許されない緊張感', kana: 'さどんですもーどではたったいちどのみすもゆるされないきんちょうかん' },
+      { id: 'l092', category: 'large', display: 'ランキングの頂点に名を刻むため全国のタイパーが集結する', kana: 'らんきんぐのちょうてんになをきざむためぜんこくのたいぱーがしゅうけつする' },
+      { id: 'l093', category: 'large', display: '伝統を守りながらも新しい挑戦を続けることで文化は発展する', kana: 'でんとうをまもりながらもあたらしいちょうせんをつづけることでぶんかははってんする' },
+      { id: 'l094', category: 'large', display: '豊かな想像力が未来の世界を切り拓く原動力となる', kana: 'ゆたかなそうぞうりょくがみらいのせかいをきりひらくげんどうりょくとなる' },
+      { id: 'l095', category: 'large', display: '小さな習慣の積み重ねが五年後十年後の自分を形作る', kana: 'ちいさなしゅうかんのつみかさねがごねんごじゅうねんごのじぶんをかたちづくる' },
+      { id: 'l096', category: 'large', display: '何事も基本が最も重要であり基礎を固めることで応用が効く', kana: 'なにごともきほんがもっともじゅうようでありきそをかためることでおうようがきく' },
+      { id: 'l097', category: 'large', display: '雨垂れ石を穿つように地道な努力はやがて大きな成果を生む', kana: 'あまだれいしをうがつようにじみちなどりょくはやがておおきなせいかをうむ' },
+      { id: 'l098', category: 'large', display: '夜空に浮かぶ満月が静かな湖面に美しく映し出されている', kana: 'よぞらにうかぶまんげつがしずかなこめんにうつくしくうつしだされている' },
+      { id: 'l099', category: 'large', display: '自分の可能性を信じて限界の壁を打ち破る瞬間が来た', kana: 'じぶんのかのうせいをしんじてげんかいのかべをうちやぶるしゅんかんがきた' },
+      { id: 'l100', category: 'large', display: 'ネオンタイプの伝説の称号を手に入れるのは一体誰だ', kana: 'ねおんたいぷのでんせつのしょうごうをてにいれるのはいったいだれだ' }
+    ];
+
+    // =========================================================================
+    // 5. 全46種類の称号定義（レア度は色分け専用・画面には非表示）
+    //    secret: true の称号（Sランクおよび管理者）は獲得までリスト非表示
+    // =========================================================================
+    const TITLES_DB = [
+      { id: 't01', name: '駆け出しタイパー', desc: '初めてログイン', rarity: 'R', secret: false },
+      { id: 't02', name: '管理者', desc: '管理者になる', rarity: 'GR', secret: true },
+      { id: 't03', name: 'CHALLENGER', desc: '全てのモードを1回以上プレイ', rarity: 'SR', secret: false },
+      { id: 't04', name: '初心者', desc: '累計1回プレイ', rarity: 'R', secret: false },
+      { id: 't05', name: '常連', desc: '累計10回プレイ', rarity: 'R', secret: false },
+      { id: 't06', name: '愛好家', desc: '累計50回プレイ', rarity: 'RR', secret: false },
+      { id: 't07', name: '軍人', desc: '累計100回プレイ', rarity: 'RRR', secret: false },
+      { id: 't08', name: '中毒者', desc: '累計300回プレイ', rarity: 'SR', secret: false },
+      { id: 't09', name: '好きこそものの上手なれ', desc: '累計500回プレイ', rarity: 'SR', secret: false },
+      { id: 't10', name: '老兵', desc: '累計750回プレイ', rarity: 'SR', secret: false },
+      { id: 't11', name: '最強', desc: '1,000回プレイ', rarity: 'UR', secret: false },
+      { id: 't12', name: '自己研磨', desc: '自己ベストスコア更新', rarity: 'RR', secret: false },
+      { id: 't13', name: 'LIMITBREAK', desc: '最高wpmを5回更新', rarity: 'UR', secret: false },
+      { id: 't14', name: '不屈の精神', desc: 'リトライを30回使う', rarity: 'RRR', secret: false },
+      { id: 't15', name: '鉄壁不抜', desc: 'サドンデスモードを完走', rarity: 'SR', secret: false },
+      { id: 't16', name: '金剛不壊', desc: 'サドンデスモードを5回完走', rarity: 'UR', secret: false },
+      { id: 't17', name: '連続', desc: '10COMBO達成', rarity: 'R', secret: false },
+      { id: 't18', name: '連鎖', desc: '30COMBO達成', rarity: 'RR', secret: false },
+      { id: 't19', name: '慎重派', desc: '50COMBO達成', rarity: 'RRR', secret: false },
+      { id: 't20', name: '潔癖症', desc: '75COMBO達成', rarity: 'SR', secret: false },
+      { id: 't21', name: 'ロボット', desc: '100COMBO達成', rarity: 'SR', secret: false },
+      { id: 't22', name: '精密機械', desc: '250COMBO達成', rarity: 'UR', secret: false },
+      { id: 't23', name: '完璧主義', desc: '350COMBO達成', rarity: 'GR', secret: false },
+      { id: 't24', name: '頑張ってるよ', desc: 'WPM30達成', rarity: 'RR', secret: false },
+      { id: 't25', name: '俺だって', desc: 'WPM40達成', rarity: 'RR', secret: false },
+      { id: 't26', name: '高速', desc: 'WPM45達成', rarity: 'RR', secret: false },
+      { id: 't27', name: '超高速', desc: 'WPM50達成', rarity: 'RRR', secret: false },
+      { id: 't28', name: '超音速', desc: 'WPM55達成', rarity: 'SR', secret: false },
+      { id: 't29', name: '超光速', desc: 'WPM60達成', rarity: 'SR', secret: false },
+      { id: 't30', name: '閃光', desc: 'WPM65達成', rarity: 'SR', secret: false },
+      { id: 't31', name: '電光石火', desc: 'WPM70達成', rarity: 'UR', secret: false },
+      { id: 't32', name: '疾風迅雷', desc: 'WPM70達成', rarity: 'UR', secret: false },
+      { id: 't33', name: '超次元', desc: 'WPM75達成', rarity: 'GR', secret: false },
+      { id: 't34', name: 'バーサーカー', desc: 'レートバトルを50回プレイする', rarity: 'GR', secret: false },
+      { id: 't35', name: 'BADASS', desc: 'レートバトルで一回勝利する', rarity: 'RR', secret: false },
+      { id: 't36', name: '守備職人', desc: 'レートバトルのレートが1600になる', rarity: 'RR', secret: false },
+      { id: 't37', name: 'ストレート', desc: 'レートバトルのレートが1700になる', rarity: 'RR', secret: false },
+      { id: 't38', name: 'AWESOME！', desc: 'レートが1800になる', rarity: 'RRR', secret: false },
+      { id: 't39', name: '仙人', desc: 'レートバトルのレートが1900になる', rarity: 'SR', secret: false },
+      { id: 't40', name: '喧嘩嫌い', desc: 'レートバトルのレートが1400になる', rarity: 'S', secret: true },
+      { id: 't41', name: '平和主義', desc: 'レートバトルのレートが1300になる', rarity: 'S', secret: true },
+      { id: 't42', name: '伝説', desc: 'レートバトルのレートが2000になる', rarity: 'GR', secret: false },
+      { id: 't43', name: '親愛なる隣人', desc: 'カジュアルバトルを3回プレイする', rarity: 'RR', secret: false },
+      { id: 't44', name: '404ERROR', desc: 'ミス404回を累計達成', rarity: 'S', secret: true },
+      { id: 't45', name: 'プレデター', desc: 'サドンデスモードを10回プレーする', rarity: 'S', secret: true },
+      { id: 't46', name: 'リタイアー', desc: 'オンラインマッチで30回リタイアする', rarity: 'S', secret: true }
+    ];
+
+    // =========================================================================
+    // 6. セーブデータ管理（LocalStorage + バージョン互換性マイグレーション + Firebase同期）
+    // =========================================================================
+    const SAVE_KEY = 'neontype_save_data';
+    const CURRENT_SCHEMA_VERSION = 1;
+
+    // デフォルトアバターSVG（外部画像URL依存なし）
+    function createDefaultAvatarDataUrl(seedText = 'NT') {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+        <rect width="120" height="120" rx="60" fill="#0b1324"/>
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#00f3ff" stroke-width="4"/>
+        <text x="60" y="70" font-family="monospace" font-size="36" font-weight="bold" fill="#00f3ff" text-anchor="middle">${seedText.slice(0, 2).toUpperCase()}</text>
+      </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // 初期プレイヤーデータ生成
+    function createInitialProfile() {
+      const randomId = 'player_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      const guestNum = Math.floor(1000 + Math.random() * 9000);
+      return {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        playerId: randomId,
+        username: `Guest_${guestNum}`,
+        avatar: createDefaultAvatarDataUrl('NT'),
+        equippedTitleId: 't01',
+        unlockedTitles: ['t01'], // 初回ログイン称号「駆け出しタイパー」
+        isAdmin: false,
+        isBanned: false,
+        rating: 1500,
+        totalPlays: 0,
+        modePlays: {
+          'FRASH': 0,
+          'SPEED': 0,
+          'OVERDRIVE': 0,
+          'MARATHON': 0,
+          'SADDEN DEATH': 0,
+          'casual': 0,
+          'rate': 0
+        },
+        bestScores: {
+          'FRASH': 0,
+          'SPEED': 0,
+          'OVERDRIVE': 0,
+          'MARATHON': 0,
+          'SADDEN DEATH': 0
+        },
+        rateWins: 0,
+        casualWins: 0,
+        suddenDeathClears: 0,
+        maxWpm: 0,
+        maxWpmUpdates: 0,
+        maxCombo: 0,
+        wpmSum: 0,
+        wpmCount: 0,
+        totalKeystrokes: 0,
+        totalMistypes: 0,
+        retryCount: 0,
+        onlineRetires: 0,
+        createdAt: Date.now()
+      };
+    }
+
+    // ローカルストレージからセーブデータを読み込み、将来のアップデートでも欠損キーを自動補完
+    function loadPlayerProfile() {
+      const base = createInitialProfile();
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) {
+          savePlayerProfile(base, false);
+          return base;
+        }
+        const parsed = JSON.parse(raw);
+        const merged = {
+          ...base,
+          ...parsed,
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          modePlays: { ...base.modePlays, ...(parsed.modePlays || {}) },
+          bestScores: { ...base.bestScores, ...(parsed.bestScores || {}) },
+          unlockedTitles: Array.from(new Set(['t01', ...(parsed.unlockedTitles || [])]))
+        };
+        if (merged.isAdmin && !merged.unlockedTitles.includes('t02')) {
+          merged.unlockedTitles.push('t02');
+        }
+        return merged;
+      } catch (e) {
+        console.error('セーブデータ読み込みエラー:', e);
+        return base;
+      }
+    }
+
+    let player = loadPlayerProfile();
+    let activeWords = [...DEFAULT_WORDS]; // Firebaseから追加・削除されたワードを反映する配列
+    let allPlayersCache = {};             // ランキング・プロフィール閲覧・管理者リスト用キャッシュ
+    let leaderboardsCache = {};           // 各モードのランキングキャッシュ
+
+    // セーブデータをLocalStorageとFirebaseの両方に自動保存
+    async function savePlayerProfile(profileObj = player, syncRemote = true) {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(profileObj));
+      } catch (e) {
+        console.warn('LocalStorage保存容量警告:', e);
+      }
+      refreshPlayerUI();
+
+      if (syncRemote && profileObj.playerId) {
+        try {
+          const avgWpm = profileObj.wpmCount > 0 ? Number((profileObj.wpmSum / profileObj.wpmCount).toFixed(1)) : 0;
+          const avgMiss = profileObj.totalKeystrokes > 0
+            ? Number(((profileObj.totalMistypes / profileObj.totalKeystrokes) * 100).toFixed(1))
+            : 0;
+
+          await update(ref(db, `players/${profileObj.playerId}`), {
+            playerId: profileObj.playerId,
+            username: profileObj.username,
+            avatar: profileObj.avatar,
+            equippedTitleId: profileObj.equippedTitleId,
+            isAdmin: !!profileObj.isAdmin,
+            rating: profileObj.rating,
+            totalPlays: profileObj.totalPlays,
+            rateWins: profileObj.rateWins,
+            casualWins: profileObj.casualWins,
+            suddenDeathClears: profileObj.suddenDeathClears,
+            maxWpm: profileObj.maxWpm,
+            avgWpm: avgWpm,
+            avgMiss: avgMiss,
+            bestScores: profileObj.bestScores,
+            lastSeen: Date.now()
+          });
+        } catch (err) {
+          console.warn('Firebase同期スキップ:', err);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 7. 称号判定エンジン（プレイ中・リザルト時・レート変動時に全46条件をチェック）
+    // =========================================================================
+    function checkAndUnlockTitles() {
+      let newlyUnlocked = [];
+
+      const unlock = (id) => {
+        if (!player.unlockedTitles.includes(id)) {
+          player.unlockedTitles.push(id);
+          const titleObj = TITLES_DB.find(t => t.id === id);
+          if (titleObj) newlyUnlocked.push(titleObj);
+        }
+      };
+
+      // ログイン・管理者
+      unlock('t01');
+      if (player.isAdmin) unlock('t02');
+
+      // 全モード1回以上プレイ (CHALLENGER)
+      const allModes = ['FRASH', 'SPEED', 'OVERDRIVE', 'MARATHON', 'SADDEN DEATH', 'casual', 'rate'];
+      if (allModes.every(m => (player.modePlays[m] || 0) >= 1)) unlock('t03');
+
+      // 累計プレイ回数
+      if (player.totalPlays >= 1) unlock('t04');
+      if (player.totalPlays >= 10) unlock('t05');
+      if (player.totalPlays >= 50) unlock('t06');
+      if (player.totalPlays >= 100) unlock('t07');
+      if (player.totalPlays >= 300) unlock('t08');
+      if (player.totalPlays >= 500) unlock('t09');
+      if (player.totalPlays >= 750) unlock('t10');
+      if (player.totalPlays >= 1000) unlock('t11');
+
+      // 最高WPM更新5回
+      if (player.maxWpmUpdates >= 5) unlock('t13');
+
+      // リトライ30回
+      if (player.retryCount >= 30) unlock('t14');
+
+      // サドンデス完走
+      if (player.suddenDeathClears >= 1) unlock('t15');
+      if (player.suddenDeathClears >= 5) unlock('t16');
+
+      // COMBO達成
+      if (player.maxCombo >= 10) unlock('t17');
+      if (player.maxCombo >= 30) unlock('t18');
+      if (player.maxCombo >= 50) unlock('t19');
+      if (player.maxCombo >= 75) unlock('t20');
+      if (player.maxCombo >= 100) unlock('t21');
+      if (player.maxCombo >= 250) unlock('t22');
+      if (player.maxCombo >= 350) unlock('t23');
+
+      // WPM達成
+      if (player.maxWpm >= 30) unlock('t24');
+      if (player.maxWpm >= 40) unlock('t25');
+      if (player.maxWpm >= 45) unlock('t26');
+      if (player.maxWpm >= 50) unlock('t27');
+      if (player.maxWpm >= 55) unlock('t28');
+      if (player.maxWpm >= 60) unlock('t29');
+      if (player.maxWpm >= 65) unlock('t30');
+      if (player.maxWpm >= 70) {
+        unlock('t31');
+        unlock('t32');
+      }
+      if (player.maxWpm >= 75) unlock('t33');
+
+      // レートバトル回数・勝利・レート条件
+      if ((player.modePlays['rate'] || 0) >= 50) unlock('t34');
+      if (player.rateWins >= 1) unlock('t35');
+      if (player.rating >= 1600) unlock('t36');
+      if (player.rating >= 1700) unlock('t37');
+      if (player.rating >= 1800) unlock('t38');
+      if (player.rating >= 1900) unlock('t39');
+      if (player.rating <= 1400) unlock('t40');
+      if (player.rating <= 1300) unlock('t41');
+      if (player.rating >= 2000) unlock('t42');
+
+      // カジュアルバトル3回
+      if ((player.modePlays['casual'] || 0) >= 3) unlock('t43');
+
+      // シークレット実績
+      if (player.totalMistypes >= 404) unlock('t44');
+      if ((player.modePlays['SADDEN DEATH'] || 0) >= 10) unlock('t45');
+      if (player.onlineRetires >= 30) unlock('t46');
+
+      if (newlyUnlocked.length > 0) {
+        newlyUnlocked.forEach(t => {
+          showToast(`🎖 新しい称号を獲得！「${t.name}」`, `rarity-${t.rarity}`);
+        });
+        savePlayerProfile();
+      }
+    }
+
+    function unlockSpecificTitle(titleId) {
+      if (!player.unlockedTitles.includes(titleId)) {
+        player.unlockedTitles.push(titleId);
+        const t = TITLES_DB.find(x => x.id === titleId);
+        if (t) showToast(`🎖 新しい称号を獲得！「${t.name}」`, `rarity-${t.rarity}`);
+        savePlayerProfile();
+      }
+    }
+
+    // トースト通知を表示（alertの代替）
+    function showToast(message, extraClass = '') {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto neon-panel rounded-xl px-4 py-3 text-xs sm:text-sm font-bold shadow-lg border-cyan-400 transition-all duration-300 ${extraClass}`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(20px)';
+        setTimeout(() => el.remove(), 300);
+      }, 3600);
+    }
+
+    // =========================================================================
+    // 8. Firebase リアルタイムリスナー（ニュース・オンラインプレゼンス・ランキング・DM・ワード）
+    // =========================================================================
+    function initFirebaseRealtimeSync() {
+      // 8-1. 自分のオンラインプレゼンス登録（切断時に自動offline化）
+      const connectedRef = ref(db, '.info/connected');
+      onValue(connectedRef, (snap) => {
+        const dot = document.getElementById('connStatusDot');
+        if (snap.val() === true) {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+          const statusRef = ref(db, `presence/${player.playerId}`);
+          onDisconnect(statusRef).set({ online: false, lastSeen: Date.now() });
+          set(statusRef, { online: true, lastSeen: Date.now() });
+          savePlayerProfile(player, true);
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-red-500';
+        }
+      });
+
+      // 8-2. 上部電光掲示板ニュースのリアルタイム購読
+      onValue(ref(db, 'system/news'), (snap) => {
+        const val = snap.val();
+        if (val && val.text) {
+          document.getElementById('newsTickerText').textContent = val.text;
+          const adminInput = document.getElementById('adminNewsInput');
+          if (adminInput && !adminInput.value) adminInput.value = val.text;
+        }
+      });
+
+      // 8-3. カスタムワードリストの同期（管理者が追加・削除した単語を反映）
+      onValue(ref(db, 'system/words'), (snap) => {
+        const data = snap.val();
+        if (!data) {
+          activeWords = [...DEFAULT_WORDS];
+        } else {
+          const deletedIds = data.deleted || {};
+          const customMap = data.custom || {};
+          const baseFiltered = DEFAULT_WORDS.filter(w => !deletedIds[w.id]);
+          const customList = Object.values(customMap);
+          activeWords = [...baseFiltered, ...customList];
+        }
+        if (!document.getElementById('screen-admin').classList.contains('hidden')) {
+          renderAdminWordList('all');
+        }
+      });
+
+      // 8-4. プレイヤー一覧の購読（BAN状態同期・ランキング・管理者リスト用）
+      onValue(ref(db, 'players'), (snap) => {
+        allPlayersCache = snap.val() || {};
+        const meRemote = allPlayersCache[player.playerId];
+        if (meRemote && typeof meRemote.isBanned === 'boolean') {
+          player.isBanned = meRemote.isBanned;
+        }
+        if (!document.getElementById('screen-ranking').classList.contains('hidden')) {
+          renderRankingTable(currentRankingTab);
+        }
+        if (player.isAdmin) {
+          renderAdminPlayersList();
+        }
+      });
+
+      // 8-5. オンラインプレゼンスの購読
+      onValue(ref(db, 'presence'), (snap) => {
+        window._presenceCache = snap.val() || {};
+        if (player.isAdmin) {
+          renderAdminPlayersList();
+        }
+      });
+
+      // 8-6. 各ソロモードランキングの購読
+      onValue(ref(db, 'leaderboards'), (snap) => {
+        leaderboardsCache = snap.val() || {};
+        if (!document.getElementById('screen-ranking').classList.contains('hidden')) {
+          renderRankingTable(currentRankingTab);
+        }
+      });
+
+      // 8-7. オンライン対戦待機キューの人数リアルタイム表示
+      onValue(ref(db, 'queues/casual'), (snap) => {
+        const q = snap.val() || {};
+        const count = Object.values(q).filter(item => item && item.status === 'waiting').length;
+        document.getElementById('casualWaitingCount').textContent = count;
+        if (matchmakingState.active && matchmakingState.type === 'casual') {
+          document.getElementById('matchQueueLiveCount').textContent = count;
+        }
+      });
+
+      onValue(ref(db, 'queues/rate'), (snap) => {
+        const q = snap.val() || {};
+        const count = Object.values(q).filter(item => item && item.status === 'waiting').length;
+        document.getElementById('rateWaitingCount').textContent = count;
+        if (matchmakingState.active && matchmakingState.type === 'rate') {
+          document.getElementById('matchQueueLiveCount').textContent = count;
+        }
+      });
+
+      // 8-8. 管理者宛てDMの未読監視（未読があれば「！」バッジを表示）
+      onValue(ref(db, 'admin_dms'), (snap) => {
+        window._adminDmsCache = snap.val() || {};
+        const hasUnread = Object.values(window._adminDmsCache).some(dm => dm && !dm.read);
+        if (player.isAdmin) {
+          document.getElementById('headerAdminAlert').classList.toggle('hidden', !hasUnread);
+          document.getElementById('myPageAdminAlert').classList.toggle('hidden', !hasUnread);
+          document.getElementById('adminTabPlayerAlert').classList.toggle('hidden', !hasUnread);
+          renderAdminPlayersList();
+        }
+      });
+    }
+
+    // =========================================================================
+    // 9. 画面遷移・UI更新ロジック
+    // =========================================================================
+    document.getElementById('btnStartGame').addEventListener('click', () => {
+      SoundEngine.init();
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      checkAndUnlockTitles();
+      refreshPlayerUI();
+    });
+
+    window.navigateTo = function (screenName) {
+      // ゲーム中やマッチング中に離脱する場合はクリーンアップ
+      if (gameState.running) stopGameTimers();
+      if (matchmakingState.active) cancelOnlineMatchmaking(true);
+
+      const sections = ['home', 'matchmaking', 'game', 'result', 'ranking', 'mypage', 'admin'];
+      sections.forEach(s => {
+        const el = document.getElementById(`screen-${s}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`screen-${screenName}`);
+      if (target) target.classList.remove('hidden');
+
+      if (screenName === 'home') refreshPlayerUI();
+      if (screenName === 'mypage') refreshMyPageUI();
+      if (screenName === 'ranking') renderRankingTable(currentRankingTab);
+      if (screenName === 'admin') {
+        if (!player.isAdmin) {
+          navigateTo('home');
+          return;
+        }
+        switchAdminTab('news');
+      }
+    };
+
+    function getTitleById(id) {
+      return TITLES_DB.find(t => t.id === id) || TITLES_DB[0];
+    }
+
+    function refreshPlayerUI() {
+      const titleObj = getTitleById(player.equippedTitleId);
+
+      // ヘッダー
+      document.getElementById('headerAvatar').src = player.avatar;
+      document.getElementById('headerUsername').textContent = player.username;
+      document.getElementById('headerRate').textContent = `RATE: ${player.rating}`;
+
+      // ホーム
+      document.getElementById('homeAvatar').src = player.avatar;
+      document.getElementById('homeUsername').textContent = player.username;
+      document.getElementById('homeRate').textContent = player.rating;
+      document.getElementById('homeRateInline').textContent = player.rating;
+      document.getElementById('homeMaxWpm').textContent = player.maxWpm;
+      document.getElementById('homeTotalPlays').textContent = player.totalPlays;
+
+      const homeBadge = document.getElementById('homeTitleBadge');
+      homeBadge.textContent = titleObj.name;
+      homeBadge.className = `inline-block text-xs font-bold px-2.5 py-0.5 rounded border mb-1 rarity-${titleObj.rarity}`;
+
+      document.getElementById('homeAdminTag').classList.toggle('hidden', !player.isAdmin);
+      document.getElementById('btnOpenAdminPanel').classList.toggle('hidden', !player.isAdmin);
+    }
+
+    function refreshMyPageUI() {
+      refreshPlayerUI();
+      const titleObj = getTitleById(player.equippedTitleId);
+      document.getElementById('myPageAvatarPreview').src = player.avatar;
+      document.getElementById('myPageUsernameInput').value = player.username;
+
+      const eqTitleEl = document.getElementById('myPageEquippedTitle');
+      eqTitleEl.textContent = titleObj.name;
+      eqTitleEl.className = `inline-block text-sm font-bold px-3 py-1 rounded border rarity-${titleObj.rarity}`;
+
+      // 称号カウント（未獲得シークレットを除いた表示対象総数と獲得数）
+      const visibleTotal = TITLES_DB.filter(t => !t.secret || player.unlockedTitles.includes(t.id)).length;
+      document.getElementById('unlockedTitleCount').textContent = player.unlockedTitles.length;
+      document.getElementById('visibleTitleTotal').textContent = visibleTotal;
+
+      // 戦績スタッツ
+      const avgWpm = player.wpmCount > 0 ? (player.wpmSum / player.wpmCount).toFixed(1) : '0.0';
+      const avgMiss = player.totalKeystrokes > 0
+        ? ((player.totalMistypes / player.totalKeystrokes) * 100).toFixed(1)
+        : '0.0';
+
+      document.getElementById('statRate').textContent = player.rating;
+      document.getElementById('statMaxWpm').textContent = player.maxWpm;
+      document.getElementById('statAvgWpm').textContent = avgWpm;
+      document.getElementById('statAvgMiss').textContent = `${avgMiss}%`;
+
+      document.getElementById('statRateWins').textContent = `${player.rateWins}勝`;
+      document.getElementById('statCasualWins').textContent = `${player.casualWins}勝`;
+      document.getElementById('statSuddenClears').textContent = `${player.suddenDeathClears}回`;
+      document.getElementById('statTotalPlays').textContent = `${player.totalPlays}回`;
+
+      document.getElementById('bestFrash').textContent = player.bestScores['FRASH'] || 0;
+      document.getElementById('bestSpeed').textContent = player.bestScores['SPEED'] || 0;
+      document.getElementById('bestOverdrive').textContent = player.bestScores['OVERDRIVE'] || 0;
+      document.getElementById('bestMarathon').textContent = player.bestScores['MARATHON'] || 0;
+      document.getElementById('bestSudden').textContent = player.bestScores['SADDEN DEATH'] || 0;
+    }
+
+    // ユーザー名保存（admin11233 が入力された場合は永続的に管理者権限を付与）
+    window.saveUsernameFromInput = function () {
+      const input = document.getElementById('myPageUsernameInput');
+      const val = input.value.trim();
+      if (!val) {
+        showToast('名前を入力してください');
+        return;
+      }
+
+      if (val === 'admin11233') {
+        player.isAdmin = true;
+        unlockSpecificTitle('t02'); // 管理者称号アンロック
+        showToast('⚙ 管理者権限が認証されました！');
+      }
+
+      player.username = val;
+      savePlayerProfile();
+      refreshMyPageUI();
+      showToast('プロフィールを保存しました');
+    };
+
+    // アイコン画像アップロード処理（Canvasで160x160にリサイズしてLocalStorage & Firebaseに保存）
+    window.handleAvatarUpload = function (event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const size = 160;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+
+          // 中央正方形トリミング
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+
+          player.avatar = canvas.toDataURL('image/jpeg', 0.82);
+          savePlayerProfile();
+          refreshMyPageUI();
+          showToast('アイコン画像を更新しました');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // 称号リストモーダル描画（Sレアと管理者は獲得まで非表示・レア度記号は表示しない）
+    window.openTitlesModal = function () {
+      const grid = document.getElementById('titlesGridContainer');
+      grid.innerHTML = '';
+
+      TITLES_DB.forEach(t => {
+        const isUnlocked = player.unlockedTitles.includes(t.id);
+        // シークレット称号は未獲得なら非表示
+        if (t.secret && !isUnlocked) return;
+
+        const isEquipped = player.equippedTitleId === t.id;
+        const card = document.createElement('div');
+        card.className = `rounded-xl p-3.5 border flex items-center justify-between gap-3 transition ${
+          isUnlocked
+            ? 'bg-slate-950/90 border-slate-700 hover:border-cyan-400'
+            : 'bg-slate-950/40 border-slate-800/60 opacity-50'
+        }`;
+
+        card.innerHTML = `
+          <div class="space-y-1">
+            <div class="font-bold text-sm sm:text-base rarity-${t.rarity}">${t.name}</div>
+            <div class="text-xs text-slate-400">${t.desc}</div>
+          </div>
+          <div>
+            ${
+              isEquipped
+                ? `<span class="px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 text-xs font-bold">装備中</span>`
+                : isUnlocked
+                  ? `<button onclick="equipTitle('${t.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-cyan-600 text-white text-xs font-bold transition">セット</button>`
+                  : `<span class="text-xs text-slate-600 font-mono-tech">LOCKED</span>`
+            }
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('modal-titles').classList.remove('hidden');
+    };
+
+    window.equipTitle = function (titleId) {
+      if (!player.unlockedTitles.includes(titleId)) return;
+      player.equippedTitleId = titleId;
+      savePlayerProfile();
+      refreshMyPageUI();
+      openTitlesModal();
+      showToast(`称号「${getTitleById(titleId).name}」をセットしました`);
+    };
+
+    window.closeModal = function (id) {
+      document.getElementById(id).classList.add('hidden');
+    };
+
+    // =========================================================================
+    // 10. タイピングゲーム進行エンジン（ソロ 5モード ＆ オンライン 2モード共通）
+    // =========================================================================
+    const SOLO_CONFIG = {
+      'FRASH': { duration: 30, suddenDeath: false },
+      'SPEED': { duration: 60, suddenDeath: false },
+      'OVERDRIVE': { duration: 180, suddenDeath: false },
+      'MARATHON': { duration: 300, suddenDeath: false },
+      'SADDEN DEATH': { duration: 100, suddenDeath: true }
+    };
+
+    let lastPlayedConfig = { isOnline: false, mode: 'SPEED' };
+
+    let gameState = {
+      running: false,
+      waitingSpace: false,
+      isOnline: false,
+      mode: 'SPEED',
+      duration: 60,
+      remaining: 60,
+      suddenDeath: false,
+      startTime: 0,
+      score: 0,
+      combo: 0,
+      maxComboInRun: 0,
+      validKeys: 0,
+      mistypes: 0,
+      peakWpmInRun: 0,
+      lastWordId: null,
+      tracker: null,
+      currentWord: null,
+      timerInterval: null,
+      // オンライン戦用情報
+      battleId: null,
+      opponent: null,
+      opponentScore: 0,
+      battleListenerRef: null
+    };
+
+    function stopGameTimers() {
+      gameState.running = false;
+      gameState.waitingSpace = false;
+      if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+      }
+      if (gameState.battleListenerRef) {
+        off(gameState.battleListenerRef);
+        gameState.battleListenerRef = null;
+      }
+    }
+
+    // 同じ単語が連続で出ないように次の単語を抽選
+    function pickNextWord() {
+      if (activeWords.length === 0) activeWords = [...DEFAULT_WORDS];
+      let candidates = activeWords;
+      if (candidates.length > 1 && gameState.lastWordId) {
+        candidates = candidates.filter(w => w.id !== gameState.lastWordId);
+      }
+      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      gameState.lastWordId = chosen.id;
+      gameState.currentWord = chosen;
+      gameState.tracker = new RomajiTypingTracker(chosen.kana);
+      renderTypingWord();
+    }
+
+    // ネオンサイン（点灯済みシアン文字 ＋ 未点灯ダーク文字）を描画
+    function renderTypingWord() {
+      if (!gameState.currentWord || !gameState.tracker) return;
+      document.getElementById('wordKana').textContent = gameState.currentWord.kana;
+      document.getElementById('wordDisplay').textContent = gameState.currentWord.display;
+
+      const guide = gameState.tracker.getDisplayGuide();
+      const romajiEl = document.getElementById('wordRomaji');
+
+      const litHtml = guide.lit
+        .split('')
+        .map(ch => `<span class="char-lit">${escapeHtml(ch)}</span>`)
+        .join('');
+
+      const unlitChars = guide.unlit.split('');
+      const unlitHtml = unlitChars
+        .map((ch, idx) => `<span class="char-unlit ${idx === 0 ? 'char-cursor' : ''}">${escapeHtml(ch)}</span>`)
+        .join('');
+
+      romajiEl.innerHTML = litHtml + unlitHtml;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    // ソロモード準備画面を開く（スペースキーまたはタップで3秒カウント開始）
+    window.prepareSoloMode = function (modeName) {
+      if (player.isBanned) {
+        document.getElementById('banOverlay').classList.remove('hidden');
+        return;
+      }
+
+      const cfg = SOLO_CONFIG[modeName];
+      if (!cfg) return;
+
+      lastPlayedConfig = { isOnline: false, mode: modeName };
+      stopGameTimers();
+
+      gameState = {
+        ...gameState,
+        running: false,
+        waitingSpace: true,
+        isOnline: false,
+        mode: modeName,
+        duration: cfg.duration,
+        remaining: cfg.duration,
+        suddenDeath: cfg.suddenDeath,
+        score: 0,
+        combo: 0,
+        maxComboInRun: 0,
+        validKeys: 0,
+        mistypes: 0,
+        peakWpmInRun: 0,
+        battleId: null,
+        opponent: null
+      };
+
+      navigateTo('game');
+      document.getElementById('onlineBattleBar').classList.add('hidden');
+      document.getElementById('gameReadyOverlay').classList.remove('hidden');
+      document.getElementById('readyModeTitle').textContent = modeName;
+      document.getElementById('readyInstruction').classList.remove('hidden');
+      document.getElementById('countdownNumber').classList.add('hidden');
+      updateGameHud();
+      pickNextWord();
+    };
+
+    // ソロ開始トリガー（Spaceキー押下またはオーバーレイタップ）
+    function triggerSoloCountdown() {
+      if (!gameState.waitingSpace) return;
+      gameState.waitingSpace = false;
+      SoundEngine.init();
+      focusMobileInput();
+
+      const inst = document.getElementById('readyInstruction');
+      const countEl = document.getElementById('countdownNumber');
+      inst.classList.add('hidden');
+      countEl.classList.remove('hidden');
+
+      let count = 3;
+      countEl.textContent = count;
+      SoundEngine.playTypeSound(10);
+
+      const cdTimer = setInterval(() => {
+        count -= 1;
+        if (count > 0) {
+          countEl.textContent = count;
+          SoundEngine.playTypeSound(15);
+        } else {
+          clearInterval(cdTimer);
+          document.getElementById('gameReadyOverlay').classList.add('hidden');
+          beginActiveGameplay();
+        }
+      }, 1000);
+    }
+
+    document.getElementById('gameReadyOverlay').addEventListener('click', () => {
+      if (gameState.waitingSpace) triggerSoloCountdown();
+    });
+
+    // 実際のタイピング計測スタート
+    function beginActiveGameplay() {
+      gameState.running = true;
+      gameState.startTime = performance.now();
+      focusMobileInput();
+
+      gameState.timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - gameState.startTime) / 1000;
+        gameState.remaining = Math.max(0, gameState.duration - elapsed);
+
+        // オンライン戦の残り30秒ゲージ非表示判定
+        if (gameState.isOnline) {
+          const hideGauge = gameState.remaining <= 30;
+          document.getElementById('tugOfWarContainer').classList.toggle('hidden', hideGauge);
+          document.getElementById('tugHiddenNotice').classList.toggle('hidden', !hideGauge);
+        }
+
+        updateGameHud();
+
+        if (gameState.remaining <= 0) {
+          finishGameplay(false, false);
+        }
+      }, 100);
+    }
+
+    // リアルタイムHUD（時間・スコア・WPM・ミス率・COMBO）更新
+    function updateGameHud() {
+      document.getElementById('hudTime').textContent = `${gameState.remaining.toFixed(1)}s`;
+      document.getElementById('hudScore').textContent = gameState.score;
+      document.getElementById('hudCombo').textContent = gameState.combo;
+
+      const elapsedMin = gameState.running
+        ? Math.max(0.01, (performance.now() - gameState.startTime) / 60000)
+        : 0;
+      const currentWpm = elapsedMin > 0 ? Math.round((gameState.validKeys / 5) / elapsedMin) : 0;
+      if (elapsedMin >= 0.03 && currentWpm > gameState.peakWpmInRun) {
+        gameState.peakWpmInRun = currentWpm;
+      }
+
+      const totalTyped = gameState.validKeys + gameState.mistypes;
+      const missRate = totalTyped > 0 ? ((gameState.mistypes / totalTyped) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('hudWpm').textContent = currentWpm;
+      document.getElementById('hudMissRate').textContent = `${missRate}%`;
+    }
+
+    // キーボード入力ハンドラ（PC物理キーボード ＋ スマホバーチャルキーボード両対応）
+    function processTypingKey(keyChar) {
+      if (!gameState.running || !gameState.tracker) return;
+      if (!keyChar || keyChar.length !== 1) return;
+
+      const res = gameState.tracker.inputChar(keyChar);
+
+      if (res.valid) {
+        // 正解タイプ：1文字10点、COMBO加算、コンボ連動「トッ」音
+        gameState.validKeys += 1;
+        gameState.combo += 1;
+        if (gameState.combo > gameState.maxComboInRun) {
+          gameState.maxComboInRun = gameState.combo;
+        }
+        gameState.score += 10;
+
+        if (res.wordCompleted) {
+          if (res.perfect) {
+            // ノーミス単語完了：100 + 今のコンボ数ポイント追加 ＋ 豪華効果音
+            gameState.score += (100 + gameState.combo);
+            SoundEngine.playPerfectWordComplete();
+          } else {
+            SoundEngine.playWordComplete();
+          }
+          pickNextWord();
+        } else {
+          SoundEngine.playTypeSound(gameState.combo);
+          renderTypingWord();
+        }
+
+        // オンライン戦中は自分のスコアをリアルタイム送信
+        if (gameState.isOnline && gameState.battleId) {
+          update(ref(db, `battles/${gameState.battleId}/scores`), {
+            [player.playerId]: gameState.score
+          });
+        }
+      } else {
+        // ミスタイプ：COMBOリセット（音程も初期値に戻る）、ミス音、画面シェイク
+        gameState.mistypes += 1;
+        gameState.combo = 0;
+        SoundEngine.playMissSound();
+
+        const card = document.getElementById('typingCard');
+        card.classList.remove('shake-error');
+        void card.offsetWidth;
+        card.classList.add('shake-error');
+
+        // サドンデスモードは1ミス即終了！
+        if (gameState.suddenDeath) {
+          finishGameplay(true, false);
+          return;
+        }
+      }
+
+      updateGameHud();
+    }
+
+    // PC物理キーボードリスナー
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('screen-game').classList.contains('hidden')) return;
+      if (!document.getElementById('modal-retire').classList.contains('hidden')) return;
+
+      if (gameState.waitingSpace && e.code === 'Space') {
+        e.preventDefault();
+        triggerSoloCountdown();
+        return;
+      }
+
+      if (gameState.running && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        // スマホ用inputと二重発火しないよう制御
+        if (document.activeElement === document.getElementById('mobileHiddenInput')) return;
+        e.preventDefault();
+        processTypingKey(e.key);
+      }
+    });
+
+    // スマホ・タブレット仮想キーボード用インプット制御
+    window.focusMobileInput = function () {
+      const inp = document.getElementById('mobileHiddenInput');
+      if (inp) inp.focus();
+    };
+
+    document.getElementById('mobileHiddenInput').addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val && gameState.running) {
+        for (const ch of val) {
+          processTypingKey(ch);
+        }
+      }
+      e.target.value = '';
+    });
+
+    // リタイア確認モーダル
+    window.openRetireModal = function () {
+      document.getElementById('modal-retire').classList.remove('hidden');
+    };
+
+    window.confirmRetire = async function () {
+      closeModal('modal-retire');
+      if (gameState.isOnline) {
+        player.onlineRetires += 1;
+        if (gameState.battleId) {
+          await update(ref(db, `battles/${gameState.battleId}`), {
+            retiredBy: player.playerId
+          });
+        }
+        finishGameplay(false, true);
+      } else {
+        stopGameTimers();
+        navigateTo('home');
+      }
+    };
+
+    window.retryLastMode = function () {
+      player.retryCount += 1;
+      checkAndUnlockTitles();
+      savePlayerProfile();
+
+      if (lastPlayedConfig.isOnline) {
+        startOnlineMatchmaking(lastPlayedConfig.mode);
+      } else {
+        prepareSoloMode(lastPlayedConfig.mode);
+      }
+    };
+
+    // =========================================================================
+    // 11. ゲーム終了＆リザルト判定（ソロランクSABCD・ランキング登録・レート変動計算）
+    // =========================================================================
+    async function finishGameplay(failedSuddenDeath = false, retired = false, opponentRetired = false) {
+      if (!gameState.running && !retired && !opponentRetired) return;
+      stopGameTimers();
+
+      const elapsedSec = Math.max(1, gameState.duration - gameState.remaining);
+      const finalAvgWpm = Math.round((gameState.validKeys / 5) / (elapsedSec / 60));
+      const finalPeakWpm = Math.max(finalAvgWpm, gameState.peakWpmInRun);
+      const totalTyped = gameState.validKeys + gameState.mistypes;
+      const missRateNum = totalTyped > 0 ? (gameState.mistypes / totalTyped) * 100 : 0;
+
+      // プレイヤー戦績更新
+      player.totalPlays += 1;
+      player.modePlays[gameState.mode] = (player.modePlays[gameState.mode] || 0) + 1;
+      player.totalKeystrokes += totalTyped;
+      player.totalMistypes += gameState.mistypes;
+      if (gameState.maxComboInRun > player.maxCombo) {
+        player.maxCombo = gameState.maxComboInRun;
+      }
+
+      if (!retired) {
+        player.wpmSum += finalAvgWpm;
+        player.wpmCount += 1;
+        if (finalPeakWpm > player.maxWpm) {
+          player.maxWpm = finalPeakWpm;
+          player.maxWpmUpdates += 1;
+        }
+      }
+
+      navigateTo('result');
+      document.getElementById('resScore').textContent = gameState.score;
+      document.getElementById('resWpm').textContent = finalAvgWpm;
+      document.getElementById('resMaxWpm').textContent = finalPeakWpm;
+      document.getElementById('resMissRate').textContent = `${missRateNum.toFixed(1)}%`;
+
+      const headlineEl = document.getElementById('resultHeadline');
+      const subMsgEl = document.getElementById('resultSubMessage');
+      const rateBoxEl = document.getElementById('resultRateBox');
+
+      if (!gameState.isOnline) {
+        // --- ソロモードリザルト ---
+        rateBoxEl.classList.add('hidden');
+        document.getElementById('resultModeLabel').textContent = `${gameState.mode} RESULT`;
+
+        // サドンデス完走チェック
+        if (gameState.suddenDeath && !failedSuddenDeath) {
+          player.suddenDeathClears += 1;
+        }
+
+        // 自己ベスト更新チェック（称号「自己研磨」）
+        const prevBest = player.bestScores[gameState.mode] || 0;
+        if (gameState.score > prevBest) {
+          player.bestScores[gameState.mode] = gameState.score;
+          unlockSpecificTitle('t12');
+        }
+
+        // ランキング基準の S / A / B / C / D 5段階評価
+        const rankGrade = evaluateSoloRank(gameState.mode, gameState.score, failedSuddenDeath);
+        headlineEl.textContent = failedSuddenDeath ? 'GAME OVER' : `RANK ${rankGrade}`;
+        headlineEl.className = `font-orbitron text-5xl sm:text-7xl font-black ${
+          failedSuddenDeath ? 'neon-text-magenta' : 'neon-text-cyan'
+        }`;
+
+        // ランキングTop50への登録処理
+        const placedRank = await submitSoloScoreToLeaderboard(gameState.mode, gameState.score, finalPeakWpm);
+        if (placedRank && placedRank <= 50) {
+          subMsgEl.textContent = `🎉 ランキング ${placedRank}位 に乗りました！`;
+        } else if (failedSuddenDeath) {
+          subMsgEl.textContent = 'サドンデス失敗！1ミスで即終了となります';
+        } else {
+          subMsgEl.textContent = '';
+        }
+      } else {
+        // --- オンライン対戦リザルト ---
+        rateBoxEl.classList.remove('hidden');
+        document.getElementById('resultModeLabel').textContent =
+          gameState.mode === 'rate' ? 'RATE BATTLE RESULT' : 'CASUAL BATTLE RESULT';
+
+        const myScore = gameState.score;
+        const oppScore = gameState.opponentScore;
+        const scoreDiff = Math.abs(myScore - oppScore);
+
+        let isWin = false;
+        let isDraw = false;
+        if (retired) {
+          isWin = false;
+        } else if (opponentRetired) {
+          isWin = true;
+        } else if (myScore > oppScore) {
+          isWin = true;
+        } else if (myScore < oppScore) {
+          isWin = false;
+        } else {
+          isDraw = true;
+        }
+
+        if (isDraw) {
+          headlineEl.textContent = 'DRAW';
+          headlineEl.className = 'font-orbitron text-5xl sm:text-7xl font-black text-slate-200';
+          subMsgEl.textContent = '同点引き分け！';
+        } else if (isWin) {
+          headlineEl.textContent = 'WIN';
+          headlineEl.className = 'font-orbitron text-5xl sm:text-7xl font-black neon-text-cyan';
+          subMsgEl.textContent = opponentRetired
+            ? '相手がリタイアしたため勝利しました！'
+            : `${scoreDiff} ポイント差で勝利しました！`;
+          if (gameState.mode === 'rate') player.rateWins += 1;
+          if (gameState.mode === 'casual') player.casualWins += 1;
+        } else {
+          headlineEl.textContent = 'LOSE';
+          headlineEl.className = 'font-orbitron text-5xl sm:text-7xl font-black neon-text-magenta';
+          subMsgEl.textContent = retired
+            ? 'リタイアにより敗北しました'
+            : `${scoreDiff} ポイント差で敗北しました...`;
+        }
+
+        document.getElementById('resultScoreCompare').textContent =
+          `YOU: ${myScore} pts / ${gameState.opponent?.username || 'OPPONENT'}: ${oppScore} pts`;
+
+        // レーティング対戦のレート変動計算（指定ルール完全準拠）
+        if (gameState.mode === 'rate' && gameState.opponent) {
+          const oldRate = player.rating;
+          const oppRate = gameState.opponent.rating || 1500;
+          const delta = isDraw ? 0 : calculateRatingDelta(oldRate, oppRate, isWin);
+          const newRate = Math.max(0, oldRate + delta);
+          player.rating = newRate;
+
+          const sign = delta >= 0 ? `+${delta}` : `${delta}`;
+          document.getElementById('resultRateDiff').textContent = `${oldRate} → ${newRate} (${sign})`;
+        } else {
+          document.getElementById('resultRateDiff').textContent = `CASUAL MATCH（レート変動なし）`;
+        }
+      }
+
+      checkAndUnlockTitles();
+      await savePlayerProfile();
+    }
+
+    /**
+     * レーティング対戦のレート変動計算（全条件を正確に実装）
+     * - 基本：勝ち +10 / 負け -7
+     * - 相手が自分より50以上高い：勝ち +15 / 負け -6
+     * - 相手が自分より100以上高い：勝ち +25 / 負け -4
+     * - 相手が自分より65以上低い：勝ち +7 / 負け -10
+     * - 互いのレートが2000以上同士のバトル：勝ち +4 / 負け -4 固定
+     */
+    function calculateRatingDelta(myRate, oppRate, isWin) {
+      if (myRate >= 2000 && oppRate >= 2000) {
+        return isWin ? 4 : -4;
+      }
+      const diff = oppRate - myRate; // 正なら相手格上、負なら相手格下
+      if (diff >= 100) {
+        return isWin ? 25 : -4;
+      }
+      if (diff >= 50) {
+        return isWin ? 15 : -6;
+      }
+      if (diff <= -65) {
+        return isWin ? 7 : -10;
+      }
+      return isWin ? 10 : -7;
+    }
+
+    // ソロモードのS/A/B/C/D評価（既存ランキング上位基準 ＋ モード時間別基準）
+    function evaluateSoloRank(mode, score, failed) {
+      if (failed || score <= 0) return 'D';
+      const boardObj = leaderboardsCache[mode] || {};
+      const entries = Object.values(boardObj).sort((a, b) => b.score - a.score);
+
+      const scale = {
+        'FRASH': 1,
+        'SPEED': 2,
+        'OVERDRIVE': 6,
+        'MARATHON': 10,
+        'SADDEN DEATH': 3.2
+      }[mode] || 2;
+
+      const sThreshold = entries.length >= 3 ? Math.max(entries[0].score * 0.85, 1800 * scale) : 1800 * scale;
+      const aThreshold = 1350 * scale;
+      const bThreshold = 950 * scale;
+      const cThreshold = 550 * scale;
+
+      if (score >= sThreshold) return 'S';
+      if (score >= aThreshold) return 'A';
+      if (score >= bThreshold) return 'B';
+      if (score >= cThreshold) return 'C';
+      return 'D';
+    }
+
+    // ソロランキングへの登録（1プレイヤー1エントリで自己ベストを保持しTop50算出）
+    async function submitSoloScoreToLeaderboard(mode, score, maxWpm) {
+      if (score <= 0 || player.isBanned) return null;
+      try {
+        const entryRef = ref(db, `leaderboards/${mode}/${player.playerId}`);
+        const snap = await get(entryRef);
+        const existing = snap.val();
+
+        if (!existing || score > existing.score) {
+          await set(entryRef, {
+            playerId: player.playerId,
+            username: player.username,
+            score: score,
+            maxWpm: maxWpm,
+            updatedAt: Date.now()
+          });
+        }
+
+        const boardSnap = await get(ref(db, `leaderboards/${mode}`));
+        const all = Object.values(boardSnap.val() || {}).sort((a, b) => b.score - a.score);
+        const idx = all.findIndex(item => item.playerId === player.playerId);
+        return idx !== -1 ? idx + 1 : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // =========================================================================
+    // 12. オンライン対戦リアルタイムマッチング（AI戦一切なし・120秒対戦）
+    //     - レート戦：レート差130未満の人間プレイヤーとのみマッチング
+    //     - カジュアル戦：合言葉一致（空欄なら空欄同士）の人間プレイヤーとマッチング
+    //     - マッチング成立時：5秒間のVS画面ワンクッション → 3秒カウント → 120秒バトル
+    // =========================================================================
+    let matchmakingState = {
+      active: false,
+      type: 'rate',
+      passcode: '',
+      queueRef: null,
+      pollInterval: null
+    };
+
+    window.startOnlineMatchmaking = async function (type) {
+      if (player.isBanned) {
+        document.getElementById('banOverlay').classList.remove('hidden');
+        return;
+      }
+
+      SoundEngine.init();
+      lastPlayedConfig = { isOnline: true, mode: type };
+
+      const passcode = type === 'casual'
+        ? (document.getElementById('casualPasscodeInput').value || '').trim()
+        : '';
+
+      matchmakingState.active = true;
+      matchmakingState.type = type;
+      matchmakingState.passcode = passcode;
+
+      navigateTo('matchmaking');
+      document.getElementById('matchSearchingView').classList.remove('hidden');
+      document.getElementById('matchFoundView').classList.add('hidden');
+      document.getElementById('matchModeLabel').textContent =
+        type === 'rate' ? 'RATE BATTLE' : 'CASUAL BATTLE';
+      document.getElementById('matchSubInfo').textContent =
+        type === 'rate'
+          ? `マッチング条件: レート ${player.rating - 129} ～ ${player.rating + 129}`
+          : (passcode ? `合言葉: 「${passcode}」 で検索中` : '合言葉なし（ランダム対戦）で検索中');
+
+      const queuePath = `queues/${type}/${player.playerId}`;
+      const myQueueRef = ref(db, queuePath);
+      matchmakingState.queueRef = myQueueRef;
+
+      // 切断時は待機キューから自動削除
+      onDisconnect(myQueueRef).remove();
+
+      const avgMiss = player.totalKeystrokes > 0
+        ? ((player.totalMistypes / player.totalKeystrokes) * 100).toFixed(1)
+        : '0.0';
+
+      await set(myQueueRef, {
+        playerId: player.playerId,
+        username: player.username,
+        avatar: player.avatar,
+        equippedTitleId: player.equippedTitleId,
+        rating: player.rating,
+        avgMiss: avgMiss,
+        passcode: passcode,
+        status: 'waiting',
+        battleId: null,
+        joinedAt: Date.now()
+      });
+
+      // 相手からマッチング成立通知を受け取るリスナー
+      onValue(myQueueRef, (snap) => {
+        const data = snap.val();
+        if (!data || !matchmakingState.active) return;
+        if (data.status === 'matched' && data.battleId && data.opponent) {
+          onMatchedSuccess(data.battleId, data.opponent);
+        }
+      });
+
+      // 待機中の人間プレイヤーを検索してマッチング成立させるポーリング
+      matchmakingState.pollInterval = setInterval(async () => {
+        if (!matchmakingState.active) return;
+        try {
+          const allSnap = await get(ref(db, `queues/${type}`));
+          const allWaiting = allSnap.val() || {};
+          const now = Date.now();
+
+          for (const [oppId, opp] of Object.entries(allWaiting)) {
+            if (!opp || oppId === player.playerId || opp.status !== 'waiting') continue;
+            // 2分以上放置された古いキューはスキップ
+            if (now - (opp.joinedAt || 0) > 120000) continue;
+
+            // マッチング条件チェック
+            if (type === 'rate') {
+              // レートが130以上違う相手とはマッチしない
+              if (Math.abs(player.rating - (opp.rating || 1500)) >= 130) continue;
+            } else {
+              // カジュアル：合言葉一致チェック
+              if ((opp.passcode || '') !== passcode) continue;
+            }
+
+            // 競合防止のため playerId の辞書順が小さい方がルーム作成ホストになる
+            if (player.playerId < oppId) {
+              const battleId = `battle_${Date.now()}_${player.playerId.slice(-4)}_${oppId.slice(-4)}`;
+              const myInfo = {
+                playerId: player.playerId,
+                username: player.username,
+                avatar: player.avatar,
+                equippedTitleId: player.equippedTitleId,
+                rating: player.rating,
+                avgMiss: avgMiss
+              };
+              const oppInfo = {
+                playerId: opp.playerId,
+                username: opp.username,
+                avatar: opp.avatar,
+                equippedTitleId: opp.equippedTitleId,
+                rating: opp.rating,
+                avgMiss: opp.avgMiss || '0.0'
+              };
+
+              await set(ref(db, `battles/${battleId}`), {
+                battleId,
+                type,
+                createdAt: Date.now(),
+                players: {
+                  [player.playerId]: myInfo,
+                  [oppId]: oppInfo
+                },
+                scores: {
+                  [player.playerId]: 0,
+                  [oppId]: 0
+                },
+                retiredBy: null
+              });
+
+              await update(ref(db, `queues/${type}/${oppId}`), {
+                status: 'matched',
+                battleId,
+                opponent: myInfo
+              });
+
+              await update(myQueueRef, {
+                status: 'matched',
+                battleId,
+                opponent: oppInfo
+              });
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn('マッチング検索エラー:', err);
+        }
+      }, 1200);
+    };
+
+    window.cancelOnlineMatchmaking = async function (silent = false) {
+      matchmakingState.active = false;
+      if (matchmakingState.pollInterval) {
+        clearInterval(matchmakingState.pollInterval);
+        matchmakingState.pollInterval = null;
+      }
+      if (matchmakingState.queueRef) {
+        off(matchmakingState.queueRef);
+        try { await remove(matchmakingState.queueRef); } catch (e) {}
+        matchmakingState.queueRef = null;
+      }
+      if (!silent) navigateTo('home');
+    };
+
+    // マッチング成立時：「マッチしました！」5秒ワンクッション → 3秒カウント → 120秒バトル開始
+    async function onMatchedSuccess(battleId, opponent) {
+      await cancelOnlineMatchmaking(true);
+
+      document.getElementById('matchSearchingView').classList.add('hidden');
+      document.getElementById('matchFoundView').classList.remove('hidden');
+
+      const myTitle = getTitleById(player.equippedTitleId);
+      const oppTitle = getTitleById(opponent.equippedTitleId);
+      const myAvgMiss = player.totalKeystrokes > 0
+        ? ((player.totalMistypes / player.totalKeystrokes) * 100).toFixed(1)
+        : '0.0';
+
+      document.getElementById('vsMyAvatar').src = player.avatar;
+      document.getElementById('vsMyTitle').textContent = myTitle.name;
+      document.getElementById('vsMyTitle').className = `text-[11px] font-bold rarity-${myTitle.rarity}`;
+      document.getElementById('vsMyName').textContent = player.username;
+      document.getElementById('vsMyRate').textContent = player.rating;
+      document.getElementById('vsMyMiss').textContent = `${myAvgMiss}%`;
+
+      document.getElementById('vsOppAvatar').src = opponent.avatar || createDefaultAvatarDataUrl('OP');
+      document.getElementById('vsOppTitle').textContent = oppTitle.name;
+      document.getElementById('vsOppTitle').className = `text-[11px] font-bold rarity-${oppTitle.rarity}`;
+      document.getElementById('vsOppName').textContent = opponent.username;
+      document.getElementById('vsOppRate').textContent = opponent.rating || 1500;
+      document.getElementById('vsOppMiss').textContent = `${opponent.avgMiss || '0.0'}%`;
+
+      SoundEngine.playPerfectWordComplete();
+
+      // 5秒間のVS画面ワンクッション
+      let vsSec = 5;
+      const vsCountEl = document.getElementById('vsCountdownNum');
+      vsCountEl.textContent = vsSec;
+
+      const vsTimer = setInterval(() => {
+        vsSec -= 1;
+        if (vsSec > 0) {
+          vsCountEl.textContent = vsSec;
+        } else {
+          clearInterval(vsTimer);
+          startOnlineBattleArena(battleId, opponent);
+        }
+      }, 1000);
+    }
+
+    // オンライン対戦アリーナ開始（3秒自動カウントダウン → 120秒対戦）
+    function startOnlineBattleArena(battleId, opponent) {
+      stopGameTimers();
+
+      gameState = {
+        ...gameState,
+        running: false,
+        waitingSpace: false,
+        isOnline: true,
+        mode: lastPlayedConfig.mode,
+        duration: 120,
+        remaining: 120,
+        suddenDeath: false,
+        score: 0,
+        combo: 0,
+        maxComboInRun: 0,
+        validKeys: 0,
+        mistypes: 0,
+        peakWpmInRun: 0,
+        battleId: battleId,
+        opponent: opponent,
+        opponentScore: 0
+      };
+
+      navigateTo('game');
+      document.getElementById('onlineBattleBar').classList.remove('hidden');
+      document.getElementById('tugOfWarContainer').classList.remove('hidden');
+      document.getElementById('tugHiddenNotice').classList.add('hidden');
+      document.getElementById('battleMyName').textContent = player.username;
+      document.getElementById('battleOppName').textContent = opponent.username;
+      updateTugOfWarGauge(0, 0);
+
+      // バトルルームのリアルタイムスコア＆リタイア監視
+      const bRef = ref(db, `battles/${battleId}`);
+      gameState.battleListenerRef = bRef;
+      onValue(bRef, (snap) => {
+        const bData = snap.val();
+        if (!bData) return;
+
+        // 相手がリタイアした場合は自分の勝利で即終了
+        if (bData.retiredBy && bData.retiredBy !== player.playerId && gameState.running) {
+          finishGameplay(false, false, true);
+          return;
+        }
+
+        if (bData.scores) {
+          const oppSc = bData.scores[opponent.playerId] || 0;
+          gameState.opponentScore = oppSc;
+          updateTugOfWarGauge(gameState.score, oppSc);
+        }
+      });
+
+      // オンライン戦は自動で3秒カウント開始
+      document.getElementById('gameReadyOverlay').classList.remove('hidden');
+      document.getElementById('readyModeTitle').textContent =
+        lastPlayedConfig.mode === 'rate' ? 'RATE BATTLE' : 'CASUAL BATTLE';
+      document.getElementById('readyInstruction').classList.add('hidden');
+      const countEl = document.getElementById('countdownNumber');
+      countEl.classList.remove('hidden');
+
+      updateGameHud();
+      pickNextWord();
+
+      let count = 3;
+      countEl.textContent = count;
+      SoundEngine.playTypeSound(12);
+
+      const cd = setInterval(() => {
+        count -= 1;
+        if (count > 0) {
+          countEl.textContent = count;
+          SoundEngine.playTypeSound(18);
+        } else {
+          clearInterval(cd);
+          document.getElementById('gameReadyOverlay').classList.add('hidden');
+          beginActiveGameplay();
+        }
+      }, 1000);
+    }
+
+    // 自分（シアン）vs 相手（マゼンタ）の優勢ゲージ更新
+    function updateTugOfWarGauge(mySc, oppSc) {
+      document.getElementById('battleMyScoreDisplay').textContent = mySc;
+      document.getElementById('battleOppScoreDisplay').textContent = oppSc;
+
+      const total = mySc + oppSc;
+      const myPercent = total === 0 ? 50 : Math.min(92, Math.max(8, Math.round((mySc / total) * 100)));
+      document.getElementById('tugMyFill').style.width = `${myPercent}%`;
+      document.getElementById('tugOppFill').style.width = `${100 - myPercent}%`;
+    }
+
+    // =========================================================================
+    // 13. ランキング表示（上位50名・不在時はUnknown空欄・タップでマイページ戦績閲覧）
+    // =========================================================================
+    let currentRankingTab = 'FRASH';
+
+    window.selectRankingTab = function (tabName) {
+      currentRankingTab = tabName;
+      document.querySelectorAll('.rank-tab').forEach(btn => {
+        const active = btn.dataset.tab === tabName;
+        btn.className = active
+          ? 'rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-cyan-500 text-black'
+          : 'rank-tab px-3.5 py-2 rounded-lg text-xs font-orbitron font-bold bg-slate-900 text-slate-300 border border-slate-700';
+      });
+      renderRankingTable(tabName);
+    };
+
+    function renderRankingTable(tabName) {
+      const tbody = document.getElementById('rankingTableBody');
+      const valHeader = document.getElementById('rankValueHeader');
+      tbody.innerHTML = '';
+
+      let list = [];
+      if (tabName === 'RATE') {
+        valHeader.textContent = 'RATING';
+        list = Object.values(allPlayersCache)
+          .filter(p => p && p.username && !p.isBanned)
+          .sort((a, b) => (b.rating || 1500) - (a.rating || 1500))
+          .slice(0, 50)
+          .map(p => ({
+            playerId: p.playerId,
+            username: p.username,
+            value: p.rating || 1500,
+            maxWpm: p.maxWpm || 0
+          }));
+      } else {
+        valHeader.textContent = 'SCORE';
+        const board = leaderboardsCache[tabName] || {};
+        list = Object.values(board)
+          .filter(entry => entry && !(allPlayersCache[entry.playerId]?.isBanned))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 50)
+          .map(entry => ({
+            playerId: entry.playerId,
+            username: allPlayersCache[entry.playerId]?.username || entry.username,
+            value: entry.score,
+            maxWpm: entry.maxWpm || 0
+          }));
+      }
+
+      // 1位から50位まで必ず50行生成（いない順位は Unknown で数値空欄）
+      for (let i = 0; i < 50; i++) {
+        const entry = list[i];
+        const tr = document.createElement('tr');
+        const rankNum = i + 1;
+        const rankColor =
+          rankNum === 1 ? 'text-amber-400 font-black' :
+          rankNum === 2 ? 'text-slate-200 font-bold' :
+          rankNum === 3 ? 'text-amber-600 font-bold' : 'text-slate-500';
+
+        if (entry) {
+          tr.className = 'hover:bg-cyan-950/30 cursor-pointer transition';
+          tr.onclick = () => inspectRankedPlayer(entry.playerId, entry.username);
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-mono-tech ${rankColor}">#${rankNum}</td>
+            <td class="py-3 px-4 font-bold text-white flex items-center gap-2">
+              <span>${escapeHtml(entry.username)}</span>
+              <span class="text-[10px] text-cyan-400/70">詳細 ›</span>
+            </td>
+            <td class="py-3 px-4 text-right font-mono-tech text-cyan-300 font-bold">${entry.value}</td>
+            <td class="py-3 px-4 text-right font-mono-tech text-slate-400 hidden sm:table-cell">${entry.maxWpm}</td>
+          `;
+        } else {
+          tr.className = 'opacity-45';
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-mono-tech text-slate-600">#${rankNum}</td>
+            <td class="py-3 px-4 font-mono-tech text-slate-500">Unknown</td>
+            <td class="py-3 px-4 text-right font-mono-tech text-slate-600"></td>
+            <td class="py-3 px-4 text-right font-mono-tech text-slate-600 hidden sm:table-cell"></td>
+          `;
+        }
+        tbody.appendChild(tr);
+      }
+    }
+
+    // ランキング上のプレイヤーをタップした時に戦績（ミスタイプ率・最高WPM等）を表示
+    window.inspectRankedPlayer = function (playerId, fallbackName) {
+      const p = allPlayersCache[playerId];
+      const box = document.getElementById('inspectedProfileContent');
+
+      if (!p) {
+        box.innerHTML = `<div class="text-center text-slate-400 py-4">${escapeHtml(fallbackName || 'Unknown')} の詳細データは同期中です。</div>`;
+      } else {
+        const titleObj = getTitleById(p.equippedTitleId || 't01');
+        box.innerHTML = `
+          <div class="flex items-center gap-4">
+            <img src="${p.avatar || createDefaultAvatarDataUrl(p.username)}" class="w-16 h-16 rounded-full object-cover border-2 border-cyan-400" />
+            <div>
+              <div class="inline-block text-xs font-bold px-2 py-0.5 rounded border mb-1 rarity-${titleObj.rarity}">${titleObj.name}</div>
+              <div class="text-lg font-bold text-white">${escapeHtml(p.username)}</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 font-mono-tech text-xs">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-slate-400">RATING</div>
+              <div class="text-lg font-bold text-orange-400">${p.rating || 1500}</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-slate-400">MAX WPM</div>
+              <div class="text-lg font-bold text-cyan-400">${p.maxWpm || 0}</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-slate-400">AVG WPM</div>
+              <div class="text-lg font-bold text-emerald-400">${p.avgWpm || 0}</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-slate-400">MISS RATE</div>
+              <div class="text-lg font-bold text-fuchsia-400">${p.avgMiss || 0}%</div>
+            </div>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
+            <div class="flex justify-between"><span>レートバトル勝利数:</span><span class="font-mono-tech text-orange-400">${p.rateWins || 0}勝</span></div>
+            <div class="flex justify-between"><span>カジュアル勝利数:</span><span class="font-mono-tech text-emerald-400">${p.casualWins || 0}勝</span></div>
+            <div class="flex justify-between"><span>サドンデス完走:</span><span class="font-mono-tech text-fuchsia-400">${p.suddenDeathClears || 0}回</span></div>
+            <div class="flex justify-between"><span>累計プレイ数:</span><span class="font-mono-tech text-cyan-300">${p.totalPlays || 0}回</span></div>
+          </div>
+        `;
+      }
+
+      document.getElementById('modal-player-profile').classList.remove('hidden');
+    };
+
+    // =========================================================================
+    // 14. 管理者機能 ＆ 管理者宛てDM機能
+    // =========================================================================
+    window.openAdminDmModal = function () {
+      document.getElementById('adminDmTextarea').value = '';
+      document.getElementById('modal-admin-dm').classList.remove('hidden');
+    };
+
+    window.sendAdminDm = async function () {
+      const text = document.getElementById('adminDmTextarea').value.trim();
+      if (!text) {
+        showToast('メッセージを入力してください');
+        return;
+      }
+      try {
+        await push(ref(db, 'admin_dms'), {
+          fromPlayerId: player.playerId,
+          fromUsername: player.username,
+          message: text,
+          createdAt: Date.now(),
+          read: false
+        });
+        closeModal('modal-admin-dm');
+        showToast('管理者へ要望メッセージを送信しました！');
+      } catch (e) {
+        showToast('送信に失敗しました');
+      }
+    };
+
+    window.switchAdminTab = function (tab) {
+      ['news', 'players', 'words', 'system'].forEach(t => {
+        document.getElementById(`adminPane-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`adminTabBtn-${t}`);
+        btn.className = t === tab
+          ? 'relative px-4 py-2 rounded-lg text-xs font-bold bg-red-600 text-white'
+          : 'relative px-4 py-2 rounded-lg text-xs font-bold bg-slate-900 text-slate-300 border border-slate-700';
+      });
+
+      if (tab === 'players') renderAdminPlayersList();
+      if (tab === 'words') renderAdminWordList('all');
+    };
+
+    // ① 電光掲示板ニュース更新
+    window.adminUpdateNews = async function () {
+      if (!player.isAdmin) return;
+      const text = document.getElementById('adminNewsInput').value.trim();
+      if (!text) return;
+      await set(ref(db, 'system/news'), { text, updatedAt: Date.now() });
+      showToast('電光掲示板ニュースを更新しました');
+    };
+
+    // ② プレイヤーリスト（実プレイヤーのみ表示・オンライン状態・BAN/解除・DM確認）
+    function renderAdminPlayersList() {
+      const container = document.getElementById('adminPlayerListContainer');
+      if (!container) return;
+
+      const players = Object.values(allPlayersCache).filter(p => p && p.playerId);
+      document.getElementById('adminPlayerCount').textContent = `${players.length}人`;
+
+      const presenceMap = window._presenceCache || {};
+      const dms = Object.entries(window._adminDmsCache || {});
+
+      container.innerHTML = '';
+      players.forEach(p => {
+        const isOnline = presenceMap[p.playerId]?.online === true;
+        const playerDms = dms.filter(([, dm]) => dm && dm.fromPlayerId === p.playerId);
+        const hasUnreadFromThis = playerDms.some(([, dm]) => !dm.read);
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-3';
+
+        const dmHtml = playerDms.length > 0
+          ? `<div class="bg-slate-900/90 border border-cyan-500/30 rounded-lg p-2.5 space-y-1.5">
+              <div class="flex items-center justify-between text-[11px] font-bold text-cyan-400">
+                <span>📩 届いているDM・要望 (${playerDms.length}件)</span>
+                ${hasUnreadFromThis ? `<button onclick="adminMarkDmsRead('${p.playerId}')" class="text-amber-400 underline">既読にする</button>` : ''}
+              </div>
+              ${playerDms.map(([, dm]) => `
+                <div class="text-xs text-slate-200 border-l-2 ${dm.read ? 'border-slate-600' : 'border-red-500'} pl-2">
+                  ${escapeHtml(dm.message)}
                 </div>
-                <h4 class="text-lg font-bold text-white mb-1">カジュアル対戦</h4>
-                <p class="text-xs text-slate-400 leading-relaxed mb-3">
-                  レート変動なしのフリー対戦。合言葉を入れると同じ合言葉の友達と、空欄ならランダムな相手とマッチします。
-                </p>
-                <div class="mb-4">
-                  <label class="block text-[11px] text-slate-400 mb-1">合言葉（任意・空欄でランダム対戦）</label>
-                  <input id="casual-passcode" type="text" maxlength="20" placehold
+              `).join('')}
+            </div>`
+          : '';
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-slate-600'}" title="${isOnline ? 'オンライン' : 'オフライン'}"></span>
+              <div>
+                <div class="font-bold text-sm text-white flex items-center gap-2">
+                  <span>${escapeHtml(p.username)}</span>
+                  <span class="text-[10px] font-mono-tech ${isOnline ? 'text-emerald-400' : 'text-slate-500'}">${isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+                  ${p.isBanned ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-red-900 text-red-200 font-bold">BAN中</span>' : ''}
+                  ${hasUnreadFromThis ? '<span class="w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-black inline-flex items-center justify-center">!</span>' : ''}
+                </div>
+                <div class="text-[11px] font-mono-tech text-slate-400">
+                  ID: ${p.playerId.slice(0, 12)}... | RATE: ${p.rating || 1500} | MAX WPM: ${p.maxWpm || 0}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="adminToggleBan('${p.playerId}', ${!p.isBanned})"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  p.isBanned
+                    ? 'bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500 text-emerald-200'
+                    : 'bg-red-950 hover:bg-red-900 border border-red-500 text-red-200'
+                }">
+                ${p.isBanned ? 'BAN解除' : 'BANする'}
+              </button>
+            </div>
+          </div>
+          ${dmHtml}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.adminToggleBan = async function (targetPlayerId, banState) {
+      if (!player.isAdmin) return;
+      await update(ref(db, `players/${targetPlayerId}`), { isBanned: banState });
+      showToast(banState ? 'プレイヤーをBANしました' : 'プレイヤーのBANを解除しました');
+    };
+
+    window.adminMarkDmsRead = async function (fromPlayerId) {
+      if (!player.isAdmin) return;
+      const dms = Object.entries(window._adminDmsCache || {});
+      for (const [key, dm] of dms) {
+        if (dm && dm.fromPlayerId === fromPlayerId && !dm.read) {
+          await update(ref(db, `admin_dms/${key}`), { read: true });
+        }
+      }
+    };
+
+    // ③ ワードリスト追加・削除 ＋ ゆらぎ自動解析プレビュー
+    window.previewAdminWordRomaji = function () {
+      const kana = document.getElementById('adminWordKana').value.trim();
+      const out = document.getElementById('adminWordPreviewOutput');
+      if (!kana) {
+        out.textContent = 'ひらがなを入力するとここに標準ローマ字と全ゆらぎ許容パターンが表示されます';
+        return;
+      }
+      const tokens = compileKanaTokens(kana);
+      const standard = tokens.map(t => t[0]).join('');
+      const detail = tokens.map(t => `[${t.join('/')}]`).join(' ');
+      out.innerHTML = `標準: <strong class="text-white">${standard}</strong><br><span class="text-[11px] text-slate-400">許容ゆらぎ: ${detail}</span>`;
+    };
+
+    window.adminAddWord = async function () {
+      if (!player.isAdmin) return;
+      const category = document.getElementById('adminWordCategory').value;
+      const display = document.getElementById('adminWordDisplay').value.trim();
+      const rawKana = document.getElementById('adminWordKana').value.trim();
+      const kana = normalizeToHiragana(rawKana);
+
+      if (!display || !kana) {
+        showToast('表示テキストとひらがな読みを両方入力してください');
+        return;
+      }
+
+      const id = 'custom_' + Date.now().toString(36);
+      await set(ref(db, `system/words/custom/${id}`), {
+        id,
+        category,
+        display,
+        kana
+      });
+
+      document.getElementById('adminWordDisplay').value = '';
+      document.getElementById('adminWordKana').value = '';
+      previewAdminWordRomaji();
+      showToast(`ワード「${display}」を追加しました（ゆらぎ自動対応済み）`);
+    };
+
+    window.adminDeleteWord = async function (wordId) {
+      if (!player.isAdmin) return;
+      if (wordId.startsWith('custom_')) {
+        await remove(ref(db, `system/words/custom/${wordId}`));
+      } else {
+        await set(ref(db, `system/words/deleted/${wordId}`), true);
+      }
+      showToast('ワードを削除しました');
+    };
+
+    window.renderAdminWordList = function (filterCategory) {
+      const container = document.getElementById('adminWordListContainer');
+      if (!container) return;
+
+      const filtered = filterCategory === 'all'
+        ? activeWords
+        : activeWords.filter(w => w.category === filterCategory);
+
+      const catLabel = { small: '小', medium: '中', large: '大' };
+
+      container.innerHTML = filtered.map(w => `
+        <div class="flex items-center justify-between bg-slate-950/90 border border-slate-800 rounded-lg px-3 py-2">
+          <div class="truncate pr-2">
+            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold mr-2">${catLabel[w.category] || '中'}</span>
+            <span class="font-bold text-white mr-2">${escapeHtml(w.display)}</span>
+            <span class="text-slate-400">(${escapeHtml(w.kana)})</span>
+          </div>
+          <button onclick="adminDeleteWord('${w.id}')" class="text-red-400 hover:text-red-300 font-bold shrink-0 px-2">削除</button>
+        </div>
+      `).join('');
+    };
+
+    // ④ システムメンテナンスツール
+    window.adminClearQueues = async function () {
+      if (!player.isAdmin) return;
+      await remove(ref(db, 'queues'));
+      showToast('マッチング待機キューをリセットしました');
+    };
+
+    window.adminResetLeaderboard = async function () {
+      if (!player.isAdmin) return;
+      const mode = document.getElementById('adminResetRankMode').value;
+      await remove(ref(db, `leaderboards/${mode}`));
+      showToast(`${mode} のランキングを初期化しました`);
+    };
+
+    // =========================================================================
+    // 15. アプリ起動時の初期化処理
+    // =========================================================================
+    refreshPlayerUI();
+    initFirebaseRealtimeSync();
+  </script>
+</body>
+</html>
