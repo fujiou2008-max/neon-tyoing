@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NEONTYPE v1.2 | サイバーネオン・タイピングゲーム</title>
+  <title>NEONTYPE v1.0 | サイバーネオン・タイピングゲーム</title>
   <!-- Tailwind CSS の読み込み -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts (Orbitron / JetBrains Mono / Noto Sans JP) -->
@@ -139,89 +140,46 @@
       </p>
 
       <!-- メインSTARTボタン -->
-      <button id="btn-start-game" type="button" onclick="window.startAppFromTitle && window.startAppFromTitle()"
-        class="group relative inline-flex items-center justify-center px-12 py-4 font-orbitron font-extrabold text-lg sm:text-xl tracking-widest text-black bg-cyan-400 rounded-xl glow-cyan-strong hover:bg-cyan-300 active:scale-95 transition-all duration-200 cursor-pointer z-20">
+      <button id="btn-start-game"
+        class="group relative inline-flex items-center justify-center px-12 py-4 font-orbitron font-extrabold text-lg sm:text-xl tracking-widest text-black bg-cyan-400 rounded-xl glow-cyan-strong hover:bg-cyan-300 active:scale-95 transition-all duration-200 cursor-pointer">
         <span>START</span>
         <svg class="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
         </svg>
       </button>
 
-      <!-- 管理者識別コマンドの隠し入力（スタート画面） -->
+      <!-- スタート画面の隠しコマンド入力ヒント（極小表示） -->
       <div class="mt-8 flex justify-center">
-        <input id="start-secret-input" type="password" placeholder="管理者コード..." maxlength="20"
-          class="bg-transparent border border-transparent focus:border-cyan-400/40 rounded-lg px-3 py-1 text-xs text-center text-slate-500 focus:text-cyan-300 outline-none transition-all" />
+        <input id="start-secret-input" type="password" autocomplete="off" placeholder="••••••••"
+          class="bg-transparent border-b border-transparent focus:border-cyan-500/40 text-center text-xs text-slate-600 focus:text-cyan-300 outline-none w-32 transition-colors"
+          title="Hidden Terminal" />
       </div>
     </div>
 
-    <!-- 右下バージョン表示 -->
-    <div id="version-badge"
-      class="fixed bottom-4 right-5 font-mono-code text-xs text-slate-500 select-none cursor-pointer">
-      ver 1.2
-    </div>
+    <!-- 右下バージョン表示（5回連続タップ/クリックで隠し管理者認証モーダルも起動可能） -->
+    <button id="version-badge"
+      class="fixed bottom-4 right-5 font-mono-code text-xs text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer select-none">
+      Ver 1.0
+    </button>
   </section>
 
-  <!-- 即時フォールバックスクリプト（STARTボタンの動作保証） -->
-  <script>
-    window.startAppFromTitle = function() {
-      var startScreen = document.getElementById("screen-start");
-      var appShell = document.getElementById("app-shell");
-      if (startScreen) startScreen.classList.add("hidden");
-      if (appShell) appShell.classList.remove("hidden");
-      if (typeof window.navigateTo === "function") {
-        window.navigateTo("home");
-      }
-      if (typeof window.__onNeonTypeStarted === "function") {
-        try { window.__onNeonTypeStarted(); } catch (e) {}
-      }
-    };
-
-    if (typeof window.navigateTo !== "function") {
-      window.navigateTo = function(viewName) {
-        var views = ["home", "game", "result", "mypage", "titles", "ranking", "admin"];
-        views.forEach(function(v) {
-          var el = document.getElementById("view-" + v);
-          if (el) el.classList.toggle("hidden", v !== viewName);
-        });
-        var buttons = document.querySelectorAll(".nav-btn");
-        buttons.forEach(function(btn) {
-          var active = btn.dataset.nav === viewName;
-          btn.className = active
-            ? "nav-btn relative px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400 transition-all cursor-pointer"
-            : "nav-btn relative px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer";
-        });
-      };
-    }
-
-    if (typeof window.openDmModal !== "function") {
-      window.openDmModal = function() {
-        var modal = document.getElementById("modal-dm");
-        if (modal) modal.classList.remove("hidden");
-      };
-    }
-
-    if (typeof window.toggleSound !== "function") {
-      window.toggleSound = function() {
-        var btn = document.getElementById("btn-toggle-sound");
-        if (btn) btn.textContent = btn.textContent === "🔊" ? "🔇" : "🔊";
-      };
-    }
-  </script>
-
   <!-- ============================================================================
-       アプリケーション全体のシェル (APP SHELL) - スタートボタン後に表示
+       画面2: メインアプリケーションシェル（ホーム・マイページ・称号・ランキング・ゲーム等）
        ============================================================================ -->
-  <div id="app-shell" class="hidden min-h-screen flex flex-col justify-between">
+  <div id="app-shell" class="hidden min-h-screen flex flex-col">
 
-    <!-- 上部ニュース電光掲示板（1行・小さく表示） -->
-    <div class="ticker-wrap w-full bg-cyan-950/40 border-b border-cyan-500/20 overflow-hidden py-1.5 px-3 flex items-center text-xs font-mono-code text-cyan-300">
-      <span class="shrink-0 bg-cyan-500 text-black font-bold px-2 py-0.5 rounded text-[10px] mr-3 font-orbitron">NEWS</span>
-      <div class="overflow-hidden whitespace-nowrap flex-1">
-        <div id="news-ticker-text" class="ticker-content">
-          ⚡ NEONTYPE v1.2 へようこそ！すべてのソロモードで短・中・長文が均等に出現します。スマホでのアイコンアップロード・ローカルストレージ保存に対応！
+    <!-- 最上部: 電光掲示板（ニュースティッカー） -->
+    <div class="w-full bg-[#080c14] border-b border-cyan-500/30 py-1.5 px-3 flex items-center gap-3 overflow-hidden">
+      <span class="shrink-0 px-2 py-0.5 text-[10px] font-orbitron font-bold tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 rounded">
+        NEWS
+      </span>
+      <div class="ticker-wrap flex-1 overflow-hidden">
+        <div id="news-ticker-text" class="ticker-content text-xs sm:text-sm text-cyan-200 font-medium tracking-wide">
+          NEONTYPE Ver 1.0 正式リリース！ソロモードやオンライン対戦で頂点を目指そう！
         </div>
       </div>
-      <div id="firebase-status-badge" class="shrink-0 ml-3 flex items-center gap-1.5 text-[11px] font-mono-code text-emerald-400">
+      <!-- 接続ステータス表示 -->
+      <div id="firebase-status-badge" class="shrink-0 flex items-center gap-1.5 text-[11px] font-mono-code text-emerald-400">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
         <span>ONLINE</span>
       </div>
@@ -231,38 +189,38 @@
     <header class="w-full bg-[#0a0e17]/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
       <div class="max-w-6xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         <!-- ロゴ（クリックでホームへ戻る） -->
-        <button type="button" onclick="window.navigateTo('home')" class="flex items-center gap-2 text-left cursor-pointer group">
+        <button onclick="navigateTo('home')" class="flex items-center gap-2 text-left cursor-pointer group">
           <span class="font-orbitron text-xl sm:text-2xl font-black tracking-wider text-white group-hover:text-cyan-300 transition-colors">
             NEON<span class="text-cyan-400">TYPE</span>
           </span>
-          <span class="text-[10px] font-mono-code text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">ver 1.2</span>
+          <span class="text-[10px] font-mono-code text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">v1.0</span>
         </button>
 
         <!-- 上部主要メニュー: マイページ / 称号リスト / ランキング / 要望DM / 音量 -->
         <nav class="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
-          <button type="button" onclick="window.navigateTo('home')" data-nav="home"
+          <button onclick="navigateTo('home')" data-nav="home"
             class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-400/40 hover:bg-cyan-500/25 transition-all cursor-pointer">
             ホーム
           </button>
-          <button type="button" onclick="window.navigateTo('mypage')" data-nav="mypage"
+          <button onclick="navigateTo('mypage')" data-nav="mypage"
             class="nav-btn relative px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
             マイページ
             <!-- 管理者未読DM通知バッジ「！」 -->
             <span id="admin-nav-alert" class="hidden absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow">!</span>
           </button>
-          <button type="button" onclick="window.navigateTo('titles')" data-nav="titles"
+          <button onclick="navigateTo('titles')" data-nav="titles"
             class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
             称号リスト
           </button>
-          <button type="button" onclick="window.navigateTo('ranking')" data-nav="ranking"
+          <button onclick="navigateTo('ranking')" data-nav="ranking"
             class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-slate-200 border border-slate-700 hover:border-cyan-400 hover:text-cyan-300 transition-all cursor-pointer">
             ランキング
           </button>
-          <button type="button" onclick="window.openDmModal()"
+          <button onclick="openDmModal()"
             class="px-3 py-2 rounded-lg text-xs sm:text-sm font-bold bg-slate-900 text-fuchsia-300 border border-fuchsia-500/40 hover:bg-fuchsia-500/15 transition-all cursor-pointer">
             要望DM
           </button>
-          <button type="button" id="btn-toggle-sound" onclick="window.toggleSound()" title="効果音 ON/OFF"
+          <button id="btn-toggle-sound" onclick="toggleSound()" title="効果音 ON/OFF"
             class="p-2 rounded-lg bg-slate-900 border border-slate-700 text-cyan-400 hover:border-cyan-400 transition-all cursor-pointer">
             🔊
           </button>
@@ -306,26 +264,33 @@
               </p>
             </div>
           </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button onclick="navigateTo('mypage')"
+              class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition-all cursor-pointer">
+              プロフィール・アイコン編集
+            </button>
+          </div>
         </div>
 
         <!-- ソロモード選択セクション（60秒・180秒・300秒はシアン / サドンデスはマゼンタ） -->
         <div>
           <div class="flex items-center gap-2 mb-3">
             <span class="w-1.5 h-5 bg-cyan-400 rounded-full"></span>
-            <h3 class="font-orbitron text-base sm:text-lg font-bold text-white tracking-wider">SOLO MODE <span class="text-xs font-sans text-slate-400 font-normal ml-1">ソロプレイ（スペースキーで開始・全モードで短中長文が均等に出現）</span></h3>
+            <h3 class="font-orbitron text-base sm:text-lg font-bold text-white tracking-wider">SOLO MODE <span class="text-xs font-sans text-slate-400 font-normal ml-1">ソロプレイ（スペースキーで開始）</span></h3>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- 60秒：短時間部門 -->
+            <!-- 60秒：短い長さの部門（シアン） -->
             <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-orbitron text-xs font-bold text-cyan-400">SHORT / 60s</span>
-                  <span class="text-xs text-slate-400">制限時間 60秒</span>
+                  <span class="text-xs text-slate-400">短い単語</span>
                 </div>
-                <h4 class="text-lg font-bold text-white mb-1">60秒・短時間部門</h4>
+                <h4 class="text-lg font-bold text-white mb-1">60秒・短文部門</h4>
                 <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  短文から長文まで全てのワードが均等に出現。制限時間60秒のスピード勝負！
+                  「かんばん」「いし」等のシンプルな単語中心。瞬発力と初速が試される基本モード。
                 </p>
               </div>
               <button onclick="prepareSoloGame('solo60')"
@@ -334,16 +299,16 @@
               </button>
             </div>
 
-            <!-- 180秒：中期部門 -->
+            <!-- 180秒：中くらいの長さの部門（シアン） -->
             <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-orbitron text-xs font-bold text-cyan-400">MEDIUM / 180s</span>
-                  <span class="text-xs text-slate-400">制限時間 180秒</span>
+                  <span class="text-xs text-slate-400">四字熟語・ことわざ</span>
                 </div>
-                <h4 class="text-lg font-bold text-white mb-1">180秒・中期部門</h4>
+                <h4 class="text-lg font-bold text-white mb-1">180秒・中文部門</h4>
                 <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  短文から長文まで全てのワードが均等に出現。制限時間3分の持久力＆スピードバランス部門。
+                  四字熟語やことわざ・短文が出題される3分間の持久＆スピードバランス部門。
                 </p>
               </div>
               <button onclick="prepareSoloGame('solo180')"
@@ -352,16 +317,16 @@
               </button>
             </div>
 
-            <!-- 300秒：長期部門 -->
+            <!-- 300秒：長い部門（シアン） -->
             <div class="bg-[#0c101a] border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-orbitron text-xs font-bold text-cyan-400">LONG / 300s</span>
-                  <span class="text-xs text-slate-400">制限時間 300秒</span>
+                  <span class="text-xs text-slate-400">長文・名言</span>
                 </div>
-                <h4 class="text-lg font-bold text-white mb-1">300秒・長期部門</h4>
+                <h4 class="text-lg font-bold text-white mb-1">300秒・長文部門</h4>
                 <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  短文から長文まで全てのワードが均等に出現。制限時間5分の本格派向けマラソン部門。
+                  長いフレーズや格言を5分間打ち続ける本格派向けマラソン部門。コンボ維持が鍵。
                 </p>
               </div>
               <button onclick="prepareSoloGame('solo300')"
@@ -379,7 +344,36 @@
                 </div>
                 <h4 class="text-lg font-bold text-white mb-1">サドンデス 100秒</h4>
                 <p class="text-xs text-slate-400 leading-relaxed mb-4">
-                  <span class="text-fuchsia-400 font-bold">1回でもミスタイプした瞬間に即終了！</span>全ワードから均等に出現する極限のノーミス100秒。
+                  <span class="text-fuchsia-400 font-bold">1回でもミスタイプした瞬間に即終了！</span>極限の集中力で100秒間を駆け抜けろ。
                 </p>
               </div>
-              <button onclick="prepareSoloGame('su
+              <button onclick="prepareSoloGame('sudden100')"
+                class="w-full py-3 rounded-xl font-bold text-sm text-white bg-fuchsia-600 hover:bg-fuchsia-500 glow-magenta active:scale-95 transition-all cursor-pointer">
+                サドンデスに挑戦
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- オンライン対戦セクション（カジュアル＝緑 / レーティング＝オレンジ / AI戦なし） -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-1.5 h-5 bg-fuchsia-500 rounded-full"></span>
+            <h3 class="font-orbitron text-base sm:text-lg font-bold text-white tracking-wider">ONLINE BATTLE <span class="text-xs font-sans text-slate-400 font-normal ml-1">リアルタイム対人戦（120秒スコア勝負・AI戦なし）</span></h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- カジュアルバトル（緑色） -->
+            <div class="bg-[#0c101a] border border-emerald-500/35 hover:border-emerald-400 rounded-2xl p-5 flex flex-col justify-between transition-all">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-orbitron text-xs font-bold text-emerald-400">CASUAL MATCH</span>
+                  <span class="text-xs text-emerald-300">レート変動なし</span>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-1">カジュアル対戦</h4>
+                <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                  レート変動なしのフリー対戦。合言葉を入れると同じ合言葉の友達と、空欄ならランダムな相手とマッチします。
+                </p>
+                <div class="mb-4">
+                  <label class="block text-[11px] text-slate-400 mb-1">合言葉（任意・空欄でランダム対戦）</label>
+                  <input id="casual-passcode" type="text" maxlength="20" placehold
