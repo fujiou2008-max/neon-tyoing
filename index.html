@@ -204,7 +204,7 @@
        ===================================================================== -->
   <header id="main-header" class="hidden sticky top-0 z-30 bg-[#05070a]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-2.5">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <button onclick="navigate('home')" class="flex items-center gap-2 group focus:outline-none">
+      <button id="header-logo-btn" onclick="handleHeaderLogoClick()" class="flex items-center gap-2 group focus:outline-none">
         <span class="font-orbitron font-black text-xl sm:text-2xl tracking-widest glow-cyan group-hover:opacity-90 transition">
           NEON<span class="text-pink-500 glow-magenta">TYPE</span>
         </span>
@@ -217,13 +217,19 @@
           <span id="firebase-status-text">CONNECTING</span>
         </div>
 
+        <!-- アップデート内容お知らせボックスボタン -->
+        <button id="btn-update-notice" onclick="openUpdateNoticeModal()" class="p-2 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-cyan-300 transition relative" title="アップデートお知らせ">
+          <i class="fa-solid fa-bell text-sm"></i>
+          <span id="update-notice-badge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+        </button>
+
         <!-- 効果音ミュート切替 -->
         <button id="btn-mute-toggle" onclick="toggleMute()" class="p-2 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-cyan-300 transition" title="効果音 ON/OFF">
           <i id="mute-icon" class="fa-solid fa-volume-high text-sm"></i>
         </button>
 
         <!-- ミニプロフィールボタン（マイページへ） -->
-        <button onclick="navigate('mypage')" class="flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 rounded-full pl-1.5 pr-3 py-1 transition relative">
+        <button id="header-profile-btn" onclick="handleHeaderProfileClick()" class="flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-400 rounded-full pl-1.5 pr-3 py-1 transition relative">
           <img id="header-avatar" src="" alt="avatar" class="w-7 h-7 rounded-full object-cover border border-cyan-400/60 bg-slate-800" />
           <div class="text-left leading-tight">
             <div id="header-username" class="text-xs font-bold text-slate-100 max-w-[90px] sm:max-w-[130px] truncate">Player</div>
@@ -266,7 +272,7 @@
         <button onclick="confirmResetMyData()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
           <i class="fa-solid fa-triangle-exclamation mr-1"></i>データリセット
         </button>
-        <span class="font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
+        <span id="start-version-display" class="font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
           ver1.0
         </span>
       </div>
@@ -274,8 +280,8 @@
 
     <!-- 2. ホーム画面 (Home Screen) -->
     <section id="view-home" class="hidden flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-8">
-      <!-- ナビゲーションタブ（マイページ・ランキング・称号リスト） -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-4">
+      <!-- ナビゲーションタブ（マイページ・ランキング・称号リスト・アップデート情報） -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
         <button onclick="navigate('mypage')" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition relative">
           <i class="fa-solid fa-user-astronaut text-cyan-400"></i>
           <span class="font-bold text-xs sm:text-sm tracking-wider">マイページ</span>
@@ -288,6 +294,11 @@
         <button onclick="navigate('titles')" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition">
           <i class="fa-solid fa-medal text-pink-400"></i>
           <span class="font-bold text-xs sm:text-sm tracking-wider">称号リスト</span>
+        </button>
+        <button onclick="openUpdateNoticeModal()" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition relative">
+          <i class="fa-solid fa-newspaper text-emerald-400"></i>
+          <span class="font-bold text-xs sm:text-sm tracking-wider">アップデート情報</span>
+          <span id="home-update-badge" class="hidden px-1.5 py-0.2 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold">NEW</span>
         </button>
       </div>
 
@@ -790,6 +801,41 @@
         </div>
       </div>
 
+      <!-- タイトル画面バージョン表記のリアルタイム更新 -->
+      <div class="p-5 rounded-xl bg-[#0a0f18] border border-cyan-500/30 space-y-3">
+        <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
+          <i class="fa-solid fa-code-branch"></i> タイトル画面バージョン表示のリアルタイム変更
+        </h3>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="admin-version-input" type="text" maxlength="30" placeholder="例: ver1.1 / ver2.0 Beta" class="flex-1 bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3 py-2 text-sm text-white font-mono-code focus:outline-none" />
+          <button onclick="adminUpdateVersion()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition">
+            バージョン変更
+          </button>
+        </div>
+      </div>
+
+      <!-- アップデートお知らせボックス投稿管理（タイトルと内容を分けて投稿・削除） -->
+      <div class="p-5 rounded-xl bg-[#0a0f18] border border-cyan-500/30 space-y-4">
+        <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
+          <i class="fa-solid fa-newspaper"></i> アップデートお知らせボックスへの投稿
+        </h3>
+        <div class="space-y-2.5">
+          <input id="admin-update-title" type="text" maxlength="80" placeholder="アップデートタイトル (例: ver1.1 アップデートのお知らせ)" class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" />
+          <textarea id="admin-update-body" rows="4" maxlength="1000" placeholder="アップデート内容の詳細を入力..." class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"></textarea>
+          <div class="flex justify-end">
+            <button onclick="adminPostUpdateNotice()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition">
+              お知らせを投稿する
+            </button>
+          </div>
+        </div>
+        <div class="space-y-1.5 pt-2 border-t border-slate-800">
+          <div class="text-xs text-slate-400 font-bold">投稿済みアップデート一覧:</div>
+          <div id="admin-update-list" class="max-h-48 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs">
+            <!-- JSで描画 -->
+          </div>
+        </div>
+      </div>
+
       <!-- ② & ③ プレイヤーリスト・オンライン状況・BAN管理・DM確認 -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-pink-500/30 space-y-3">
         <div class="flex items-center justify-between">
@@ -882,6 +928,28 @@
   <!-- =====================================================================
        モーダル & トースト通知群
        ===================================================================== -->
+
+  <!-- アップデートお知らせボックス閲覧モーダル -->
+  <div id="modal-update-notice" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeUpdateNoticeModal(event)">
+    <div class="max-w-lg w-full p-6 rounded-2xl bg-[#0a0f18] border border-cyan-400/50 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-orbitron font-bold text-base sm:text-lg glow-cyan flex items-center gap-2">
+          <i class="fa-solid fa-newspaper"></i> UPDATE INFORMATION
+        </h3>
+        <button onclick="document.getElementById('modal-update-notice').classList.add('hidden')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div id="update-notice-list" class="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
+        <!-- JSでアップデート記事一覧を描画 -->
+      </div>
+      <div class="flex justify-end pt-1">
+        <button onclick="document.getElementById('modal-update-notice').classList.add('hidden')" class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- リタイア確認モーダル -->
   <div id="modal-retire" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -2014,6 +2082,40 @@
     // ---------------------------------------------------------------------
     let currentView = "start";
 
+    // オンラインマッチング中・オンライン対戦中の判定ヘルパー
+    function isOnlineLockedState() {
+      return currentView === "matchmaking" || (currentView === "game" && gameState.isOnline);
+    }
+
+    // 左上の NEONTYPE ロゴ押下時の制御（オンラインマッチング中は無効化）
+    window.handleHeaderLogoClick = function() {
+      if (isOnlineLockedState()) return;
+      navigate("home");
+    };
+
+    // ヘッダーのプロフィールボタン押下時もオンラインマッチング中の誤遷移を防止
+    window.handleHeaderProfileClick = function() {
+      if (isOnlineLockedState()) return;
+      navigate("mypage");
+    };
+
+    // オンラインマッチング中かどうかでヘッダーロゴの見た目と操作可否を更新
+    function updateHeaderNavigationLock() {
+      const locked = isOnlineLockedState();
+      const logoBtn = document.getElementById("header-logo-btn");
+      const profBtn = document.getElementById("header-profile-btn");
+      if (logoBtn) {
+        logoBtn.disabled = locked;
+        logoBtn.classList.toggle("cursor-not-allowed", locked);
+        logoBtn.classList.toggle("opacity-60", locked);
+      }
+      if (profBtn) {
+        profBtn.disabled = locked;
+        profBtn.classList.toggle("cursor-not-allowed", locked);
+        profBtn.classList.toggle("opacity-60", locked);
+      }
+    }
+
     window.startApp = function() {
       ensureAudioCtx();
       playBeepSound(880, 0.08);
@@ -2040,6 +2142,7 @@
         if (el) el.classList.toggle("hidden", v !== viewName);
       });
 
+      updateHeaderNavigationLock();
       refreshAllProfileUI();
 
       if (viewName === "ranking") renderLeaderboard(currentRankingMode);
@@ -2346,8 +2449,9 @@
         if (gameState.matcher.isComplete()) {
           const isNoMiss = gameState.wordMistypes === 0;
           if (isNoMiss) {
-            // ノーミス単語完了ボーナス：100 + 現在のコンボ数
-            gameState.score += (100 + gameState.combo);
+            // ノーミス単語完了ボーナス：長い単語は 300 + コンボ数、短い・中くらいの単語は 100 + コンボ数
+            const baseBonus = gameState.currentWord?.category === "long" ? 300 : 100;
+            gameState.score += (baseBonus + gameState.combo);
           }
           playWordCompleteSound(isNoMiss);
           pickNextWord();
@@ -3225,19 +3329,114 @@
     };
 
     // ---------------------------------------------------------------------
-    // 15. 管理者パネル機能（ニュース更新・プレイヤー管理・BAN・DM・ワード追加削除）
+    // 15. 管理者パネル機能（ニュース更新・プレイヤー管理・BAN・DM・ワード追加削除・アップデート告知・バージョン管理）
     // ---------------------------------------------------------------------
     let allPlayersCache = {};
     let allDmsCache = {};
     let adminWordFilter = "all";
+    let currentDisplayVersion = localStorage.getItem("neontype_display_version") || "ver1.0";
+    let updateNoticesList = [];
+    try {
+      const savedUpdates = localStorage.getItem("neontype_update_notices_v1");
+      if (savedUpdates) updateNoticesList = JSON.parse(savedUpdates);
+    } catch (e) {}
+
+    function applyVersionText(verStr) {
+      currentDisplayVersion = verStr || "ver1.0";
+      localStorage.setItem("neontype_display_version", currentDisplayVersion);
+      const verEl = document.getElementById("start-version-display");
+      if (verEl) verEl.textContent = currentDisplayVersion;
+      document.title = `NEONTYPE | ${currentDisplayVersion}`;
+    }
+
+    function updateNewUpdateBadges() {
+      const lastSeenId = localStorage.getItem("neontype_last_seen_update_id");
+      const latestId = updateNoticesList.length > 0 ? updateNoticesList[0].id : null;
+      const hasNew = !!(latestId && latestId !== lastSeenId);
+
+      const headerBadge = document.getElementById("update-notice-badge");
+      const homeBadge = document.getElementById("home-update-badge");
+      if (headerBadge) headerBadge.classList.toggle("hidden", !hasNew);
+      if (homeBadge) homeBadge.classList.toggle("hidden", !hasNew);
+    }
+
+    window.openUpdateNoticeModal = function() {
+      if (updateNoticesList.length > 0) {
+        localStorage.setItem("neontype_last_seen_update_id", updateNoticesList[0].id);
+        updateNewUpdateBadges();
+      }
+      renderUpdateNoticeList();
+      document.getElementById("modal-update-notice").classList.remove("hidden");
+    };
+
+    window.closeUpdateNoticeModal = function(e) {
+      if (e.target.id === "modal-update-notice") {
+        e.target.classList.add("hidden");
+      }
+    };
+
+    function renderUpdateNoticeList() {
+      const container = document.getElementById("update-notice-list");
+      if (!container) return;
+
+      if (updateNoticesList.length === 0) {
+        container.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-cyan-300">NEONTYPE 正式リリース</span>
+              <span class="text-[10px] font-mono-code text-slate-500">INITIAL</span>
+            </div>
+            <p class="text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">NEONTYPEへようこそ！ソロモードやオンライン対戦をお楽しみください。</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = updateNoticesList.map(item => `
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-cyan-500/25 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-bold text-sm text-cyan-300">${escapeHtml(item.title)}</h4>
+            <span class="text-[10px] font-mono-code text-slate-500 shrink-0">${new Date(item.createdAt).toLocaleDateString()}</span>
+          </div>
+          <p class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(item.content)}</p>
+        </div>
+      `).join("");
+    }
 
     function initRealtimeAdminAndNewsListeners() {
+      applyVersionText(currentDisplayVersion);
+      updateNewUpdateBadges();
+
       if (!firebaseReady || !db) return;
 
       // ① 電光掲示板リアルタイム購読
       onValue(ref(db, "system/newsTicker"), (snap) => {
         if (snap.exists() && snap.val()) {
           document.getElementById("news-ticker-text").textContent = snap.val();
+        }
+      });
+
+      // バージョン表示リアルタイム購読
+      onValue(ref(db, "system/appVersionText"), (snap) => {
+        if (snap.exists() && snap.val()) {
+          applyVersionText(snap.val());
+        }
+      });
+
+      // アップデートお知らせ一覧リアルタイム購読
+      onValue(ref(db, "system/updateNotices"), (snap) => {
+        if (snap.exists()) {
+          updateNoticesList = Object.values(snap.val()).sort((a, b) => b.createdAt - a.createdAt);
+        } else {
+          updateNoticesList = [];
+        }
+        localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesList));
+        updateNewUpdateBadges();
+        if (!document.getElementById("modal-update-notice").classList.contains("hidden")) {
+          renderUpdateNoticeList();
+        }
+        if (currentView === "admin") {
+          renderAdminUpdateNoticesList();
         }
       });
 
@@ -3293,10 +3492,82 @@
         return;
       }
       document.getElementById("admin-news-input").value = document.getElementById("news-ticker-text").textContent;
+      document.getElementById("admin-version-input").value = currentDisplayVersion;
+      renderAdminUpdateNoticesList();
       renderAdminPlayerList();
       renderAdminWordList();
       renderAdminRankingCleanup();
     }
+
+    // タイトル画面バージョン表記更新
+    window.adminUpdateVersion = async function() {
+      const ver = document.getElementById("admin-version-input").value.trim();
+      if (!ver) return;
+      applyVersionText(ver);
+      if (firebaseReady && db) {
+        await set(ref(db, "system/appVersionText"), ver).catch(() => {});
+      }
+      showToast(`バージョン表示を「${ver}」に変更しました`, "RR");
+    };
+
+    // アップデートお知らせボックスへの投稿
+    window.adminPostUpdateNotice = async function() {
+      const title = document.getElementById("admin-update-title").value.trim();
+      const content = document.getElementById("admin-update-body").value.trim();
+      if (!title || !content) {
+        showToast("タイトルと内容の両方を入力してください", "GR");
+        return;
+      }
+
+      const newNotice = {
+        id: "upd_" + Date.now(),
+        title,
+        content,
+        createdAt: Date.now()
+      };
+
+      updateNoticesList.unshift(newNotice);
+      localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesList));
+      updateNewUpdateBadges();
+
+      if (firebaseReady && db) {
+        await set(ref(db, `system/updateNotices/${newNotice.id}`), newNotice).catch(() => {});
+      }
+
+      document.getElementById("admin-update-title").value = "";
+      document.getElementById("admin-update-body").value = "";
+      renderAdminUpdateNoticesList();
+      showToast("アップデートお知らせを投稿しました", "SR");
+    };
+
+    function renderAdminUpdateNoticesList() {
+      const listEl = document.getElementById("admin-update-list");
+      if (!listEl) return;
+      if (updateNoticesList.length === 0) {
+        listEl.innerHTML = `<div class="p-3 text-slate-500">投稿されたお知らせはありません</div>`;
+        return;
+      }
+      listEl.innerHTML = updateNoticesList.map(item => `
+        <div class="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-900/50">
+          <div class="min-w-0">
+            <div class="font-bold text-cyan-300 truncate">${escapeHtml(item.title)}</div>
+            <div class="text-slate-400 truncate">${escapeHtml(item.content)}</div>
+          </div>
+          <button onclick="adminDeleteUpdateNotice('${escapeHtml(item.id)}')" class="px-2 py-1 rounded bg-red-950/70 border border-red-500/40 text-red-300 shrink-0">削除</button>
+        </div>
+      `).join("");
+    }
+
+    window.adminDeleteUpdateNotice = async function(noticeId) {
+      updateNoticesList = updateNoticesList.filter(n => n.id !== noticeId);
+      localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesList));
+      updateNewUpdateBadges();
+      if (firebaseReady && db) {
+        await remove(ref(db, `system/updateNotices/${noticeId}`)).catch(() => {});
+      }
+      renderAdminUpdateNoticesList();
+      showToast("お知らせを削除しました", "R");
+    };
 
     // ① ニュースティッカー更新
     window.adminUpdateNews = async function() {
@@ -3538,66 +3809,72 @@
         return `
           <div class="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-900/50">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold shrink-0">${catLabel[w.category]}</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-cyan-300 shrink-0">${catLabel[w.category] || "小"}</span>
               <span class="font-bold text-slate-100 truncate">${escapeHtml(w.text)}</span>
               <span class="text-slate-400 font-mono-code truncate">(${escapeHtml(w.reading)})</span>
             </div>
             ${isCustom
-              ? `<button onclick="adminDeleteCustomWord('${escapeHtml(w.id)}')" class="px-2 py-1 rounded bg-red-950/70 border border-red-500/40 text-red-300 shrink-0">削除</button>`
-              : `<span class="text-[10px] text-slate-600 shrink-0">標準</span>`
+              ? `<button onclick="adminDeleteWord('${escapeHtml(w.id)}')" class="px-2 py-0.5 rounded bg-pink-950/70 border border-pink-500/40 text-pink-300 shrink-0">削除</button>`
+              : `<span class="text-[10px] text-slate-600 shrink-0">初期ワード</span>`
             }
           </div>
         `;
       }).join("");
     }
 
-    window.adminDeleteCustomWord = async function(wordId) {
+    window.adminDeleteWord = async function(wordId) {
       customAdminWords = customAdminWords.filter(w => w.id !== wordId);
       localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
       if (firebaseReady && db) {
         await remove(ref(db, `custom_words/${wordId}`)).catch(() => {});
       }
       renderAdminWordList();
-      showToast("カスタムワードを削除しました", "R");
+      showToast("追加ワードを削除しました", "R");
     };
 
-    // ⑤ ランキング不正スコア削除ツール
+    // ⑤ ランキング不正スコア個別削除ツール
     window.renderAdminRankingCleanup = async function() {
       const mode = document.getElementById("admin-rank-mode-select").value;
-      const box = document.getElementById("admin-rank-cleanup-list");
+      const listEl = document.getElementById("admin-rank-cleanup-list");
       let entries = [];
+
       if (firebaseReady && db) {
-        const snap = await get(ref(db, `leaderboards/${mode}`));
-        if (snap.exists()) entries = Object.entries(snap.val());
+        try {
+          const snap = await get(ref(db, `leaderboards/${mode}`));
+          if (snap.exists()) entries = Object.entries(snap.val());
+        } catch (e) {}
       }
+
       if (entries.length === 0) {
-        box.innerHTML = `<div class="p-3 text-slate-500">記録がありません</div>`;
+        listEl.innerHTML = `<div class="p-3 text-slate-500">登録データがありません</div>`;
         return;
       }
-      box.innerHTML = entries.map(([key, item]) => `
+
+      listEl.innerHTML = entries.map(([key, item]) => `
         <div class="p-2.5 flex items-center justify-between">
-          <span>${escapeHtml(item.username)} - <strong class="text-cyan-300">${item.score} pts</strong> (WPM: ${item.maxWpm})</span>
-          <button onclick="adminRemoveRankEntry('${mode}', '${key}')" class="px-2 py-1 rounded bg-red-950 border border-red-500/40 text-red-300">削除</button>
+          <div>
+            <span class="font-bold text-slate-200">${escapeHtml(item.username)}</span>
+            <span class="font-mono-code text-cyan-300 ml-2">${item.score} pts</span>
+          </div>
+          <button onclick="adminDeleteRankEntry('${mode}', '${key}')" class="px-2 py-0.5 rounded bg-red-950 border border-red-500/50 text-red-300">削除</button>
         </div>
       `).join("");
     };
 
-    window.adminRemoveRankEntry = async function(mode, key) {
+    window.adminDeleteRankEntry = async function(mode, key) {
       if (firebaseReady && db) {
-        await remove(ref(db, `leaderboards/${mode}/${key}`));
+        await remove(ref(db, `leaderboards/${mode}/${key}`)).catch(() => {});
       }
       renderAdminRankingCleanup();
       showToast("ランキング記録を削除しました", "R");
     };
 
     // ---------------------------------------------------------------------
-    // 16. アプリ起動時の初期化呼び出し
+    // 16. アプリ起動時の初期リスナー登録
     // ---------------------------------------------------------------------
-    window.addEventListener("DOMContentLoaded", () => {
-      refreshAllProfileUI();
-      initRealtimeAdminAndNewsListeners();
-      initOnlineQueueCounters();
-    });
+    initRealtimeAdminAndNewsListeners();
+    initOnlineQueueCounters();
+    refreshAllProfileUI();
   </script>
 </body>
 </html>
