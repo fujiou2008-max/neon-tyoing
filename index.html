@@ -254,16 +254,21 @@
           <div class="h-0.5 w-48 sm:w-72 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
         </div>
 
-        <div class="pt-4">
+        <div class="pt-4 flex flex-col items-center gap-4">
           <button onclick="startApp()" class="font-orbitron font-bold text-lg sm:text-2xl tracking-[0.25em] px-12 py-4 rounded-xl bg-cyan-500/10 text-cyan-300 border-neon-cyan hover:bg-cyan-400 hover:text-slate-950 transition-all duration-200 shadow-lg">
             START
           </button>
         </div>
       </div>
 
-      <!-- 右下バージョン表記 -->
-      <div class="fixed bottom-4 right-5 font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
-        ver1.0
+      <!-- 1. データリセットボタンをスタート画面の右下隅（絶対配置）に小さく赤く配置する -->
+      <div class="fixed bottom-4 right-5 flex items-center gap-4">
+        <button onclick="confirmResetMyData()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i>データリセット
+        </button>
+        <span class="font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
+          ver1.0
+        </span>
       </div>
     </section>
 
@@ -789,7 +794,7 @@
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-pink-500/30 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-pink-400 flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> ②・③ 登録プレイヤー一覧 / オンライン監視 / BAN / 要望DM
+            <i class="fa-solid fa-users"></i> ②・③ 登録プレイヤー一覧 / オンライン監視 / BAN / 完全削除 / 要望DM
           </h3>
           <span id="admin-player-count" class="text-xs font-mono-code text-slate-400">0 Players</span>
         </div>
@@ -801,7 +806,7 @@
                 <th class="p-3">プレイヤー</th>
                 <th class="p-3">RATE / WPM</th>
                 <th class="p-3">要望DM</th>
-                <th class="p-3 text-right">操作 (BAN / リセット)</th>
+                <th class="p-3 text-right">操作 (BAN / 完全削除)</th>
               </tr>
             </thead>
             <tbody id="admin-player-tbody" class="divide-y divide-slate-800">
@@ -3323,16 +3328,6 @@
         } catch (e) {}
       }
 
-      // 自分自身のレコードがまだFirebaseに無い場合も必ず表示
-      if (!allPlayersCache[playerData.deviceId]) {
-        allPlayersCache[playerData.deviceId] = {
-          deviceId: playerData.deviceId,
-          username: playerData.username,
-          rating: playerData.rating,
-          maxWpm: playerData.stats.maxWpm
-        };
-      }
-
       const players = Object.values(allPlayersCache);
       document.getElementById("admin-player-count").textContent = `${players.length} Players`;
 
@@ -3369,8 +3364,12 @@
             <td class="p-3 text-right space-x-1">
               ${p.deviceId !== playerData.deviceId ? `
                 <button onclick="togglePlayerBan('${escapeHtml(p.deviceId)}', ${!isBanned})"
-                        class="px-2.5 py-1 rounded font-bold ${isBanned ? 'bg-emerald-600/20 border border-emerald-500 text-emerald-300' : 'bg-red-600/20 border border-red-500 text-red-300'}">
-                  ${isBanned ? 'BAN解除' : 'BANする'}
+                        class="px-2 py-1 rounded font-bold text-[11px] ${isBanned ? 'bg-emerald-600/20 border border-emerald-500 text-emerald-300' : 'bg-amber-600/20 border border-amber-500 text-amber-300'}">
+                  ${isBanned ? 'BAN解除' : 'BAN'}
+                </button>
+                <button onclick="adminDeletePlayerData('${escapeHtml(p.deviceId)}')"
+                        class="px-2 py-1 rounded font-bold text-[11px] bg-red-600/20 border border-red-500 text-red-300 hover:bg-red-600 hover:text-white transition">
+                  完全削除
                 </button>
               ` : `<span class="text-[10px] text-cyan-400">YOU (ADMIN)</span>`}
             </td>
@@ -3389,6 +3388,57 @@
         showToast("BANを解除しました", "RR");
       }
       renderAdminPlayerList();
+    };
+
+    // 1. 管理者権限によるプレイヤーデータの完全削除処理
+    window.adminDeletePlayerData = async function(targetDeviceId) {
+      if (!confirm("本当にこのプレイヤーのすべてのデータを完全に削除しますか？")) return;
+
+      if (firebaseReady && db) {
+        try {
+          await Promise.all([
+            remove(ref(db, `players/${targetDeviceId}`)),
+            remove(ref(db, `bans/${targetDeviceId}`)),
+            remove(ref(db, `presence/${targetDeviceId}`)),
+            remove(ref(db, `admin_dms/${targetDeviceId}`))
+          ]);
+        } catch (e) {}
+      }
+
+      if (targetDeviceId === playerData.deviceId) {
+        localStorage.removeItem(SAVE_KEY);
+      }
+
+      delete allPlayersCache[targetDeviceId];
+      renderAdminPlayerList();
+      showToast("プレイヤーのデータを完全に削除しました", "GR");
+    };
+
+    // 2. 自分自身のデータをリセットする機能（確認のワンクッションを追加し、ローカルおよびFirebaseのプレイヤーリストからも完全消去して管理者リストからも消す）
+    window.confirmResetMyData = function() {
+      // 2. 「本当にリセットしますか？」という確認のワンクッション（confirm）
+      if (!confirm("本当にリセットしますか？ すべての戦績・称号・データが初期化されます。")) return;
+
+      const currentDevId = playerData.deviceId;
+
+      // ローカルストレージのセーブデータを完全に削除
+      localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem("neontype_device_id");
+
+      // 3 & 4. Firebase上のプレイヤーリスト（players, presence, bans, admin_dms）からも完全削除し管理者リストからも消去
+      if (firebaseReady && db && currentDevId) {
+        Promise.all([
+          remove(ref(db, `players/${currentDevId}`)),
+          remove(ref(db, `presence/${currentDevId}`)),
+          remove(ref(db, `bans/${currentDevId}`)),
+          remove(ref(db, `admin_dms/${currentDevId}`))
+        ]).catch(() => {});
+      }
+
+      showToast("データをリセットしました。再読み込みします...", "GR");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
     };
 
     window.openViewPlayerDm = function(senderId, senderName) {
