@@ -2891,95 +2891,205 @@
     //     - カジュアル戦：合言葉一致（空欄なら空欄同士）の人間プレイヤーとマッチング
     //     - マッチング成立時：5秒間のVS画面ワンクッション → 3秒カウント → 120秒バトル
     // =========================================================================
-    let matchmakingState = {
-      active: false,
-      type: 'rate',
-      passcode: '',
-      queueRef: null,
-      pollInterval: null
-    };
+// =========================================================================
+// 12. オンライン対戦リアルタイムマッチング（修正版）
+// =========================================================================
+let matchmakingState = {
+  active: false,
+  isProcessingMatch: false, // 二重マッチング防止ロック
+  type: 'rate',
+  passcode: '',
+  queueRef: null,
+  pollInterval: null,
+  heartbeatInterval: null
+};
 
-    window.startOnlineMatchmaking = async function (type) {
-      if (player.isBanned) {
-        document.getElementById('banOverlay').classList.remove('hidden');
-        return;
-      }
+window.startOnlineMatchmaking = async function (type) {
+  if (player.isBanned) {
+    document.getElementById('banOverlay').classList.remove('hidden');
+    return;
+  }
 
-      SoundEngine.init();
-      lastPlayedConfig = { isOnline: true, mode: type };
+  // 既に検索中・監視中なら一度クリーンアップする（多重起動防止）
+  await cancelOnlineMatchmaking(true);
 
-      const passcode = type === 'casual'
-        ? (document.getElementById('casualPasscodeInput').value || '').trim()
-        : '';
+  SoundEngine.init();
+  lastPlayedConfig = { isOnline: true, mode: type };
 
-      matchmakingState.active = true;
-      matchmakingState.type = type;
-      matchmakingState.passcode = passcode;
+  const passcode = type === 'casual'
+    ? (document.getElementById('casualPasscodeInput').value || '').trim()
+    : '';
 
-      navigateTo('matchmaking');
-      document.getElementById('matchSearchingView').classList.remove('hidden');
-      document.getElementById('matchFoundView').classList.add('hidden');
-      document.getElementById('matchModeLabel').textContent =
-        type === 'rate' ? 'RATE BATTLE' : 'CASUAL BATTLE';
-      document.getElementById('matchSubInfo').textContent =
-        type === 'rate'
-          ? `マッチング条件: レート ${player.rating - 129} ～ ${player.rating + 129}`
-          : (passcode ? `合言葉: 「${passcode}」 で検索中` : '合言葉なし（ランダム対戦）で検索中');
+  matchmakingState.active = true;
+  matchmakingState.isProcessingMatch = false;
+  matchmakingState.type = type;
+  matchmakingState.passcode = passcode;
 
-      const queuePath = `queues/${type}/${player.playerId}`;
-      const myQueueRef = ref(db, queuePath);
-      matchmakingState.queueRef = myQueueRef;
+  navigateTo('matchmaking');
+  document.getElementById('matchSearchingView').classList.remove('hidden');
+  document.getElementById('matchFoundView').classList.add('hidden');
+  document.getElementById('matchModeLabel').textContent =
+    type === 'rate' ? 'RATE BATTLE' : 'CASUAL BATTLE';
+  document.getElementById('matchSubInfo').textContent =
+    type === 'rate'
+      ? `マッチング条件: レート ${player.rating - 129} ～ ${player.rating + 129}`
+      : (passcode ? `合言葉: 「${passcode}」 で検索中` : '合言葉なし（ランダム対戦）で検索中');
 
-      // 切断時は待機キューから自動削除
-      onDisconnect(myQueueRef).remove();
+  const queuePath = `queues/${type}/${player.playerId}`;
+  const myQueueRef = ref(db, queuePath);
+  matchmakingState.queueRef = myQueueRef;
 
-      const avgMiss = player.totalKeystrokes > 0
-        ? ((player.totalMistypes / player.totalKeystrokes) * 100).toFixed(1)
-        : '0.0';
+  // 切断時は待機キューから自動削除
+  onDisconnect(myQueueRef).remove();
 
-      await set(myQueueRef, {
-        playerId: player.playerId,
-        username: player.username,
-        avatar: player.avatar,
-        equippedTitleId: player.equippedTitleId,
-        rating: player.rating,
-        avgMiss: avgMiss,
-        passcode: passcode,
-        status: 'waiting',
-        battleId: null,
-        joinedAt: Date.now()
-      });
+  const avgMiss = player.totalKeystrokes > 0
+    ? ((player.totalMistypes / player.totalKeystrokes) * 100).toFixed(1)
+    : '0.0';
 
-      // 相手からマッチング成立通知を受け取るリスナー
-      onValue(myQueueRef, (snap) => {
-        const data = snap.val();
-        if (!data || !matchmakingState.active) return;
-        if (data.status === 'matched' && data.battleId && data.opponent) {
-          onMatchedSuccess(data.battleId, data.opponent);
+  const now = Date.now();
+  await set(myQueueRef, {
+    playerId: player.playerId,
+    username: player.username,
+    avatar: player.avatar,
+    equippedTitleId: player.equippedTitleId,
+    rating: player.rating,
+    avgMiss: avgMiss,
+    passcode: passcode,
+    status: 'waiting',
+    battleId: null,
+    joinedAt: now,
+    lastPing: now // 生存確認用タイムスタンプ
+  });
+
+  // 1. 相手（または自分）からのマッチング成立通知を受け取るリスナー
+  onValue(myQueueRef, (snap) => {
+    const data = snap.val();
+    // 既にマッチング処理に入っている場合は無視（二重発火防止）
+    if (!data || !matchmakingState.active || matchmakingState.isProcessingMatch) return;
+
+    if (data.status === 'matched' && data.battleId && data.opponent) {
+      matchmakingState.isProcessingMatch = true;
+      matchmakingState.active = false;
+
+      // 検索タイマーとリスナーを即座に停止
+      stopMatchmakingTimers();
+      off(myQueueRef);
+
+      // キューを削除してから対戦画面へ移行（少し遅らせて確実にデータを読み込ませる）
+      remove(myQueueRef).catch(() => {});
+      onMatchedSuccess(data.battleId, data.opponent);
+    }
+  });
+
+  // 2. 自分がオンラインであることを知らせる生存報告（5秒ごと）
+  matchmakingState.heartbeatInterval = setInterval(() => {
+    if (!matchmakingState.active || matchmakingState.isProcessingMatch) return;
+    update(myQueueRef, { lastPing: Date.now() }).catch(() => {});
+  }, 5000);
+
+  // 3. 待機中の人間プレイヤーを検索するポーリング
+  let isSearching = false; // 通信中の重複実行防止フラグ
+  matchmakingState.pollInterval = setInterval(async () => {
+    if (!matchmakingState.active || matchmakingState.isProcessingMatch || isSearching) return;
+    isSearching = true;
+
+    try {
+      const allSnap = await get(ref(db, `queues/${type}`));
+      const allWaiting = allSnap.val() || {};
+      const currentTime = Date.now();
+
+      for (const [oppId, opp] of Object.entries(allWaiting)) {
+        if (!opp || oppId === player.playerId || opp.status !== 'waiting') continue;
+
+        // 15秒以上生存報告（lastPing）がない相手は離脱済みとみなしてスキップ
+        const lastActive = opp.lastPing || opp.joinedAt || 0;
+        if (currentTime - lastActive > 15000) continue;
+
+        // マッチング条件チェック
+        if (type === 'rate') {
+          if (Math.abs(player.rating - (opp.rating || 1500)) >= 130) continue;
+        } else {
+          if ((opp.passcode || '') !== passcode) continue;
         }
-      });
 
-      // 待機中の人間プレイヤーを検索してマッチング成立させるポーリング
-      matchmakingState.pollInterval = setInterval(async () => {
-        if (!matchmakingState.active) return;
-        try {
-          const allSnap = await get(ref(db, `queues/${type}`));
-          const allWaiting = allSnap.val() || {};
-          const now = Date.now();
+        // ホスト判定（IDが小さい方がルームを作成する）
+        if (player.playerId < oppId) {
+          // 処理ロックをかけて二重作成を防ぐ
+          matchmakingState.isProcessingMatch = true;
 
-          for (const [oppId, opp] of Object.entries(allWaiting)) {
-            if (!opp || oppId === player.playerId || opp.status !== 'waiting') continue;
-            // 2分以上放置された古いキューはスキップ
-            if (now - (opp.joinedAt || 0) > 120000) continue;
+          const battleId = `battle_${currentTime}_${player.playerId.slice(-4)}_${oppId.slice(-4)}`;
+          const myInfo = {
+            playerId: player.playerId,
+            username: player.username,
+            avatar: player.avatar,
+            equippedTitleId: player.equippedTitleId,
+            rating: player.rating,
+            avgMiss: avgMiss
+          };
+          const oppInfo = {
+            playerId: opp.playerId,
+            username: opp.username,
+            avatar: opp.avatar,
+            equippedTitleId: opp.equippedTitleId,
+            rating: opp.rating,
+            avgMiss: opp.avgMiss || '0.0'
+          };
 
-            // マッチング条件チェック
-            if (type === 'rate') {
-              // レートが130以上違う相手とはマッチしない
-              if (Math.abs(player.rating - (opp.rating || 1500)) >= 130) continue;
-            } else {
-              // カジュアル：合言葉一致チェック
-              if ((opp.passcode || '') !== passcode) continue;
-            }
+          // 先にバトルルームを作成
+          await set(ref(db, `battles/${battleId}`), {
+            battleId,
+            type,
+            createdAt: currentTime,
+            players: {
+              [player.playerId]: myInfo,
+              [oppId]: oppInfo
+            },
+            scores: {
+              [player.playerId]: 0,
+              [oppId]: 0
+            },
+            retiredBy: null
+          });
+
+          // 相手のキューを 'matched' に更新
+          await update(ref(db, `queues/${type}/${oppId}`), {
+            status: 'matched',
+            battleId,
+            opponent: myInfo
+          });
+
+          // 自分のキューを 'matched' に更新（これにより自分の onValue も発火する）
+          await update(myQueueRef, {
+            status: 'matched',
+            battleId,
+            opponent: oppInfo
+          });
+
+          // updateの結果がonValueで拾われるよう、ロックを戻して処理を委ねる
+          matchmakingState.isProcessingMatch = false;
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('マッチング検索エラー:', err);
+      matchmakingState.isProcessingMatch = false;
+    } finally {
+      isSearching = false;
+    }
+  }, 1200);
+};
+
+// タイマー類をまとめて止めるヘルパー関数
+function stopMatchmakingTimers() {
+  if (matchmakingState.pollInterval) {
+    clearInterval(matchmakingState.pollInterval);
+    matchmakingState.pollInterval = null;
+  }
+  if (matchmakingState.heartbeatInterval) {
+    clearInterval(matchmakingState.heartbeatInterval);
+    matchmakingState.heartbeatInterval = null;
+  }
+}
 
             // 競合防止のため playerId の辞書順が小さい方がルーム作成ホストになる
             if (player.playerId < oppId) {
