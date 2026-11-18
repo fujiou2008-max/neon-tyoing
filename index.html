@@ -606,7 +606,7 @@
       </div>
     </section>
 
-    <!-- 6. ランキング画面 (Top 50 Leaderboard per Solo Mode) -->
+    <!-- 6. ランキング画面 (Top 50 Leaderboard per Solo Mode & Realtime Rate Ranking) -->
     <section id="view-ranking" class="hidden flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-5">
       <div class="flex items-center justify-between">
         <h2 class="font-orbitron font-bold text-xl sm:text-2xl glow-cyan">LEADERBOARD (TOP 50)</h2>
@@ -622,6 +622,7 @@
         <button onclick="selectRankingMode('OVERDRIVE')" data-rmode="OVERDRIVE" class="rmode-tab px-4 py-2 rounded-lg font-orbitron text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400">OVERDRIVE</button>
         <button onclick="selectRankingMode('MARATHON')" data-rmode="MARATHON" class="rmode-tab px-4 py-2 rounded-lg font-orbitron text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400">MARATHON</button>
         <button onclick="selectRankingMode('SADDEN DEATH')" data-rmode="SADDEN DEATH" class="rmode-tab px-4 py-2 rounded-lg font-orbitron text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400">SADDEN DEATH</button>
+        <button onclick="selectRankingMode('RATE')" data-rmode="RATE" class="rmode-tab px-4 py-2 rounded-lg font-orbitron text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400">RATE</button>
       </div>
 
       <p class="text-xs text-slate-400">※プレイヤー名をタップするとその人のマイページ情報（最高WPM・平均ミス率など）を確認できます。</p>
@@ -634,8 +635,8 @@
               <tr>
                 <th class="py-3 px-4 w-16">RANK</th>
                 <th class="py-3 px-4">PLAYER</th>
-                <th class="py-3 px-4 text-right">SCORE</th>
-                <th class="py-3 px-4 text-right hidden sm:table-cell">MAX WPM</th>
+                <th id="ranking-col-primary" class="py-3 px-4 text-right">SCORE</th>
+                <th id="ranking-col-secondary" class="py-3 px-4 text-right hidden sm:table-cell">MAX WPM</th>
               </tr>
             </thead>
             <tbody id="ranking-tbody" class="divide-y divide-slate-800/60 text-sm">
@@ -2134,6 +2135,9 @@
       if (currentView === "matchmaking" && viewName !== "matchmaking") {
         cleanupMatchmakingQueue();
       }
+      if (currentView === "ranking" && viewName !== "ranking") {
+        cleanupRateRankingListener();
+      }
 
       currentView = viewName;
       const views = ["start", "home", "matchmaking", "game", "result", "ranking", "titles", "mypage", "admin"];
@@ -3041,9 +3045,17 @@
     }
 
     // ---------------------------------------------------------------------
-    // 12. ランキング表示 (上位50名・空欄は Unknown・タップでプロフィール閲覧)
+    // 12. ランキング表示 (上位50名・空欄は Unknown・タップでプロフィール閲覧・RATEリアルタイム対応)
     // ---------------------------------------------------------------------
     let currentRankingMode = "FRASH";
+    let rateRankingUnsubscribe = null;
+
+    function cleanupRateRankingListener() {
+      if (rateRankingUnsubscribe) {
+        rateRankingUnsubscribe();
+        rateRankingUnsubscribe = null;
+      }
+    }
 
     window.selectRankingMode = function(mode) {
       currentRankingMode = mode;
@@ -3056,9 +3068,122 @@
       renderLeaderboard(mode);
     };
 
+    function renderLeaderboardRows(entries, isRateMode) {
+      const tbody = document.getElementById("ranking-tbody");
+      const colPrimary = document.getElementById("ranking-col-primary");
+      const colSecondary = document.getElementById("ranking-col-secondary");
+
+      if (colPrimary) colPrimary.textContent = isRateMode ? "RATE" : "SCORE";
+      if (colSecondary) colSecondary.textContent = isRateMode ? "WINS" : "MAX WPM";
+
+      let html = "";
+      for (let i = 0; i < 50; i++) {
+        const rank = i + 1;
+        const item = entries[i];
+        const rankColor = rank === 1 ? "text-amber-300 font-black" :
+                          rank === 2 ? "text-slate-200 font-bold" :
+                          rank === 3 ? "text-amber-600 font-bold" : "text-slate-500";
+
+        if (item) {
+          const rarity = getTitleRarity(item.equippedTitle);
+          const primaryVal = isRateMode
+            ? Number(item.rating ?? 1500).toLocaleString()
+            : Number(item.score).toLocaleString();
+          const primaryColor = isRateMode ? "text-amber-300" : "text-cyan-300";
+          const secondaryVal = isRateMode
+            ? `${Number(item.rateWins || 0)}勝`
+            : Number(item.maxWpm || 0).toFixed(1);
+
+          html += `
+            <tr onclick="openRankedPlayerProfile('${escapeHtml(item.deviceId)}')" class="hover:bg-cyan-950/20 cursor-pointer transition">
+              <td class="py-3 px-4 font-mono-code ${rankColor}">#${rank}</td>
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2.5">
+                  <img src="${item.avatar || DEFAULT_AVATAR}" class="w-8 h-8 rounded-full object-cover border border-slate-700 bg-slate-900" />
+                  <div>
+                    <div class="text-[10px] px-2 py-0.2 rounded-full border inline-block title-rarity-${rarity}">${escapeHtml(item.equippedTitle || "駆け出しタイパー")}</div>
+                    <div class="font-bold text-slate-100 hover:text-cyan-300">${escapeHtml(item.username)}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-right font-mono-code font-bold ${primaryColor}">${primaryVal}</td>
+              <td class="py-3 px-4 text-right font-mono-code text-emerald-300 hidden sm:table-cell">${secondaryVal}</td>
+            </tr>
+          `;
+        } else {
+          // 人がいない順位は Unknown で表示し、スコア欄は空欄にする
+          html += `
+            <tr class="text-slate-600">
+              <td class="py-2.5 px-4 font-mono-code">#${rank}</td>
+              <td class="py-2.5 px-4 font-mono-code">Unknown</td>
+              <td class="py-2.5 px-4 text-right"></td>
+              <td class="py-2.5 px-4 text-right hidden sm:table-cell"></td>
+            </tr>
+          `;
+        }
+      }
+      tbody.innerHTML = html;
+    }
+
     async function renderLeaderboard(mode) {
+      cleanupRateRankingListener();
       const tbody = document.getElementById("ranking-tbody");
       tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-xs text-slate-400 font-mono-code">LOADING...</td></tr>`;
+
+      if (mode === "RATE") {
+        // レートマッチランキング：リアルタイムで順位が入れ替わるトップ50
+        if (firebaseReady && db) {
+          rateRankingUnsubscribe = onValue(ref(db, "players"), (snap) => {
+            if (currentRankingMode !== "RATE") return;
+            let players = [];
+            if (snap.exists()) {
+              players = Object.values(snap.val());
+            }
+            // 自分自身の最新レートを確実に反映
+            const meIdx = players.findIndex(p => p.deviceId === playerData.deviceId);
+            if (meIdx >= 0) {
+              players[meIdx] = {
+                ...players[meIdx],
+                username: playerData.username,
+                avatar: playerData.avatar,
+                equippedTitle: playerData.equippedTitle,
+                rating: playerData.rating,
+                rateWins: playerData.stats.rateWins || 0
+              };
+            } else {
+              players.push({
+                deviceId: playerData.deviceId,
+                username: playerData.username,
+                avatar: playerData.avatar,
+                equippedTitle: playerData.equippedTitle,
+                rating: playerData.rating,
+                rateWins: playerData.stats.rateWins || 0
+              });
+            }
+            players.sort((a, b) => (b.rating ?? 1500) - (a.rating ?? 1500));
+            renderLeaderboardRows(players.slice(0, 50), true);
+          }, () => {
+            renderLeaderboardRows([{
+              deviceId: playerData.deviceId,
+              username: playerData.username,
+              avatar: playerData.avatar,
+              equippedTitle: playerData.equippedTitle,
+              rating: playerData.rating,
+              rateWins: playerData.stats.rateWins || 0
+            }], true);
+          });
+        } else {
+          renderLeaderboardRows([{
+            deviceId: playerData.deviceId,
+            username: playerData.username,
+            avatar: playerData.avatar,
+            equippedTitle: playerData.equippedTitle,
+            rating: playerData.rating,
+            rateWins: playerData.stats.rateWins || 0
+          }], true);
+        }
+        return;
+      }
 
       let entries = [];
       if (firebaseReady && db) {
@@ -3075,45 +3200,7 @@
         } catch (e) {}
       }
 
-      let html = "";
-      for (let i = 0; i < 50; i++) {
-        const rank = i + 1;
-        const item = entries[i];
-        const rankColor = rank === 1 ? "text-amber-300 font-black" :
-                          rank === 2 ? "text-slate-200 font-bold" :
-                          rank === 3 ? "text-amber-600 font-bold" : "text-slate-500";
-
-        if (item) {
-          const rarity = getTitleRarity(item.equippedTitle);
-          html += `
-            <tr onclick="openRankedPlayerProfile('${escapeHtml(item.deviceId)}')" class="hover:bg-cyan-950/20 cursor-pointer transition">
-              <td class="py-3 px-4 font-mono-code ${rankColor}">#${rank}</td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2.5">
-                  <img src="${item.avatar || DEFAULT_AVATAR}" class="w-8 h-8 rounded-full object-cover border border-slate-700 bg-slate-900" />
-                  <div>
-                    <div class="text-[10px] px-2 py-0.2 rounded-full border inline-block title-rarity-${rarity}">${escapeHtml(item.equippedTitle || "駆け出しタイパー")}</div>
-                    <div class="font-bold text-slate-100 hover:text-cyan-300">${escapeHtml(item.username)}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-right font-mono-code font-bold text-cyan-300">${Number(item.score).toLocaleString()}</td>
-              <td class="py-3 px-4 text-right font-mono-code text-emerald-300 hidden sm:table-cell">${Number(item.maxWpm || 0).toFixed(1)}</td>
-            </tr>
-          `;
-        } else {
-          // 人がいない順位は Unknown で表示し、スコア欄は空欄にする
-          html += `
-            <tr class="text-slate-600">
-              <td class="py-2.5 px-4 font-mono-code">#${rank}</td>
-              <td class="py-2.5 px-4 font-mono-code">Unknown</td>
-              <td class="py-2.5 px-4 text-right"></td>
-              <td class="py-2.5 px-4 text-right hidden sm:table-cell"></td>
-            </tr>
-          `;
-        }
-      }
-      tbody.innerHTML = html;
+      renderLeaderboardRows(entries, false);
     }
 
     // ランキング上のプレイヤーをタップして戦績詳細モーダルを表示
