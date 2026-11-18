@@ -780,7 +780,7 @@
       <!-- ① 電光掲示板リアルタイム更新 -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-cyan-500/30 space-y-3">
         <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
-          <i class="fa-solid fa-bullhorn"></i> ① 電光掲示板ニュースのリアルタイム更新
+          <i class="fa-solid fa-bullhorn"></i> 電光掲示板ニュースのリアルタイム更新
         </h3>
         <div class="flex flex-col sm:flex-row gap-2">
           <input id="admin-news-input" type="text" maxlength="140" placeholder="上部に流すお知らせを入力..." class="flex-1 bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" />
@@ -794,7 +794,7 @@
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-pink-500/30 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-pink-400 flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> ②・③ 登録プレイヤー一覧 / オンライン監視 / BAN / 完全削除 / 要望DM
+            <i class="fa-solid fa-users"></i> 登録プレイヤー一覧 / オンライン監視 / BAN / 完全削除 / 要望DM
           </h3>
           <span id="admin-player-count" class="text-xs font-mono-code text-slate-400">0 Players</span>
         </div>
@@ -819,14 +819,14 @@
       <!-- ④ ワードリスト追加・削除（大・中・小 + ゆらぎ自動変換プレビュー） -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-emerald-500/30 space-y-4">
         <h3 class="font-bold text-sm text-emerald-400 flex items-center gap-2">
-          <i class="fa-solid fa-book"></i> ④ ワードリスト管理（大・中・小 / ゆらぎ自動対応）
+          <i class="fa-solid fa-book"></i> ワードリスト管理
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
           <select id="admin-word-cat" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-            <option value="short">小（短い単語）</option>
-            <option value="medium">中（ことわざ・四字熟語）</option>
-            <option value="long">大（長文・名言）</option>
+            <option value="short">短い単語</option>
+            <option value="medium">中くらいの単語</option>
+            <option value="long">長い単語</option>
           </select>
           <input id="admin-word-text" type="text" placeholder="表示文字 (例: 電光石火)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
           <input id="admin-word-reading" type="text" oninput="previewAdminWordRomaji()" placeholder="ひらがな読み (例: でんこうせっか)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
@@ -860,7 +860,7 @@
       <!-- ⑤ 追加の管理者便利ツール（ランキング不正スコア削除） -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-amber-500/30 space-y-3">
         <h3 class="font-bold text-sm text-amber-400 flex items-center gap-2">
-          <i class="fa-solid fa-wrench"></i> ⑤ ランキング保守ツール（不正スコア個別削除）
+          <i class="fa-solid fa-wrench"></i> ランキング保守ツール（不正スコア個別削除）
         </h3>
         <div class="flex flex-wrap gap-2 items-center">
           <select id="admin-rank-mode-select" onchange="renderAdminRankingCleanup()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
@@ -1037,7 +1037,7 @@
       return id;
     }
 
-    // 初期プレイヤーデータ生成関数（将来のアップデート時もマージで互換維持）
+    // 初期プレイヤーデータ生成関数（将来のアップデート時も互換維持）
     function createDefaultPlayerData() {
       return {
         schemaVersion: APP_VERSION,
@@ -1865,12 +1865,12 @@
       { name: "鉄壁不抜", desc: "サドンデスモードを完走する", rarity: "SR", secret: false },
       { name: "金剛不壊", desc: "サドンデスモードを5回完走する", rarity: "UR", secret: false },
       { name: "連続", desc: "10COMBO達成", rarity: "R", secret: false },
-      { name: "連鎖", desc: "30COMBO達成", rarity: "RR", secret: false },
-      { name: "慎重派", desc: "50COMBO達成", rarity: "RRR", secret: false },
-      { name: "潔癖症", desc: "75COMBO達成", rarity: "SR", secret: false },
-      { name: "ロボット", desc: "100COMBO達成", rarity: "SR", secret: false },
-      { name: "精密機械", desc: "250COMBO達成", rarity: "UR", secret: false },
-      { name: "完璧主義", desc: "350COMBO達成", rarity: "GR", secret: false },
+      { name: "連鎖", desc: "50COMBO達成", rarity: "RR", secret: false },
+      { name: "慎重派", desc: "100COMBO達成", rarity: "RRR", secret: false },
+      { name: "潔癖症", desc: "200COMBO達成", rarity: "SR", secret: false },
+      { name: "ロボット", desc: "300COMBO達成", rarity: "SR", secret: false },
+      { name: "精密機械", desc: "400COMBO達成", rarity: "UR", secret: false },
+      { name: "完璧主義", desc: "600COMBO達成", rarity: "GR", secret: false },
       { name: "頑張ってるよ", desc: "WPM30達成", rarity: "RR", secret: false },
       { name: "俺だって", desc: "WPM40達成", rarity: "RR", secret: false },
       { name: "高速", desc: "WPM45達成", rarity: "RR", secret: false },
@@ -1943,12 +1943,12 @@
       // COMBO系
       const combo = Math.max(s.maxCombo, context.combo || 0);
       if (combo >= 10) unlock("連続");
-      if (combo >= 30) unlock("連鎖");
-      if (combo >= 50) unlock("慎重派");
-      if (combo >= 75) unlock("潔癖症");
-      if (combo >= 100) unlock("ロボット");
-      if (combo >= 250) unlock("精密機械");
-      if (combo >= 350) unlock("完璧主義");
+      if (combo >= 50) unlock("連鎖");
+      if (combo >= 100) unlock("慎重派");
+      if (combo >= 200) unlock("潔癖症");
+      if (combo >= 300) unlock("ロボット");
+      if (combo >= 400) unlock("精密機械");
+      if (combo >= 600) unlock("完璧主義");
 
       // WPM系
       const wpm = Math.max(s.maxWpm, context.wpm || 0);
