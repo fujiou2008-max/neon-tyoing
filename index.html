@@ -855,6 +855,7 @@
               <tr>
                 <th class="p-3">状態</th>
                 <th class="p-3">プレイヤー</th>
+                <th class="p-3">最終ログイン</th>
                 <th class="p-3">RATE / WPM</th>
                 <th class="p-3">要望DM</th>
                 <th class="p-3 text-right">操作 (BAN / 完全削除)</th>
@@ -1855,7 +1856,7 @@
       { id: "l28", category: "long", text: "どんな困難な状況でも希望の光を失ってはならない", reading: "どんなこんなんなじょうきょうでもきぼうのひかりをうしなってはならない" },
       { id: "l29", category: "long", text: "ライバルの存在が自分の実力をさらに引き上げてくれる", reading: "らいばるのそんざいがじぶんのじつりょくをさらにひきあげてくれる" },
       { id: "l30", category: "long", text: "一秒の油断が勝負の行方を大きく左右することがある", reading: "いちびょうのゆだんがしょうぶのゆくえをおおきくさゆうすることがある" },
-      { id: "l31", category: "long", text: "未来の都市では光ファイバーが網の目のように張り巡らされている", reading: "みらいのとしではひかりふぁいばーがあみのめのようにはりめぐらされている" },
+      { id: "l31", category: "long", text: "未来の都市では光ファイバーが網の目のように張り巡らされている", reading: "みらいのとしではひかりふぁいばーがあみのめのようにめぐらされている" },
       { id: "l32", category: "long", text: "深い森の奥から清らかな小川のせせらぎが聞こえてくる", reading: "ふかいもりのおくからきよらかなおがわのせせらぎがきこえてくる" },
       { id: "l33", category: "long", text: "感謝の気持ちを言葉にして伝えることはとても大切だ", reading: "かんしゃのきもちをことばにしてつたえることはとてもたいせつだ" },
       { id: "l34", category: "long", text: "自分の得意な分野を伸ばすことで自信が生まれてくる", reading: "じぶんのとくいなぶんやをのばすことでじしんがうまれてくる" },
@@ -3891,6 +3892,9 @@
         const playerDms = allDmsCache[p.deviceId] ? Object.values(allDmsCache[p.deviceId]) : [];
         const hasDm = playerDms.length > 0;
         const hasUnreadDm = playerDms.some(m => !m.fromAdmin && !m.readByAdmin);
+        const lastLoginText = isOnline
+          ? "現在オンライン"
+          : (p.lastSeen ? new Date(p.lastSeen).toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }) : "不明");
 
         return `
           <tr class="hover:bg-slate-900/60">
@@ -3903,6 +3907,9 @@
             <td class="p-3">
               <div class="font-bold text-slate-100">${escapeHtml(p.username)} ${isBanned ? '<span class="text-[10px] bg-red-600 text-white px-1.5 rounded ml-1">BAN中</span>' : ''}</div>
               <div class="text-[10px] font-mono-code text-slate-500">${escapeHtml(p.deviceId)}</div>
+            </td>
+            <td class="p-3 font-mono-code text-[11px] ${isOnline ? 'text-emerald-300' : 'text-slate-400'}">
+              ${escapeHtml(lastLoginText)}
             </td>
             <td class="p-3 font-mono-code text-slate-300">
               RATE ${p.rating ?? 1500} / WPM ${Number(p.maxWpm || 0).toFixed(1)}
