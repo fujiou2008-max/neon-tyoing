@@ -217,6 +217,12 @@
           <span id="firebase-status-text">CONNECTING</span>
         </div>
 
+        <!-- フレンド一覧＆DMボタン -->
+        <button id="header-friends-btn" onclick="handleHeaderFriendsClick()" class="p-2 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-400 text-emerald-300 transition relative" title="フレンド・DM">
+          <i class="fa-solid fa-user-group text-sm"></i>
+          <span id="header-friend-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
+        </button>
+
         <!-- アップデート内容お知らせボックスボタン -->
         <button id="btn-update-notice" onclick="openUpdateNoticeModal()" class="p-2 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-cyan-300 transition relative" title="アップデートお知らせ">
           <i class="fa-solid fa-bell text-sm"></i>
@@ -282,12 +288,17 @@
 
     <!-- 2. ホーム画面 (Home Screen) -->
     <section id="view-home" class="hidden flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-8">
-      <!-- ナビゲーションタブ（マイページ・ランキング・称号リスト・アップデート情報） -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+      <!-- ナビゲーションタブ（マイページ・ランキング・称号リスト・フレンド・アップデート情報） -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
         <button onclick="navigate('mypage')" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition relative">
           <i class="fa-solid fa-user-astronaut text-cyan-400"></i>
           <span class="font-bold text-xs sm:text-sm tracking-wider">マイページ</span>
           <span id="home-admin-badge" class="hidden px-1.5 py-0.2 rounded-full bg-pink-600 text-white text-[10px] font-bold">!</span>
+        </button>
+        <button onclick="navigate('friends')" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-emerald-400 flex items-center justify-center gap-2 transition relative">
+          <i class="fa-solid fa-user-group text-emerald-400"></i>
+          <span class="font-bold text-xs sm:text-sm tracking-wider">フレンド</span>
+          <span id="home-friend-badge" class="hidden px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-bold">!</span>
         </button>
         <button onclick="navigate('ranking')" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition">
           <i class="fa-solid fa-trophy text-amber-400"></i>
@@ -297,8 +308,8 @@
           <i class="fa-solid fa-medal text-pink-400"></i>
           <span class="font-bold text-xs sm:text-sm tracking-wider">称号リスト</span>
         </button>
-        <button onclick="openUpdateNoticeModal()" class="py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition relative">
-          <i class="fa-solid fa-newspaper text-emerald-400"></i>
+        <button onclick="openUpdateNoticeModal()" class="col-span-2 sm:col-span-1 py-3 px-3 rounded-xl bg-[#0a0f18] border border-slate-700/80 hover:border-cyan-400 flex items-center justify-center gap-2 transition relative">
+          <i class="fa-solid fa-newspaper text-cyan-400"></i>
           <span class="font-bold text-xs sm:text-sm tracking-wider">アップデート情報</span>
           <span id="home-update-badge" class="hidden px-1.5 py-0.2 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold">NEW</span>
         </button>
@@ -573,6 +584,13 @@
             <div id="result-rate-change" class="inline-block px-4 py-1.5 rounded-xl bg-slate-900 border border-amber-500/40 font-mono-code text-sm sm:text-base text-amber-300">
               RATE: 1500 → 1510 (+10)
             </div>
+            <!-- 対戦相手にフレンド申請を送るボタン -->
+            <div id="result-friend-action-box" class="pt-2">
+              <button id="btn-result-add-friend" onclick="sendFriendRequestFromResult()" class="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-user-plus"></i>
+                <span id="btn-result-add-friend-text">相手にフレンド申請を送る</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -627,7 +645,7 @@
         <button onclick="selectRankingMode('RATE')" data-rmode="RATE" class="rmode-tab px-4 py-2 rounded-lg font-orbitron text-xs font-bold bg-slate-900 border border-slate-700 text-slate-400">RATE</button>
       </div>
 
-      <p class="text-xs text-slate-400">※プレイヤー名をタップするとその人のマイページ情報（最高WPM・平均ミス率など）を確認できます。</p>
+      <p class="text-xs text-slate-400">※プレイヤー名をタップするとその人のマイページ情報（最高WPM・平均ミス率・フレンド申請など）を確認できます。</p>
 
       <!-- 50位までのテーブル -->
       <div class="rounded-xl bg-[#0a0f18] border border-slate-800 overflow-hidden">
@@ -775,6 +793,55 @@
           <span>管理者へ要望を送る・返信確認</span>
           <span id="mypage-reply-badge" class="hidden px-1.5 py-0.2 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold">NEW</span>
         </button>
+      </div>
+    </section>
+
+    <!-- 8.5 フレンド一覧＆DM画面 (Friends & Direct Messages) -->
+    <section id="view-friends" class="hidden flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-orbitron font-bold text-xl sm:text-2xl glow-green">FRIENDS & DM</h2>
+          <p class="text-xs text-slate-400 mt-1">フレンド申請の承認や、フレンドとのダイレクトメッセージ送信ができます</p>
+        </div>
+        <button onclick="navigate('home')" class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-bold">
+          戻る
+        </button>
+      </div>
+
+      <!-- ID入力で直接フレンド申請 -->
+      <div class="p-4 rounded-xl bg-[#0a0f18] border border-emerald-500/30 space-y-2">
+        <div class="text-xs font-bold text-emerald-300 flex items-center justify-between">
+          <span><i class="fa-solid fa-user-plus mr-1.5"></i>プレイヤーIDでフレンド申請を送る</span>
+          <span class="font-mono-code text-[11px] text-slate-400">あなたのID: <span id="friends-my-id" class="text-slate-200 select-all"></span></span>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="friend-search-id-input" type="text" placeholder="相手のプレイヤーIDを入力 (例: dev_...)" class="flex-1 bg-slate-900 border border-slate-700 focus:border-emerald-400 rounded-lg px-3 py-2 text-xs text-white font-mono-code focus:outline-none" />
+          <button onclick="sendFriendRequestByInput()" class="px-5 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition">
+            フレンド申請を送る
+          </button>
+        </div>
+      </div>
+
+      <!-- 届いているフレンド申請 -->
+      <div id="friend-requests-section" class="hidden p-4 rounded-xl bg-[#0a0f18] border border-amber-500/40 space-y-3">
+        <h3 class="font-bold text-sm text-amber-300 flex items-center gap-2">
+          <i class="fa-solid fa-envelope-open-text"></i> 届いているフレンド申請 (<span id="friend-requests-count">0</span>)
+        </h3>
+        <div id="friend-requests-list" class="space-y-2">
+          <!-- JSで描画 -->
+        </div>
+      </div>
+
+      <!-- フレンド一覧 -->
+      <div class="p-4 rounded-xl bg-[#0a0f18] border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-users text-emerald-400"></i> フレンド一覧 (<span id="friends-total-count">0</span>)
+          </h3>
+        </div>
+        <div id="friends-list-container" class="divide-y divide-slate-800/80">
+          <div class="p-6 text-center text-xs text-slate-500">フレンドはまだいません。ランキングや対戦リザルトから申請を送ってみましょう！</div>
+        </div>
       </div>
     </section>
 
@@ -932,6 +999,33 @@
 
   </main>
 
+  <!-- フレンドとのDMチャットモーダル -->
+  <div id="modal-friend-dm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full p-6 rounded-2xl bg-[#0a0f18] border border-emerald-400/50 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <img id="friend-dm-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-emerald-400 bg-slate-900" />
+          <div>
+            <div id="friend-dm-name" class="font-bold text-sm text-emerald-300">Friend</div>
+            <div class="text-[10px] font-mono-code text-slate-400">FRIEND DIRECT MESSAGE</div>
+          </div>
+        </div>
+        <button onclick="closeFriendDmModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div id="friend-dm-messages-list" class="max-h-64 overflow-y-auto space-y-2 text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+        <div class="text-slate-500 text-center py-4">メッセージはまだありません</div>
+      </div>
+      <div class="flex gap-2">
+        <input id="friend-dm-input" type="text" maxlength="300" onkeydown="if(event.key==='Enter') sendFriendDm()" placeholder="フレンドにメッセージを送る..." class="flex-1 bg-slate-900 border border-slate-700 focus:border-emerald-400 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none" />
+        <button onclick="sendFriendDm()" class="px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition shrink-0">
+          送信
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- アップデートお知らせボックスモーダル -->
   <div id="modal-update-notice" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeUpdateNoticeModal(event)">
     <div class="max-w-lg w-full p-6 rounded-2xl bg-[#0a0f18] border border-cyan-400/50 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
@@ -1035,6 +1129,13 @@
         <div>総プレイ数: <span id="modal-prof-plays" class="text-white font-bold">0</span></div>
         <div>レート勝利: <span id="modal-prof-ratewins" class="text-amber-300 font-bold">0</span></div>
         <div>カジュアル勝利: <span id="modal-prof-casualwins" class="text-emerald-400 font-bold">0</span></div>
+      </div>
+      <!-- ランキングプロフィールからのフレンド申請・DMボタン -->
+      <div id="modal-prof-friend-actions" class="hidden pt-1 flex justify-end gap-2">
+        <button id="btn-modal-prof-friend" onclick="handleModalProfileFriendAction()" class="w-full py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-user-plus"></i>
+          <span id="btn-modal-prof-friend-text">フレンド申請を送る</span>
+        </button>
       </div>
     </div>
   </div>
@@ -2128,11 +2229,18 @@
       navigate("mypage");
     };
 
+    // ヘッダーのフレンドボタン押下時もオンラインマッチング中の誤遷移を防止
+    window.handleHeaderFriendsClick = function() {
+      if (isOnlineLockedState()) return;
+      navigate("friends");
+    };
+
     // オンラインマッチング中かどうかでヘッダーロゴの見た目と操作可否を更新
     function updateHeaderNavigationLock() {
       const locked = isOnlineLockedState();
       const logoBtn = document.getElementById("header-logo-btn");
       const profBtn = document.getElementById("header-profile-btn");
+      const friendsBtn = document.getElementById("header-friends-btn");
       if (logoBtn) {
         logoBtn.disabled = locked;
         logoBtn.classList.toggle("cursor-not-allowed", locked);
@@ -2142,6 +2250,11 @@
         profBtn.disabled = locked;
         profBtn.classList.toggle("cursor-not-allowed", locked);
         profBtn.classList.toggle("opacity-60", locked);
+      }
+      if (friendsBtn) {
+        friendsBtn.disabled = locked;
+        friendsBtn.classList.toggle("cursor-not-allowed", locked);
+        friendsBtn.classList.toggle("opacity-60", locked);
       }
     }
 
@@ -2168,7 +2281,7 @@
       }
 
       currentView = viewName;
-      const views = ["start", "home", "matchmaking", "game", "result", "ranking", "titles", "mypage", "admin"];
+      const views = ["start", "home", "matchmaking", "game", "result", "ranking", "titles", "mypage", "friends", "admin"];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if (el) el.classList.toggle("hidden", v !== viewName);
@@ -2180,6 +2293,7 @@
       if (viewName === "ranking") renderLeaderboard(currentRankingMode);
       if (viewName === "titles") renderTitlesList();
       if (viewName === "mypage") renderMyPage();
+      if (viewName === "friends") renderFriendsPage();
       if (viewName === "admin") renderAdminPanel();
     };
 
@@ -3047,6 +3161,9 @@
       document.getElementById("result-solo-rank-box").classList.add("hidden");
       document.getElementById("result-online-box").classList.remove("hidden");
 
+      // リザルト画面の「相手にフレンド申請を送る」ボタン状態更新
+      updateResultFriendButtonUI();
+
       const winLoseEl = document.getElementById("result-win-lose");
       winLoseEl.textContent = iWon ? "VICTORY" : "DEFEAT";
       winLoseEl.className = iWon
@@ -3305,11 +3422,14 @@
     }
 
     // ランキング上のプレイヤーをタップして戦績詳細モーダルを表示
+    let currentModalProfileTarget = null;
+
     window.openRankedPlayerProfile = async function(deviceId) {
       let prof = null;
       if (deviceId === playerData.deviceId) {
         const totalKeys = playerData.stats.totalTypedChars + playerData.stats.totalMistypes;
         prof = {
+          deviceId: playerData.deviceId,
           username: playerData.username,
           avatar: playerData.avatar,
           equippedTitle: playerData.equippedTitle,
@@ -3324,11 +3444,18 @@
       } else if (firebaseReady && db) {
         try {
           const snap = await get(ref(db, `players/${deviceId}`));
-          if (snap.exists()) prof = snap.val();
+          if (snap.exists()) prof = { deviceId, ...snap.val() };
         } catch (e) {}
       }
 
       if (!prof) return;
+      currentModalProfileTarget = {
+        deviceId: deviceId,
+        username: prof.username,
+        avatar: prof.avatar || DEFAULT_AVATAR,
+        equippedTitle: prof.equippedTitle || "駆け出しタイパー"
+      };
+
       document.getElementById("modal-prof-avatar").src = prof.avatar || DEFAULT_AVATAR;
       document.getElementById("modal-prof-name").textContent = prof.username;
       document.getElementById("modal-prof-rate").textContent = `RATE: ${prof.rating ?? 1500}`;
@@ -3342,6 +3469,15 @@
       const tEl = document.getElementById("modal-prof-title");
       tEl.textContent = prof.equippedTitle || "駆け出しタイパー";
       tEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(prof.equippedTitle)} mb-1`;
+
+      // 自分以外のプレイヤーの場合はフレンド申請・DMボタンを表示
+      const actionsBox = document.getElementById("modal-prof-friend-actions");
+      if (deviceId !== playerData.deviceId) {
+        actionsBox.classList.remove("hidden");
+        updateModalProfileFriendButtonUI();
+      } else {
+        actionsBox.classList.add("hidden");
+      }
 
       document.getElementById("modal-player-profile").classList.remove("hidden");
     };
@@ -3582,6 +3718,467 @@
 
       document.getElementById("admin-dm-textarea").value = "";
       showToast("管理者へメッセージを送信しました", "RR");
+    };
+
+    // ---------------------------------------------------------------------
+    // 14.5 フレンド機能 & フレンド間ダイレクトメッセージ (Firebase Realtime DB)
+    //      - ID直接入力 / ランキング詳細 / 対戦リザルトから申請送信
+    //      - 申請承認・拒否・フレンド削除
+    //      - フレンド同士のリアルタイムDMチャット＆未読バッジ通知
+    // ---------------------------------------------------------------------
+    let myFriendsMap = {};
+    let myFriendRequestsMap = {};
+    let presenceCacheMap = {};
+    let activeFriendDmTarget = null;
+    let activeFriendDmUnsub = null;
+    let friendUnreadMap = {};
+    let friendChatWatchers = {};
+
+    function getFriendChatRoomId(idA, idB) {
+      return [idA, idB].sort().join("__");
+    }
+
+    function updateFriendNotificationBadges() {
+      const pendingCount = Object.keys(myFriendRequestsMap).length;
+      const unreadDmCount = Object.values(friendUnreadMap).filter(Boolean).length;
+      const hasAnyAlert = pendingCount > 0 || unreadDmCount > 0;
+
+      const headerBadge = document.getElementById("header-friend-badge");
+      const homeBadge = document.getElementById("home-friend-badge");
+      if (headerBadge) headerBadge.classList.toggle("hidden", !hasAnyAlert);
+      if (homeBadge) homeBadge.classList.toggle("hidden", !hasAnyAlert);
+    }
+
+    function syncFriendChatWatchers() {
+      if (!firebaseReady || !db) return;
+      const friendIds = Object.keys(myFriendsMap);
+
+      // 削除されたフレンドのリスナーを解除
+      Object.keys(friendChatWatchers).forEach(fId => {
+        if (!myFriendsMap[fId]) {
+          try { friendChatWatchers[fId](); } catch (e) {}
+          delete friendChatWatchers[fId];
+          delete friendUnreadMap[fId];
+        }
+      });
+
+      // 各フレンドとのDM最終メッセージを監視して未読通知を制御
+      friendIds.forEach(fId => {
+        if (friendChatWatchers[fId]) return;
+        const roomId = getFriendChatRoomId(playerData.deviceId, fId);
+        friendChatWatchers[fId] = onValue(ref(db, `friend_dms/${roomId}`), (snap) => {
+          if (!snap.exists()) {
+            friendUnreadMap[fId] = false;
+            updateFriendNotificationBadges();
+            return;
+          }
+          const msgs = Object.values(snap.val()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          const latestFromFriend = [...msgs].reverse().find(m => m.senderId === fId);
+          const seenKey = `neontype_seen_fdm_${fId}`;
+          const lastSeenAt = Number(localStorage.getItem(seenKey) || 0);
+
+          if (activeFriendDmTarget && activeFriendDmTarget.deviceId === fId && !document.getElementById("modal-friend-dm").classList.contains("hidden")) {
+            if (latestFromFriend) {
+              localStorage.setItem(seenKey, String(latestFromFriend.createdAt || Date.now()));
+            }
+            friendUnreadMap[fId] = false;
+          } else {
+            friendUnreadMap[fId] = !!(latestFromFriend && Number(latestFromFriend.createdAt || 0) > lastSeenAt);
+          }
+
+          updateFriendNotificationBadges();
+          if (currentView === "friends") renderFriendsPage();
+        }, () => {});
+      });
+
+      updateFriendNotificationBadges();
+    }
+
+    function initFriendsRealtimeListeners() {
+      if (!firebaseReady || !db) return;
+
+      // オンライン状態監視（フレンドのオンライン表示用）
+      onValue(ref(db, "presence"), (snap) => {
+        presenceCacheMap = snap.exists() ? snap.val() : {};
+        if (currentView === "friends") renderFriendsPage();
+      }, () => {});
+
+      // 自分のフレンド一覧監視
+      onValue(ref(db, `friends/${playerData.deviceId}`), (snap) => {
+        myFriendsMap = snap.exists() ? snap.val() : {};
+        syncFriendChatWatchers();
+        updateResultFriendButtonUI();
+        updateModalProfileFriendButtonUI();
+        if (currentView === "friends") renderFriendsPage();
+      }, () => {});
+
+      // 自分宛のフレンド申請監視
+      onValue(ref(db, `friend_requests/${playerData.deviceId}`), (snap) => {
+        myFriendRequestsMap = snap.exists() ? snap.val() : {};
+        updateFriendNotificationBadges();
+        if (currentView === "friends") renderFriendsPage();
+      }, () => {});
+    }
+
+    // 共通：指定したプレイヤーIDへフレンド申請を送る
+    async function sendFriendRequestToTarget(targetId) {
+      if (!firebaseReady || !db) {
+        showToast("オンライン接続が必要です", "GR");
+        return false;
+      }
+      const cleanId = (targetId || "").trim();
+      if (!cleanId) {
+        showToast("プレイヤーIDを入力してください", "GR");
+        return false;
+      }
+      if (cleanId === playerData.deviceId) {
+        showToast("自分自身には申請できません", "GR");
+        return false;
+      }
+      if (myFriendsMap[cleanId]) {
+        showToast("すでにフレンド登録済みです", "RR");
+        return false;
+      }
+
+      try {
+        const targetSnap = await get(ref(db, `players/${cleanId}`));
+        if (!targetSnap.exists()) {
+          showToast("該当するプレイヤーが見つかりません", "GR");
+          return false;
+        }
+        const targetProf = targetSnap.val();
+
+        // 相手からすでに自分宛に申請が届いている場合はそのまま相互フレンド承認
+        if (myFriendRequestsMap[cleanId]) {
+          await acceptFriendRequest(cleanId);
+          return true;
+        }
+
+        await set(ref(db, `friend_requests/${cleanId}/${playerData.deviceId}`), {
+          fromId: playerData.deviceId,
+          fromName: playerData.username,
+          fromAvatar: playerData.avatar || DEFAULT_AVATAR,
+          fromTitle: playerData.equippedTitle || "駆け出しタイパー",
+          createdAt: Date.now()
+        });
+
+        showToast(`${targetProf.username} にフレンド申請を送りました！`, "RR");
+        return true;
+      } catch (e) {
+        showToast("申請の送信に失敗しました", "GR");
+        return false;
+      }
+    }
+
+    window.sendFriendRequestByInput = async function() {
+      const inp = document.getElementById("friend-search-id-input");
+      const ok = await sendFriendRequestToTarget(inp.value);
+      if (ok) inp.value = "";
+    };
+
+    // 対戦リザルト画面からのフレンド申請
+    function updateResultFriendButtonUI() {
+      const box = document.getElementById("result-friend-action-box");
+      const btn = document.getElementById("btn-result-add-friend");
+      const txt = document.getElementById("btn-result-add-friend-text");
+      if (!box || !btn || !txt) return;
+
+      const opp = gameState.opponent;
+      if (!opp || !opp.deviceId || opp.deviceId === playerData.deviceId) {
+        box.classList.add("hidden");
+        return;
+      }
+      box.classList.remove("hidden");
+
+      if (myFriendsMap[opp.deviceId]) {
+        btn.disabled = true;
+        btn.className = "px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 font-bold text-xs inline-flex items-center gap-1.5 cursor-default";
+        txt.textContent = "フレンド登録済み";
+      } else {
+        btn.disabled = false;
+        btn.className = "px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition inline-flex items-center gap-1.5";
+        txt.textContent = `${opp.username} にフレンド申請を送る`;
+      }
+    }
+
+    window.sendFriendRequestFromResult = async function() {
+      if (!gameState.opponent?.deviceId) return;
+      const ok = await sendFriendRequestToTarget(gameState.opponent.deviceId);
+      if (ok) {
+        const btn = document.getElementById("btn-result-add-friend");
+        const txt = document.getElementById("btn-result-add-friend-text");
+        if (btn && txt) {
+          btn.disabled = true;
+          txt.textContent = "フレンド申請送信済み";
+        }
+      }
+    };
+
+    // ランキング詳細モーダルからのフレンド申請 / DM起動
+    function updateModalProfileFriendButtonUI() {
+      const btn = document.getElementById("btn-modal-prof-friend");
+      const txt = document.getElementById("btn-modal-prof-friend-text");
+      if (!btn || !txt || !currentModalProfileTarget) return;
+
+      if (myFriendsMap[currentModalProfileTarget.deviceId]) {
+        btn.className = "w-full py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition flex items-center justify-center gap-1.5";
+        txt.textContent = "フレンドとDMを開く";
+      } else {
+        btn.className = "w-full py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition flex items-center justify-center gap-1.5";
+        txt.textContent = "フレンド申請を送る";
+      }
+    }
+
+    window.handleModalProfileFriendAction = async function() {
+      if (!currentModalProfileTarget) return;
+      const target = currentModalProfileTarget;
+      if (myFriendsMap[target.deviceId]) {
+        document.getElementById("modal-player-profile").classList.add("hidden");
+        openFriendDmModal(target.deviceId, target.username, target.avatar);
+      } else {
+        const ok = await sendFriendRequestToTarget(target.deviceId);
+        if (ok) {
+          document.getElementById("btn-modal-prof-friend-text").textContent = "フレンド申請送信済み";
+        }
+      }
+    };
+
+    // フレンド申請の承認・拒否・フレンド解除
+    window.acceptFriendRequest = async function(fromId) {
+      if (!firebaseReady || !db) return;
+      const reqData = myFriendRequestsMap[fromId];
+      let fromProf = reqData
+        ? { username: reqData.fromName, avatar: reqData.fromAvatar, equippedTitle: reqData.fromTitle }
+        : null;
+
+      if (!fromProf) {
+        const snap = await get(ref(db, `players/${fromId}`));
+        if (snap.exists()) fromProf = snap.val();
+      }
+
+      const now = Date.now();
+      await Promise.all([
+        set(ref(db, `friends/${playerData.deviceId}/${fromId}`), {
+          deviceId: fromId,
+          username: fromProf?.username || "Player",
+          avatar: fromProf?.avatar || DEFAULT_AVATAR,
+          equippedTitle: fromProf?.equippedTitle || "駆け出しタイパー",
+          addedAt: now
+        }),
+        set(ref(db, `friends/${fromId}/${playerData.deviceId}`), {
+          deviceId: playerData.deviceId,
+          username: playerData.username,
+          avatar: playerData.avatar || DEFAULT_AVATAR,
+          equippedTitle: playerData.equippedTitle || "駆け出しタイパー",
+          addedAt: now
+        }),
+        remove(ref(db, `friend_requests/${playerData.deviceId}/${fromId}`))
+      ]).catch(() => {});
+
+      showToast(`${fromProf?.username || "プレイヤー"} とフレンドになりました！`, "SR");
+    };
+
+    window.declineFriendRequest = async function(fromId) {
+      if (!firebaseReady || !db) return;
+      await remove(ref(db, `friend_requests/${playerData.deviceId}/${fromId}`)).catch(() => {});
+      showToast("フレンド申請を辞退しました", "R");
+    };
+
+    window.removeFriend = function(friendId, friendName) {
+      const box = document.createElement("div");
+      box.className = "fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4";
+      box.innerHTML = `
+        <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-pink-500 text-center space-y-4">
+          <h3 class="font-bold text-base text-pink-400">フレンド解除しますか？</h3>
+          <p class="text-xs text-slate-300">${escapeHtml(friendName)} をフレンドリストから削除します。</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btn-confirm-unfriend" class="py-2 rounded-xl bg-pink-600 text-white font-bold text-xs">解除する</button>
+            <button id="btn-cancel-unfriend" class="py-2 rounded-xl bg-slate-800 text-slate-200 font-bold text-xs">キャンセル</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(box);
+      box.querySelector("#btn-cancel-unfriend").onclick = () => box.remove();
+      box.querySelector("#btn-confirm-unfriend").onclick = async () => {
+        box.remove();
+        if (!firebaseReady || !db) return;
+        await Promise.all([
+          remove(ref(db, `friends/${playerData.deviceId}/${friendId}`)),
+          remove(ref(db, `friends/${friendId}/${playerData.deviceId}`))
+        ]).catch(() => {});
+        showToast("フレンドを解除しました", "R");
+      };
+    };
+
+    // フレンド画面の描画
+    async function renderFriendsPage() {
+      const myIdEl = document.getElementById("friends-my-id");
+      if (myIdEl) myIdEl.textContent = playerData.deviceId;
+
+      // 届いているフレンド申請描画
+      const reqList = Object.values(myFriendRequestsMap);
+      const reqSec = document.getElementById("friend-requests-section");
+      const reqCountEl = document.getElementById("friend-requests-count");
+      const reqListEl = document.getElementById("friend-requests-list");
+
+      if (reqList.length > 0) {
+        reqSec.classList.remove("hidden");
+        reqCountEl.textContent = reqList.length;
+        reqListEl.innerHTML = reqList.map(r => `
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${r.fromAvatar || DEFAULT_AVATAR}" class="w-10 h-10 rounded-full object-cover border border-amber-400 bg-slate-950 shrink-0" />
+              <div class="min-w-0">
+                <div class="text-[10px] px-2 py-0.2 rounded-full border inline-block title-rarity-${getTitleRarity(r.fromTitle)}">${escapeHtml(r.fromTitle || "駆け出しタイパー")}</div>
+                <div class="font-bold text-sm text-white truncate">${escapeHtml(r.fromName || "Player")}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="acceptFriendRequest('${escapeHtml(r.fromId)}')" class="px-3.5 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition">承認</button>
+              <button onclick="declineFriendRequest('${escapeHtml(r.fromId)}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-pink-950 border border-slate-700 text-slate-300 hover:text-pink-300 font-bold text-xs transition">拒否</button>
+            </div>
+          </div>
+        `).join("");
+      } else {
+        reqSec.classList.add("hidden");
+      }
+
+      // フレンド一覧描画
+      const friends = Object.values(myFriendsMap);
+      document.getElementById("friends-total-count").textContent = friends.length;
+      const container = document.getElementById("friends-list-container");
+
+      if (friends.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-500">フレンドはまだいません。ランキングや対戦リザルト、またはID入力から申請を送ってみましょう！</div>`;
+        return;
+      }
+
+      // 最新の名前・称号・アバターをplayersノードから取得して反映
+      let livePlayers = {};
+      if (firebaseReady && db) {
+        try {
+          const snap = await get(ref(db, "players"));
+          if (snap.exists()) livePlayers = snap.val();
+        } catch (e) {}
+      }
+
+      container.innerHTML = friends.map(f => {
+        const live = livePlayers[f.deviceId] || f;
+        const fName = live.username || f.username || "Player";
+        const fAvatar = live.avatar || f.avatar || DEFAULT_AVATAR;
+        const fTitle = live.equippedTitle || f.equippedTitle || "駆け出しタイパー";
+        const fRate = live.rating ?? 1500;
+        const isOnline = !!presenceCacheMap[f.deviceId];
+        const hasUnread = !!friendUnreadMap[f.deviceId];
+
+        return `
+          <div class="py-3.5 px-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+            <div onclick="openRankedPlayerProfile('${escapeHtml(f.deviceId)}')" class="flex items-center gap-3 min-w-0 cursor-pointer group">
+              <div class="relative shrink-0">
+                <img src="${fAvatar}" class="w-11 h-11 rounded-full object-cover border border-slate-700 group-hover:border-emerald-400 bg-slate-900" />
+                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0a0f18] ${isOnline ? "bg-emerald-400" : "bg-slate-600"}"></span>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] px-2 py-0.2 rounded-full border inline-block title-rarity-${getTitleRarity(fTitle)}">${escapeHtml(fTitle)}</span>
+                  <span class="text-[10px] font-mono-code ${isOnline ? "text-emerald-400" : "text-slate-500"}">${isOnline ? "ONLINE" : "OFFLINE"}</span>
+                </div>
+                <div class="font-bold text-sm text-slate-100 group-hover:text-emerald-300 truncate mt-0.5">${escapeHtml(fName)}</div>
+                <div class="text-[11px] font-mono-code text-amber-300/90">RATE: ${fRate}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0 ml-auto">
+              <button onclick="openFriendDmModal('${escapeHtml(f.deviceId)}', '${escapeHtml(fName)}', '${escapeHtml(fAvatar)}')" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition relative flex items-center gap-1.5">
+                <i class="fa-regular fa-comment-dots"></i>
+                <span>DM</span>
+                ${hasUnread ? `<span class="px-1.5 py-0.2 rounded-full bg-pink-600 text-white text-[10px] animate-bounce">NEW</span>` : ""}
+              </button>
+              <button onclick="removeFriend('${escapeHtml(f.deviceId)}', '${escapeHtml(fName)}')" class="p-2 rounded-xl bg-slate-900 hover:bg-pink-950/70 border border-slate-800 hover:border-pink-500/50 text-slate-400 hover:text-pink-300 text-xs transition" title="フレンド解除">
+                <i class="fa-solid fa-user-minus"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // フレンド間DMモーダル制御
+    window.openFriendDmModal = function(friendId, friendName, friendAvatar) {
+      if (activeFriendDmUnsub) {
+        try { activeFriendDmUnsub(); } catch (e) {}
+        activeFriendDmUnsub = null;
+      }
+
+      activeFriendDmTarget = { deviceId: friendId, username: friendName, avatar: friendAvatar || DEFAULT_AVATAR };
+      document.getElementById("friend-dm-name").textContent = friendName;
+      document.getElementById("friend-dm-avatar").src = friendAvatar || DEFAULT_AVATAR;
+      document.getElementById("friend-dm-input").value = "";
+      document.getElementById("modal-friend-dm").classList.remove("hidden");
+
+      const roomId = getFriendChatRoomId(playerData.deviceId, friendId);
+      const listEl = document.getElementById("friend-dm-messages-list");
+      listEl.innerHTML = `<div class="text-slate-500 text-center py-4">読み込み中...</div>`;
+
+      if (firebaseReady && db) {
+        activeFriendDmUnsub = onValue(ref(db, `friend_dms/${roomId}`), (snap) => {
+          if (!snap.exists()) {
+            listEl.innerHTML = `<div class="text-slate-500 text-center py-4">メッセージはまだありません。最初のメッセージを送ってみましょう！</div>`;
+            return;
+          }
+          const msgs = Object.values(snap.val()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          const latestFromFriend = [...msgs].reverse().find(m => m.senderId === friendId);
+          if (latestFromFriend) {
+            localStorage.setItem(`neontype_seen_fdm_${friendId}`, String(latestFromFriend.createdAt || Date.now()));
+            friendUnreadMap[friendId] = false;
+            updateFriendNotificationBadges();
+            if (currentView === "friends") renderFriendsPage();
+          }
+
+          listEl.innerHTML = msgs.map(m => {
+            const isMine = m.senderId === playerData.deviceId;
+            return `
+              <div class="p-2.5 rounded-lg border ${isMine ? "bg-emerald-950/30 border-emerald-500/40 ml-6" : "bg-slate-900 border-slate-800 mr-6"} space-y-1">
+                <div class="flex justify-between items-center text-[10px] font-mono-code">
+                  <span class="${isMine ? "text-emerald-300 font-bold" : "text-cyan-300 font-bold"}">${isMine ? "あなた" : escapeHtml(m.senderName || friendName)}</span>
+                  <span class="text-slate-500">${new Date(m.createdAt).toLocaleString()}</span>
+                </div>
+                <div class="text-slate-100 whitespace-pre-wrap">${escapeHtml(m.text)}</div>
+              </div>
+            `;
+          }).join("");
+          listEl.scrollTop = listEl.scrollHeight;
+        }, () => {});
+      }
+    };
+
+    window.closeFriendDmModal = function() {
+      if (activeFriendDmUnsub) {
+        try { activeFriendDmUnsub(); } catch (e) {}
+        activeFriendDmUnsub = null;
+      }
+      activeFriendDmTarget = null;
+      document.getElementById("modal-friend-dm").classList.add("hidden");
+    };
+
+    window.sendFriendDm = async function() {
+      if (!activeFriendDmTarget || !firebaseReady || !db) return;
+      const inp = document.getElementById("friend-dm-input");
+      const text = inp.value.trim();
+      if (!text) return;
+
+      const roomId = getFriendChatRoomId(playerData.deviceId, activeFriendDmTarget.deviceId);
+      const msgPayload = {
+        id: "fdm_" + Date.now(),
+        senderId: playerData.deviceId,
+        senderName: playerData.username,
+        receiverId: activeFriendDmTarget.deviceId,
+        text,
+        createdAt: Date.now()
+      };
+
+      inp.value = "";
+      await push(ref(db, `friend_dms/${roomId}`), msgPayload).catch(() => {});
     };
 
     // ---------------------------------------------------------------------
@@ -4224,6 +4821,7 @@
     // 16. アプリ起動時の初期リスナー登録
     // ---------------------------------------------------------------------
     initRealtimeAdminAndNewsListeners();
+    initFriendsRealtimeListeners();
     initOnlineQueueCounters();
     refreshAllProfileUI();
   </script>
