@@ -237,6 +237,8 @@
           </div>
           <!-- 管理者未読DM通知バッジ -->
           <span id="header-admin-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-600 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
+          <!-- プレイヤー向け管理者からの新着返信通知バッジ -->
+          <span id="header-reply-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
         </button>
       </div>
     </div>
@@ -768,8 +770,10 @@
       <!-- マイページ下部：管理者への要望・DM送信ボタン（控えめに配置） -->
       <div class="pt-4 border-t border-slate-800/80 flex justify-between items-center text-xs text-slate-500">
         <span class="font-mono-code">ID: <span id="mypage-device-id"></span></span>
-        <button onclick="openAdminDmModal()" class="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 text-slate-400 hover:text-cyan-300 transition">
-          <i class="fa-regular fa-paper-plane mr-1"></i>管理者へ要望を送る
+        <button onclick="openAdminDmModal()" class="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 text-slate-400 hover:text-cyan-300 transition flex items-center gap-1.5">
+          <i class="fa-regular fa-paper-plane"></i>
+          <span>管理者へ要望を送る・返信確認</span>
+          <span id="mypage-reply-badge" class="hidden px-1.5 py-0.2 rounded-full bg-cyan-500 text-slate-950 text-[10px] font-bold">NEW</span>
         </button>
       </div>
     </section>
@@ -909,7 +913,7 @@
         <h3 class="font-bold text-sm text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-wrench"></i> ランキング保守ツール（不正スコア個別削除）
         </h3>
-        <div class="flex flex-wrap gap-2 items-center">
+        <div class="flex flex-wrap gap-2">
           <select id="admin-rank-mode-select" onchange="renderAdminRankingCleanup()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
             <option value="FRASH">FRASH</option>
             <option value="SPEED">SPEED</option>
@@ -917,37 +921,74 @@
             <option value="MARATHON">MARATHON</option>
             <option value="SADDEN DEATH">SADDEN DEATH</option>
           </select>
-          <span class="text-xs text-slate-400">選択モードの記録を削除できます</span>
+          <button onclick="renderAdminRankingCleanup()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-slate-300">再読込</button>
         </div>
-        <div id="admin-rank-cleanup-list" class="max-h-44 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs">
+        <div id="admin-rank-cleanup-list" class="max-h-48 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs">
+          <!-- JSで描画 -->
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- =====================================================================
-       モーダル & トースト通知群
-       ===================================================================== -->
-
-  <!-- アップデートお知らせボックス閲覧モーダル -->
+  <!-- アップデートお知らせボックスモーダル -->
   <div id="modal-update-notice" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeUpdateNoticeModal(event)">
     <div class="max-w-lg w-full p-6 rounded-2xl bg-[#0a0f18] border border-cyan-400/50 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="font-orbitron font-bold text-base sm:text-lg glow-cyan flex items-center gap-2">
-          <i class="fa-solid fa-newspaper"></i> UPDATE INFORMATION
-        </h3>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-newspaper text-cyan-400"></i>
+          <h3 class="font-orbitron font-bold text-base text-cyan-300 tracking-wider">UPDATE NOTICES</h3>
+        </div>
         <button onclick="document.getElementById('modal-update-notice').classList.add('hidden')" class="text-slate-400 hover:text-white">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <div id="update-notice-list" class="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
-        <!-- JSでアップデート記事一覧を描画 -->
+      <div id="update-notice-list" class="max-h-80 overflow-y-auto space-y-3 pr-1">
+        <!-- JSで描画 -->
       </div>
-      <div class="flex justify-end pt-1">
-        <button onclick="document.getElementById('modal-update-notice').classList.add('hidden')" class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
-          閉じる
+    </div>
+  </div>
+
+  <!-- 管理者へDM送信モーダル（プレイヤー側チャット・返信閲覧対応） -->
+  <div id="modal-admin-dm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full p-6 rounded-2xl bg-[#0a0f18] border border-cyan-400/50 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-base text-cyan-300"><i class="fa-regular fa-paper-plane mr-1.5"></i>管理者とのDM・要望スレッド</h3>
+        <button onclick="document.getElementById('modal-admin-dm').classList.add('hidden')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
         </button>
+      </div>
+      <p class="text-xs text-slate-400">追加してほしい単語や機能要望などを管理者に送信でき、管理者からの返信もここで確認できます。</p>
+      <div id="player-dm-history-list" class="max-h-52 overflow-y-auto space-y-2 text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+        <div class="text-slate-500 text-center py-4">メッセージ履歴はありません</div>
+      </div>
+      <textarea id="admin-dm-textarea" rows="3" maxlength="300" placeholder="メッセージを入力（最大300文字）..." class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('modal-admin-dm').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold">閉じる</button>
+        <button onclick="sendAdminDm()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 text-xs font-bold transition">送信する</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- 管理者用：プレイヤーからのDM閲覧モーダル -->
+  <div id="modal-view-dm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full p-6 rounded-2xl bg-[#0a0f18] border border-pink-500/50 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-base text-pink-400"><span id="view-dm-sender">Player</span> とのDMスレッド</h3>
+        <button onclick="closeAdminDmThreadModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="view-dm-list" class="max-h-64 overflow-y-auto space-y-2 text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800"></div>
+      <div class="space-y-2">
+        <textarea id="admin-reply-textarea" rows="3" maxlength="300" placeholder="このプレイヤーへ返信・DMを送信（最大300文字）..." class="w-full bg-slate-900 border border-slate-700 focus:border-pink-400 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
+      </div>
+      <div class="flex flex-wrap justify-between items-center gap-2 pt-1">
+        <button id="btn-clear-player-dms" class="px-3.5 py-2 rounded-lg bg-pink-950/70 border border-pink-500/50 text-pink-300 text-xs font-bold">履歴を消去</button>
+        <div class="flex gap-2">
+          <button onclick="closeAdminDmThreadModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold">閉じる</button>
+          <button id="btn-send-admin-reply" class="px-5 py-2 rounded-lg bg-pink-600/30 border border-pink-500 text-pink-200 hover:bg-pink-600 hover:text-white text-xs font-bold transition">送信する</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3366,7 +3407,7 @@
         showToast("管理者権限が認証されました！", "GR");
       } else {
         playerData.username = val;
-        showToast("ユーザーネームを保存しました", "R");
+        showToast("ユーザーネームを変更しました", "RR");
       }
 
       savePlayerData();
@@ -3374,7 +3415,7 @@
       renderMyPage();
     };
 
-    // PC・スマホからの画像ファイルアップロード＆自動リサイズ圧縮（Canvas処理）
+    // アイコン画像ファイルアップロード（最大256pxにリサイズして保存）
     window.handleAvatarUpload = function(event) {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -3384,12 +3425,12 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement("canvas");
-          const size = 128;
+          const size = 160;
           canvas.width = size;
           canvas.height = size;
           const ctx = canvas.getContext("2d");
 
-          // 中央正方形トリミング描画
+          // 中央正方形トリミング
           const minSide = Math.min(img.width, img.height);
           const sx = (img.width - minSide) / 2;
           const sy = (img.height - minSide) / 2;
@@ -3406,9 +3447,76 @@
       reader.readAsDataURL(file);
     };
 
-    // 管理者へのDM・要望送信
+    // 自分のデータリセット（スタート画面右下ボタン）
+    window.confirmResetMyData = function() {
+      const box = document.createElement("div");
+      box.className = "fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4";
+      box.innerHTML = `
+        <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500 text-center space-y-4">
+          <h3 class="font-bold text-lg text-red-400">ローカルデータを初期化しますか？</h3>
+          <p class="text-xs text-slate-300">戦績・称号・プロフィール設定が初期状態に戻ります。</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btn-do-reset" class="py-2 rounded-xl bg-red-600 text-white font-bold text-xs">初期化する</button>
+            <button id="btn-cancel-reset" class="py-2 rounded-xl bg-slate-800 text-slate-200 font-bold text-xs">キャンセル</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(box);
+      box.querySelector("#btn-cancel-reset").onclick = () => box.remove();
+      box.querySelector("#btn-do-reset").onclick = () => {
+        localStorage.removeItem(SAVE_KEY);
+        playerData = createDefaultPlayerData();
+        savePlayerData();
+        refreshAllProfileUI();
+        box.remove();
+        showToast("データを初期化しました", "GR");
+      };
+    };
+
+    // 管理者へのDM・要望送信（プレイヤー側チャット履歴表示 & 既読管理付き）
+    let myDmThreadCache = [];
+
+    function renderPlayerDmThread() {
+      const listEl = document.getElementById("player-dm-history-list");
+      if (!listEl) return;
+      if (myDmThreadCache.length === 0) {
+        listEl.innerHTML = `<div class="text-slate-500 text-center py-4">メッセージ履歴はありません</div>`;
+        return;
+      }
+      listEl.innerHTML = myDmThreadCache.map(d => {
+        const isFromAdmin = d.fromAdmin === true;
+        return `
+          <div class="p-2.5 rounded-lg border ${isFromAdmin ? "bg-cyan-950/30 border-cyan-500/40 ml-4" : "bg-slate-900 border-slate-800 mr-4"} space-y-1">
+            <div class="flex justify-between items-center text-[10px] font-mono-code">
+              <span class="${isFromAdmin ? "text-cyan-300 font-bold" : "text-slate-400"}">${isFromAdmin ? "ADMIN (管理者)" : "あなた"}</span>
+              <span class="text-slate-500">${new Date(d.createdAt).toLocaleString()}</span>
+            </div>
+            <div class="text-slate-100 whitespace-pre-wrap">${escapeHtml(d.text)}</div>
+          </div>
+        `;
+      }).join("");
+      listEl.scrollTop = listEl.scrollHeight;
+    }
+
+    function updatePlayerReplyBadges() {
+      const latestAdminMsg = [...myDmThreadCache].reverse().find(d => d.fromAdmin === true);
+      const lastSeenAdminDmAt = Number(localStorage.getItem("neontype_last_seen_admin_dm_at") || 0);
+      const hasUnreadReply = !!(latestAdminMsg && Number(latestAdminMsg.createdAt || 0) > lastSeenAdminDmAt);
+
+      const headerReplyBadge = document.getElementById("header-reply-badge");
+      const mypageReplyBadge = document.getElementById("mypage-reply-badge");
+      if (headerReplyBadge) headerReplyBadge.classList.toggle("hidden", !hasUnreadReply);
+      if (mypageReplyBadge) mypageReplyBadge.classList.toggle("hidden", !hasUnreadReply);
+    }
+
     window.openAdminDmModal = function() {
       document.getElementById("admin-dm-textarea").value = "";
+      const latestAdminMsg = [...myDmThreadCache].reverse().find(d => d.fromAdmin === true);
+      if (latestAdminMsg) {
+        localStorage.setItem("neontype_last_seen_admin_dm_at", String(latestAdminMsg.createdAt || Date.now()));
+        updatePlayerReplyBadges();
+      }
+      renderPlayerDmThread();
       document.getElementById("modal-admin-dm").classList.remove("hidden");
     };
 
@@ -3420,6 +3528,7 @@
         id: "dm_" + Date.now(),
         senderId: playerData.deviceId,
         senderName: playerData.username,
+        fromAdmin: false,
         text,
         createdAt: Date.now()
       };
@@ -3428,7 +3537,7 @@
         await push(ref(db, `admin_dms/${playerData.deviceId}`), dmPayload).catch(() => {});
       }
 
-      document.getElementById("modal-admin-dm").classList.add("hidden");
+      document.getElementById("admin-dm-textarea").value = "";
       showToast("管理者へメッセージを送信しました", "RR");
     };
 
@@ -3561,32 +3670,60 @@
         }
       });
 
-      // ③ 自分のBAN状態をリアルタイム監視
+      // ③ BAN状態リアルタイム監視（即時強制ロック）
       onValue(ref(db, `bans/${playerData.deviceId}`), (snap) => {
         const banned = snap.exists() && snap.val() === true;
         playerData.isBanned = banned;
         document.getElementById("ban-lock-screen").classList.toggle("hidden", !banned);
-      });
-
-      // ④ 管理者追加ワードのリアルタイム同期
-      onValue(ref(db, "custom_words"), (snap) => {
-        if (snap.exists()) {
-          customAdminWords = Object.values(snap.val());
-          localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
-        } else {
-          customAdminWords = [];
+        if (banned && currentView === "game") {
+          stopGameLoops();
         }
-        if (currentView === "admin") renderAdminWordList();
       });
 
-      // ⑤ 管理者向けDM未読通知（!バッジ制御）
+      // ④ 管理者によるデータ完全削除通知の監視
+      onValue(ref(db, `wiped_players/${playerData.deviceId}`), async (snap) => {
+        if (snap.exists() && snap.val() === true) {
+          await remove(ref(db, `wiped_players/${playerData.deviceId}`)).catch(() => {});
+          localStorage.removeItem(SAVE_KEY);
+          playerData = createDefaultPlayerData();
+          savePlayerData();
+          refreshAllProfileUI();
+          navigate("start");
+          showToast("管理者によりアカウントデータが初期化されました", "GR");
+        }
+      });
+
+      // ⑤ 管理者向けDM未読通知（!バッジ制御：プレイヤーからの未読メッセージ有無）
       onValue(ref(db, "admin_dms"), (snap) => {
         allDmsCache = snap.exists() ? snap.val() : {};
-        const hasUnread = playerData.isAdmin && Object.keys(allDmsCache).length > 0;
-        document.getElementById("header-admin-badge").classList.toggle("hidden", !hasUnread);
-        document.getElementById("home-admin-badge").classList.toggle("hidden", !hasUnread);
-        document.getElementById("mypage-admin-dm-badge").classList.toggle("hidden", !hasUnread);
+        const hasUnreadFromPlayers = playerData.isAdmin && Object.values(allDmsCache).some(thread =>
+          Object.values(thread || {}).some(msg => !msg.fromAdmin && !msg.readByAdmin)
+        );
+        document.getElementById("header-admin-badge").classList.toggle("hidden", !hasUnreadFromPlayers);
+        document.getElementById("home-admin-badge").classList.toggle("hidden", !hasUnreadFromPlayers);
+        document.getElementById("mypage-admin-dm-badge").classList.toggle("hidden", !hasUnreadFromPlayers);
         if (currentView === "admin") renderAdminPlayerList();
+        if (activeAdminDmTargetId && !document.getElementById("modal-view-dm").classList.contains("hidden")) {
+          renderAdminDmThreadMessages(activeAdminDmTargetId);
+        }
+      });
+
+      // ⑥ プレイヤー自身宛てDMスレッド監視（管理者からの新規送信・返信のリアルタイム受信）
+      onValue(ref(db, `admin_dms/${playerData.deviceId}`), (snap) => {
+        if (snap.exists()) {
+          myDmThreadCache = Object.values(snap.val()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        } else {
+          myDmThreadCache = [];
+        }
+        const modalOpen = !document.getElementById("modal-admin-dm").classList.contains("hidden");
+        if (modalOpen) {
+          const latestAdminMsg = [...myDmThreadCache].reverse().find(d => d.fromAdmin === true);
+          if (latestAdminMsg) {
+            localStorage.setItem("neontype_last_seen_admin_dm_at", String(latestAdminMsg.createdAt || Date.now()));
+          }
+          renderPlayerDmThread();
+        }
+        updatePlayerReplyBadges();
       });
     }
 
@@ -3711,6 +3848,7 @@
         const isBanned = !!bansMap[p.deviceId];
         const playerDms = allDmsCache[p.deviceId] ? Object.values(allDmsCache[p.deviceId]) : [];
         const hasDm = playerDms.length > 0;
+        const hasUnreadDm = playerDms.some(m => !m.fromAdmin && !m.readByAdmin);
 
         return `
           <tr class="hover:bg-slate-900/60">
@@ -3728,12 +3866,19 @@
               RATE ${p.rating ?? 1500} / WPM ${Number(p.maxWpm || 0).toFixed(1)}
             </td>
             <td class="p-3">
-              ${hasDm
+              ${hasUnreadDm
                 ? `<button onclick="openViewPlayerDm('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}')" class="px-2.5 py-1 rounded bg-pink-600/30 border border-pink-500 text-pink-300 font-bold flex items-center gap-1">
-                     <span>DM確認</span>
+                     <span>DM返信</span>
                      <span class="px-1.5 rounded-full bg-red-600 text-white text-[10px] animate-bounce">!</span>
                    </button>`
-                : `<span class="text-slate-600">-</span>`
+                : (hasDm
+                    ? `<button onclick="openViewPlayerDm('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}')" class="px-2.5 py-1 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 font-bold">
+                         DM履歴 / 送信
+                       </button>`
+                    : `<button onclick="openViewPlayerDm('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold">
+                         DM送信
+                       </button>`
+                  )
               }
             </td>
             <td class="p-3 text-right space-x-1">
@@ -3765,73 +3910,126 @@
       renderAdminPlayerList();
     };
 
-    // 1. 管理者権限によるプレイヤーデータの完全削除処理
-    window.adminDeletePlayerData = async function(targetDeviceId) {
-      if (!confirm("本当にこのプレイヤーのすべてのデータを完全に削除しますか？")) return;
+    // 管理者によるプレイヤーデータ完全削除
+    window.adminDeletePlayerData = function(targetDeviceId) {
+      const box = document.createElement("div");
+      box.className = "fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4";
+      box.innerHTML = `
+        <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500 text-center space-y-4">
+          <h3 class="font-bold text-base text-red-400">プレイヤーデータを完全削除しますか？</h3>
+          <p class="text-xs text-slate-300">プロフィール・ランキング記録・DM履歴がすべて消去されます。</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btn-confirm-wipe" class="py-2 rounded-xl bg-red-600 text-white font-bold text-xs">完全削除する</button>
+            <button id="btn-cancel-wipe" class="py-2 rounded-xl bg-slate-800 text-slate-200 font-bold text-xs">キャンセル</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(box);
+      box.querySelector("#btn-cancel-wipe").onclick = () => box.remove();
+      box.querySelector("#btn-confirm-wipe").onclick = async () => {
+        box.remove();
+        if (!firebaseReady || !db) return;
+        await Promise.all([
+          remove(ref(db, `players/${targetDeviceId}`)),
+          remove(ref(db, `presence/${targetDeviceId}`)),
+          remove(ref(db, `bans/${targetDeviceId}`)),
+          remove(ref(db, `admin_dms/${targetDeviceId}`)),
+          set(ref(db, `wiped_players/${targetDeviceId}`), true)
+        ]).catch(() => {});
 
-      if (firebaseReady && db) {
-        try {
-          await Promise.all([
-            remove(ref(db, `players/${targetDeviceId}`)),
-            remove(ref(db, `bans/${targetDeviceId}`)),
-            remove(ref(db, `presence/${targetDeviceId}`)),
-            remove(ref(db, `admin_dms/${targetDeviceId}`))
-          ]);
-        } catch (e) {}
-      }
+        // 各ランキングからも該当プレイヤーを削除
+        const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+        for (const m of modes) {
+          try {
+            const snap = await get(ref(db, `leaderboards/${m}`));
+            if (snap.exists()) {
+              const filtered = Object.values(snap.val()).filter(item => item.deviceId !== targetDeviceId);
+              const rebuilt = {};
+              filtered.forEach((item, idx) => { rebuilt[`rank_${idx + 1}`] = item; });
+              await set(ref(db, `leaderboards/${m}`), rebuilt);
+            }
+          } catch (e) {}
+        }
 
-      if (targetDeviceId === playerData.deviceId) {
-        localStorage.removeItem(SAVE_KEY);
-      }
-
-      delete allPlayersCache[targetDeviceId];
-      renderAdminPlayerList();
-      showToast("プレイヤーのデータを完全に削除しました", "GR");
+        showToast("プレイヤーデータを完全削除しました", "GR");
+        renderAdminPlayerList();
+      };
     };
 
-    // 2. 自分自身のデータをリセットする機能（確認のワンクッションを追加し、ローカルおよびFirebaseのプレイヤーリストからも完全消去して管理者リストからも消す）
-    window.confirmResetMyData = function() {
-      // 2. 「本当にリセットしますか？」という確認のワンクッション（confirm）
-      if (!confirm("本当にリセットしますか？ すべての戦績・称号・データが初期化されます。")) return;
+    let activeAdminDmTargetId = null;
 
-      const currentDevId = playerData.deviceId;
-
-      // ローカルストレージのセーブデータを完全に削除
-      localStorage.removeItem(SAVE_KEY);
-      localStorage.removeItem("neontype_device_id");
-
-      // 3 & 4. Firebase上のプレイヤーリスト（players, presence, bans, admin_dms）からも完全削除し管理者リストからも消去
-      if (firebaseReady && db && currentDevId) {
-        Promise.all([
-          remove(ref(db, `players/${currentDevId}`)),
-          remove(ref(db, `presence/${currentDevId}`)),
-          remove(ref(db, `bans/${currentDevId}`)),
-          remove(ref(db, `admin_dms/${currentDevId}`))
-        ]).catch(() => {});
+    function renderAdminDmThreadMessages(targetId) {
+      const listEl = document.getElementById("view-dm-list");
+      if (!listEl) return;
+      const dms = allDmsCache[targetId]
+        ? Object.values(allDmsCache[targetId]).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+        : [];
+      if (dms.length === 0) {
+        listEl.innerHTML = `<div class="text-slate-500 text-center py-4">まだメッセージはありません。下の欄から管理者DMを送信できます。</div>`;
+        return;
       }
+      listEl.innerHTML = dms.map(d => {
+        const isFromAdmin = d.fromAdmin === true;
+        return `
+          <div class="p-3 rounded-lg border ${isFromAdmin ? "bg-pink-950/30 border-pink-500/40 ml-4" : "bg-slate-900 border-slate-800 mr-4"} space-y-1">
+            <div class="flex justify-between items-center text-[10px] font-mono-code">
+              <span class="${isFromAdmin ? "text-pink-300 font-bold" : "text-cyan-300 font-bold"}">${isFromAdmin ? "ADMIN (あなた)" : escapeHtml(d.senderName || "Player")}</span>
+              <span class="text-slate-500">${new Date(d.createdAt).toLocaleString()}</span>
+            </div>
+            <div class="text-slate-100 whitespace-pre-wrap">${escapeHtml(d.text)}</div>
+          </div>
+        `;
+      }).join("");
+      listEl.scrollTop = listEl.scrollHeight;
+    }
 
-      showToast("データをリセットしました。再読み込みします...", "GR");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1200);
+    async function markPlayerDmsAsReadByAdmin(targetId) {
+      if (!firebaseReady || !db || !allDmsCache[targetId]) return;
+      const entries = Object.entries(allDmsCache[targetId]);
+      for (const [key, msg] of entries) {
+        if (!msg.fromAdmin && !msg.readByAdmin) {
+          update(ref(db, `admin_dms/${targetId}/${key}`), { readByAdmin: true }).catch(() => {});
+        }
+      }
+    }
+
+    window.closeAdminDmThreadModal = function() {
+      activeAdminDmTargetId = null;
+      document.getElementById("modal-view-dm").classList.add("hidden");
     };
 
     window.openViewPlayerDm = function(senderId, senderName) {
-      const dms = allDmsCache[senderId] ? Object.values(allDmsCache[senderId]) : [];
+      activeAdminDmTargetId = senderId;
       document.getElementById("view-dm-sender").textContent = senderName;
-      document.getElementById("view-dm-list").innerHTML = dms.map(d => `
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-          <div class="text-[10px] font-mono-code text-slate-500">${new Date(d.createdAt).toLocaleString()}</div>
-          <div class="text-slate-100 whitespace-pre-wrap">${escapeHtml(d.text)}</div>
-        </div>
-      `).join("");
+      document.getElementById("admin-reply-textarea").value = "";
+      renderAdminDmThreadMessages(senderId);
+      markPlayerDmsAsReadByAdmin(senderId);
+
+      document.getElementById("btn-send-admin-reply").onclick = async () => {
+        const replyText = document.getElementById("admin-reply-textarea").value.trim();
+        if (!replyText) return;
+        const replyPayload = {
+          id: "dm_admin_" + Date.now(),
+          senderId: playerData.deviceId,
+          senderName: "ADMIN",
+          fromAdmin: true,
+          readByAdmin: true,
+          text: replyText,
+          createdAt: Date.now()
+        };
+        if (firebaseReady && db) {
+          await push(ref(db, `admin_dms/${senderId}`), replyPayload).catch(() => {});
+        }
+        document.getElementById("admin-reply-textarea").value = "";
+        showToast(`${senderName} へDMを送信しました`, "SR");
+      };
 
       document.getElementById("btn-clear-player-dms").onclick = async () => {
         if (firebaseReady && db) {
           await remove(ref(db, `admin_dms/${senderId}`));
         }
-        document.getElementById("modal-view-dm").classList.add("hidden");
-        showToast("DMを既読消去しました", "R");
+        closeAdminDmThreadModal();
+        showToast("DM履歴を消去しました", "R");
         renderAdminPlayerList();
       };
 
