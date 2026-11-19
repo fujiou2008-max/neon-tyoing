@@ -2595,8 +2595,9 @@
         if (gameState.matcher.isComplete()) {
           const isNoMiss = gameState.wordMistypes === 0;
           if (isNoMiss) {
-            // ノーミス単語完了ボーナス：長い単語は 300 + コンボ数、短い・中くらいの単語は 100 + コンボ数
-            const baseBonus = gameState.currentWord?.category === "long" ? 300 : 100;
+            // ノーミス単語完了ボーナス：長い単語は 200 + コンボ数、中くらいの単語は 150 + コンボ数、短い単語は 100 + コンボ数
+            const cat = gameState.currentWord?.category;
+            const baseBonus = cat === "long" ? 200 : (cat === "medium" ? 150 : 100);
             gameState.score += (baseBonus + gameState.combo);
           }
           playWordCompleteSound(isNoMiss);
