@@ -1038,41 +1038,6 @@
     </div>
   </div>
 
-  <!-- 管理者へDM送信モーダル -->
-  <div id="modal-admin-dm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-md w-full p-6 rounded-2xl bg-[#0a0f18] border border-cyan-400/50 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <h3 class="font-bold text-base text-cyan-300"><i class="fa-regular fa-paper-plane mr-1.5"></i>管理者へ要望・メッセージ送信</h3>
-        <button onclick="document.getElementById('modal-admin-dm').classList.add('hidden')" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <p class="text-xs text-slate-400">追加してほしい単語や機能要望、バグ報告などを管理者に直接送信できます。</p>
-      <textarea id="admin-dm-textarea" rows="4" maxlength="300" placeholder="メッセージを入力（最大300文字）..." class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-3 text-sm text-white focus:outline-none"></textarea>
-      <div class="flex justify-end gap-2">
-        <button onclick="document.getElementById('modal-admin-dm').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold">キャンセル</button>
-        <button onclick="sendAdminDm()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 text-xs font-bold transition">送信する</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 管理者用：プレイヤーからのDM閲覧モーダル -->
-  <div id="modal-view-dm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-lg w-full p-6 rounded-2xl bg-[#0a0f18] border border-pink-500/50 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <h3 class="font-bold text-base text-pink-400"><span id="view-dm-sender">Player</span> からのメッセージ</h3>
-        <button onclick="document.getElementById('modal-view-dm').classList.add('hidden')" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div id="view-dm-list" class="max-h-64 overflow-y-auto space-y-2 text-xs"></div>
-      <div class="flex justify-between pt-2">
-        <button id="btn-clear-player-dms" class="px-4 py-2 rounded-lg bg-pink-950/70 border border-pink-500/50 text-pink-300 text-xs font-bold">既読にして消去</button>
-        <button onclick="document.getElementById('modal-view-dm').classList.add('hidden')" class="px-4 py-2 rounded-lg bg-slate-800 text-xs font-bold">閉じる</button>
-      </div>
-    </div>
-  </div>
-
   <!-- BANロック画面 -->
   <div id="ban-lock-screen" class="hidden fixed inset-0 z-50 bg-[#05070a] flex flex-col items-center justify-center p-6 text-center space-y-4">
     <i class="fa-solid fa-ban text-6xl text-red-500 animate-pulse"></i>
@@ -1255,6 +1220,25 @@
           casualWins: playerData.stats.casualWins,
           lastSeen: serverTimestamp()
         }).catch(() => {});
+
+        // ソロランキング内の自分自身の名前・称号・アバターもリアルタイム同期
+        const soloModes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+        soloModes.forEach(mode => {
+          const lbRef = ref(db, `leaderboards/${mode}`);
+          get(lbRef).then(snap => {
+            if (!snap.exists()) return;
+            const entries = snap.val();
+            Object.entries(entries).forEach(([rankKey, item]) => {
+              if (item && item.deviceId === playerData.deviceId) {
+                update(ref(db, `leaderboards/${mode}/${rankKey}`), {
+                  username: playerData.username,
+                  avatar: playerData.avatar,
+                  equippedTitle: playerData.equippedTitle
+                }).catch(() => {});
+              }
+            });
+          }).catch(() => {});
+        });
       }
     }
 
@@ -2179,7 +2163,7 @@
         cleanupMatchmakingQueue();
       }
       if (currentView === "ranking" && viewName !== "ranking") {
-        cleanupRateRankingListener();
+        cleanupLeaderboardListeners();
       }
 
       currentView = viewName;
@@ -3089,16 +3073,16 @@
     }
 
     // ---------------------------------------------------------------------
-    // 12. ランキング表示 (上位50名・空欄は Unknown・タップでプロフィール閲覧・RATEリアルタイム対応)
+    // 12. ランキング表示 (上位50名・空欄は Unknown・タップでプロフィール閲覧・RATE & ソロリアルタイム同期対応)
     // ---------------------------------------------------------------------
     let currentRankingMode = "FRASH";
-    let rateRankingUnsubscribe = null;
+    let leaderboardUnsubs = [];
 
-    function cleanupRateRankingListener() {
-      if (rateRankingUnsubscribe) {
-        rateRankingUnsubscribe();
-        rateRankingUnsubscribe = null;
-      }
+    function cleanupLeaderboardListeners() {
+      leaderboardUnsubs.forEach(unsub => {
+        try { unsub(); } catch (e) {}
+      });
+      leaderboardUnsubs = [];
     }
 
     window.selectRankingMode = function(mode) {
@@ -3170,7 +3154,7 @@
     }
 
     async function renderLeaderboard(mode) {
-      cleanupRateRankingListener();
+      cleanupLeaderboardListeners();
       const tbody = document.getElementById("ranking-tbody");
       tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-xs text-slate-400 font-mono-code">LOADING...</td></tr>`;
 
@@ -3183,7 +3167,7 @@
         };
 
         if (firebaseReady && db) {
-          rateRankingUnsubscribe = onValue(ref(db, "players"), (snap) => {
+          const unsub = onValue(ref(db, "players"), (snap) => {
             if (currentRankingMode !== "RATE") return;
             let players = [];
             if (snap.exists()) {
@@ -3228,6 +3212,7 @@
             };
             renderLeaderboardRows(isEligibleForRateRanking(localMe) ? [localMe] : [], true);
           });
+          leaderboardUnsubs.push(unsub);
         } else {
           const localMe = {
             deviceId: playerData.deviceId,
@@ -3243,22 +3228,79 @@
         return;
       }
 
-      let entries = [];
+      // ソロランキング：leaderboards/{mode} と players ノードの両方をリアルタイム監視し、名前・称号・アバターを常に最新表示
       if (firebaseReady && db) {
-        try {
-          const snap = await get(ref(db, `leaderboards/${mode}`));
-          if (snap.exists()) {
-            entries = Object.values(snap.val()).sort((a, b) => b.score - a.score);
-          }
-        } catch (e) {}
-      }
-      if (entries.length === 0) {
-        try {
-          entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
-        } catch (e) {}
-      }
+        let latestLbEntries = [];
+        let latestPlayersMap = {};
 
-      renderLeaderboardRows(entries, false);
+        const updateSoloLeaderboardView = () => {
+          if (currentRankingMode !== mode) return;
+          const merged = latestLbEntries.map(item => {
+            if (item.deviceId === playerData.deviceId) {
+              return {
+                ...item,
+                username: playerData.username,
+                avatar: playerData.avatar,
+                equippedTitle: playerData.equippedTitle
+              };
+            }
+            const liveProf = latestPlayersMap[item.deviceId];
+            if (liveProf) {
+              return {
+                ...item,
+                username: liveProf.username || item.username,
+                avatar: liveProf.avatar || item.avatar,
+                equippedTitle: liveProf.equippedTitle || item.equippedTitle
+              };
+            }
+            return item;
+          });
+          renderLeaderboardRows(merged, false);
+        };
+
+        const unsubLb = onValue(ref(db, `leaderboards/${mode}`), (snap) => {
+          if (snap.exists()) {
+            latestLbEntries = Object.values(snap.val()).sort((a, b) => b.score - a.score);
+          } else {
+            try {
+              latestLbEntries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+            } catch (e) {
+              latestLbEntries = [];
+            }
+          }
+          updateSoloLeaderboardView();
+        }, () => {
+          try {
+            latestLbEntries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+          } catch (e) {
+            latestLbEntries = [];
+          }
+          updateSoloLeaderboardView();
+        });
+
+        const unsubPlayers = onValue(ref(db, "players"), (snap) => {
+          latestPlayersMap = snap.exists() ? snap.val() : {};
+          updateSoloLeaderboardView();
+        }, () => {});
+
+        leaderboardUnsubs.push(unsubLb, unsubPlayers);
+      } else {
+        let entries = [];
+        try {
+          entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]").map(item => {
+            if (item.deviceId === playerData.deviceId) {
+              return {
+                ...item,
+                username: playerData.username,
+                avatar: playerData.avatar,
+                equippedTitle: playerData.equippedTitle
+              };
+            }
+            return item;
+          });
+        } catch (e) {}
+        renderLeaderboardRows(entries, false);
+      }
     }
 
     // ランキング上のプレイヤーをタップして戦績詳細モーダルを表示
