@@ -4219,6 +4219,7 @@
       }
       const keepId = playerData.deviceId;
       localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem("neontype_save");
       playerData = createDefaultPlayerData();
       playerData.deviceId = keepId;
       savePlayerData();
@@ -4424,17 +4425,53 @@
         if (banned) stopGameLoops();
       });
 
-      onValue(ref(db, `players/${playerData.deviceId}/forceReset`), (snap) => {
+      const executeForcedClientReset = () => {
+        const keepId = playerData.deviceId;
+        localStorage.removeItem(SAVE_KEY);
+        localStorage.removeItem("neontype_save");
+        playerData = createDefaultPlayerData();
+        playerData.deviceId = keepId;
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
+        } catch (e) {}
+        refreshAllProfileUI();
+        showToast("管理者によりアカウントデータがリセットされました", "GR");
+        navigate("start");
+      };
+
+      onValue(ref(db, `force_resets/${playerData.deviceId}`), (snap) => {
         if (snap.exists() && snap.val() === true) {
-          remove(ref(db, `players/${playerData.deviceId}/forceReset`)).catch(() => {});
-          const keepId = playerData.deviceId;
-          localStorage.removeItem(SAVE_KEY);
-          playerData = createDefaultPlayerData();
-          playerData.deviceId = keepId;
-          savePlayerData();
-          refreshAllProfileUI();
-          showToast("管理者によりアカウントデータがリセットされました", "GR");
-          navigate("start");
+          remove(ref(db, `force_resets/${playerData.deviceId}`)).catch(() => {});
+          remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
+          executeForcedClientReset();
+        }
+      });
+
+      onValue(ref(db, `players/${playerData.deviceId}`), (snap) => {
+        if (!snap.exists()) {
+          if (playerData.nameInitialized || playerData.username) {
+            executeForcedClientReset();
+          }
+          return;
+        }
+        const val = snap.val();
+        if (val && (val.forceReset === true || val.username === "ResetPlayer")) {
+          remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
+          executeForcedClientReset();
+        }
+      });
+
+      onValue(ref(db, `players/${playerData.deviceId}`), (snap) => {
+        if (!snap.exists()) {
+          if (playerData.nameInitialized || playerData.username) {
+            executeForcedClientReset();
+          }
+          return;
+        }
+        const val = snap.val();
+        if (val && val.forceReset === true) {
+          remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
+          executeForcedClientReset();
         }
       });
 
@@ -4580,7 +4617,9 @@
 
     async function renderAdminPlayersTable() {
       const tbody = document.getElementById("admin-player-tbody");
-      const players = Object.values(allPlayersCache);
+      const players = Object.entries(allPlayersCache)
+        .filter(([key, p]) => p && typeof p === "object" && !p.forceReset && p.username !== "ResetPlayer")
+        .map(([key, p]) => ({ ...p, recordKey: key, deviceId: p.deviceId || key }));
       document.getElementById("admin-player-count").textContent = `${players.length} Players`;
 
       let bansMap = {};
@@ -4597,8 +4636,8 @@
       }
 
       tbody.innerHTML = players.map(p => {
-        const isOnline = !!presenceCache[p.deviceId];
-        const isBanned = !!bansMap[p.deviceId];
+        const isOnline = !!presenceCache[p.deviceId] || !!presenceCache[p.recordKey];
+        const isBanned = !!bansMap[p.deviceId] || !!bansMap[p.recordKey];
         const userDms = allDmsCache[p.deviceId] ? Object.values(allDmsCache[p.deviceId]) : [];
         const unreadCount = userDms.filter(m => m.sender !== "admin" && m.unread).length;
         const lastLoginStr = isOnline
@@ -4634,7 +4673,7 @@
                 class="px-2.5 py-1 rounded text-[11px] font-bold ${isBanned ? "bg-emerald-600/30 text-emerald-300 border border-emerald-500" : "bg-amber-600/20 text-amber-300 border border-amber-500/50"}">
                 ${isBanned ? "BAN解除" : "BAN"}
               </button>
-              <button onclick="adminDeletePlayerData('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}')"
+              <button onclick="adminDeletePlayerData('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}', '${escapeHtml(p.recordKey)}')"
                 class="px-2.5 py-1 rounded text-[11px] font-bold bg-red-600/25 text-red-300 border border-red-500/50 hover:bg-red-600 hover:text-white">
                 完全削除
               </button>
@@ -4656,26 +4695,63 @@
       renderAdminPlayersTable();
     };
 
-    window.adminDeletePlayerData = async function(targetId, targetName) {
+    window.adminDeletePlayerData = async function(targetId, targetName, recordKey = "") {
       if (!playerData.isAdmin || !firebaseReady || !db) return;
       if (!confirm(`プレイヤー「${targetName}」のデータを完全に削除（初期化）しますか？`)) return;
 
-      await set(ref(db, `players/${targetId}`), {
-        deviceId: targetId,
-        username: "ResetPlayer",
-        forceReset: true
-      });
-      await remove(ref(db, `bans/${targetId}`)).catch(() => {});
+      const candidateIds = Array.from(new Set([targetId, recordKey].filter(Boolean)));
+      for (const id of candidateIds) {
+        await set(ref(db, `force_resets/${id}`), true).catch(() => {});
+        await remove(ref(db, `players/${id}`)).catch(() => {});
+        await remove(ref(db, `presence/${id}`)).catch(() => {});
+        await remove(ref(db, `bans/${id}`)).catch(() => {});
+        await remove(ref(db, `admin_dms/${id}`)).catch(() => {});
+        await remove(ref(db, `friends/${id}`)).catch(() => {});
+        await remove(ref(db, `friend_requests_in/${id}`)).catch(() => {});
+        await remove(ref(db, `friend_requests_out/${id}`)).catch(() => {});
+        await remove(ref(db, `friend_dm_unread/${id}`)).catch(() => {});
+        if (allPlayersCache[id]) {
+          delete allPlayersCache[id];
+        }
+      }
+
+      try {
+        const snap = await get(ref(db, "players"));
+        if (snap.exists()) {
+          const allMap = snap.val();
+          for (const [k, val] of Object.entries(allMap)) {
+            const valDevId = val && typeof val === "object" ? val.deviceId : "";
+            if (candidateIds.includes(k) || (valDevId && candidateIds.includes(valDevId))) {
+              await remove(ref(db, `players/${k}`)).catch(() => {});
+              delete allPlayersCache[k];
+            }
+          }
+        }
+      } catch (e) {}
 
       const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
       for (const m of modes) {
         const snap = await get(ref(db, `leaderboards/${m}`));
         if (snap.exists()) {
-          const filtered = Object.values(snap.val()).filter(item => item.deviceId !== targetId);
+          const filtered = Object.values(snap.val()).filter(item => item && !candidateIds.includes(item.deviceId));
           const newMap = {};
           filtered.forEach((item, idx) => { newMap[`rank_${idx + 1}`] = item; });
           await set(ref(db, `leaderboards/${m}`), newMap);
         }
+      }
+
+      if (candidateIds.includes(playerData.deviceId)) {
+        const keepId = playerData.deviceId;
+        localStorage.removeItem(SAVE_KEY);
+        localStorage.removeItem("neontype_save");
+        playerData = createDefaultPlayerData();
+        playerData.deviceId = keepId;
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
+        } catch (e) {}
+        refreshAllProfileUI();
+        navigate("start");
+        return;
       }
 
       showToast("プレイヤーデータを完全削除しました", "GR");
