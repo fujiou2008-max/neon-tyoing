@@ -349,7 +349,7 @@
 
       <!-- データリセットボタンとバージョン表示 -->
       <div class="fixed bottom-4 right-5 flex items-center gap-4">
-        <button onclick="confirmResetMyData()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
+        <button onclick="openResetMyDataModal()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
           <i class="fa-solid fa-triangle-exclamation mr-1"></i>データリセット
         </button>
         <span id="start-version-text" class="font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
@@ -974,6 +974,13 @@
               変更反映
             </button>
           </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+            <span class="text-[11px] text-slate-400">全プレイヤーの画面を更新して最新を反映</span>
+            <button onclick="adminForceReloadAllPlayers()" class="px-4 py-2 rounded-lg bg-pink-600/20 border border-pink-500 text-pink-300 hover:bg-pink-600 hover:text-white font-bold text-xs transition shrink-0 flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate"></i>
+              <span>全プレイヤー強制リロード</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1145,6 +1152,40 @@
           はい
         </button>
         <button onclick="closeRetireModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
+          いいえ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自分のデータリセット確認モーダル -->
+  <div id="modal-reset-mydata" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500/60 text-center space-y-5 shadow-2xl">
+      <div class="text-red-400 text-3xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 class="font-bold text-lg text-white">本当に自分のデータをリセットしますか？</h3>
+      <p class="text-xs text-slate-400">※戦績・称号・レートなどの保存データがすべて削除されます。</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="confirmResetMyData()" class="py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
+          はい
+        </button>
+        <button onclick="closeResetMyDataModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
+          いいえ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理者用：プレイヤーデータ完全削除確認モーダル -->
+  <div id="modal-admin-delete-player" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500/60 text-center space-y-5 shadow-2xl">
+      <div class="text-red-400 text-3xl"><i class="fa-solid fa-user-slash"></i></div>
+      <h3 class="font-bold text-lg text-white">本当にこのプレイヤーのデータを削除しますか？</h3>
+      <p id="admin-delete-player-target-label" class="text-xs font-mono-code text-red-300 break-all"></p>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="confirmAdminDeletePlayerCompletely()" class="py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
+          はい
+        </button>
+        <button onclick="closeAdminDeletePlayerModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
           いいえ
         </button>
       </div>
@@ -2933,7 +2974,27 @@
     };
 
     document.addEventListener("keydown", (e) => {
+      if (currentView === "start" && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const initModal = document.getElementById("modal-initial-name");
+        if (!initModal || initModal.classList.contains("hidden")) {
+          e.preventDefault();
+          startApp();
+          return;
+        }
+      }
+
       if (currentView !== "game") return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        const retireModal = document.getElementById("modal-retire");
+        if (retireModal && !retireModal.classList.contains("hidden")) {
+          closeRetireModal();
+        } else {
+          openRetireModal();
+        }
+        return;
+      }
 
       if (gameState.waitingSpace && e.code === "Space") {
         e.preventDefault();
@@ -4702,6 +4763,24 @@
       showToast(`バージョン表記を「${ver}」に変更しました`, "SR");
     };
 
+    window.adminForceReloadAllPlayers = async function() {
+      if (!playerData.isAdmin) return;
+      const reloadSignal = {
+        triggeredAt: Date.now(),
+        by: playerData.deviceId
+      };
+      if (firebaseReady && db) {
+        try {
+          await set(ref(db, "config/forceReload"), reloadSignal);
+          showToast("全プレイヤーへ強制リロード信号を送信しました", "SR");
+        } catch (e) {
+          showToast("強制リロード信号の送信に失敗しました", "GR");
+        }
+      } else {
+        location.reload();
+      }
+    };
+
     function renderAdminUpdateNoticesList() {
       const box = document.getElementById("admin-update-list");
       if (!box) return;
@@ -4887,7 +4966,7 @@
 
         const deleteCellHtml = isSelf
           ? `<span class="text-[11px] font-mono-code text-slate-600">自分</span>`
-          : `<button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 border border-red-500/50 text-red-200 hover:text-white font-bold transition">
+          : `<button onclick="openAdminDeletePlayerModal('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 border border-red-500/50 text-red-200 hover:text-white font-bold transition">
                 完全削除
               </button>`;
 
@@ -5004,6 +5083,31 @@
     window.closeAdminViewDmModal = function() {
       document.getElementById("modal-view-dm").classList.add("hidden");
       currentViewingDmPlayerId = null;
+    };
+
+    let pendingAdminDeleteDeviceId = null;
+
+    window.openAdminDeletePlayerModal = function(deviceId) {
+      if (!deviceId || deviceId === playerData.deviceId) return;
+      pendingAdminDeleteDeviceId = deviceId;
+      const targetProf = allPlayersCache[deviceId] || {};
+      const labelEl = document.getElementById("admin-delete-player-target-label");
+      if (labelEl) {
+        labelEl.textContent = `${targetProf.username || "Player"} (${deviceId})`;
+      }
+      document.getElementById("modal-admin-delete-player").classList.remove("hidden");
+    };
+
+    window.closeAdminDeletePlayerModal = function() {
+      pendingAdminDeleteDeviceId = null;
+      document.getElementById("modal-admin-delete-player").classList.add("hidden");
+    };
+
+    window.confirmAdminDeletePlayerCompletely = async function() {
+      const targetId = pendingAdminDeleteDeviceId;
+      closeAdminDeletePlayerModal();
+      if (!targetId) return;
+      await adminDeletePlayerCompletely(targetId);
     };
 
     window.adminDeletePlayerCompletely = async function(deviceId) {
@@ -5257,6 +5361,7 @@
     };
 
     window.confirmResetMyData = function() {
+      closeResetMyDataModal();
       localStorage.removeItem(SAVE_KEY);
       localStorage.removeItem("neontype_device_id");
       localStorage.removeItem("neontype_custom_words_v1");
@@ -5269,6 +5374,14 @@
         remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
       }
       location.reload();
+    };
+
+    window.openResetMyDataModal = function() {
+      document.getElementById("modal-reset-mydata").classList.remove("hidden");
+    };
+
+    window.closeResetMyDataModal = function() {
+      document.getElementById("modal-reset-mydata").classList.add("hidden");
     };
 
     // ---------------------------------------------------------------------
@@ -5313,6 +5426,26 @@
           const val = normalizeVersionString(snap.val());
           document.getElementById("start-version-text").textContent = val;
           localStorage.setItem("neontype_version_v1", val);
+        }
+      });
+
+      const reloadBootTime = Date.now();
+      let handledInitialForceReload = false;
+      onValue(ref(db, "config/forceReload"), (snap) => {
+        if (!snap.exists()) return;
+        const val = snap.val();
+        const triggeredAt = typeof val === "object" && val !== null ? Number(val.triggeredAt || 0) : Number(val || 0);
+        if (!handledInitialForceReload) {
+          handledInitialForceReload = true;
+          const lastHandled = Number(sessionStorage.getItem("neontype_last_force_reload_at") || "0");
+          if (!triggeredAt || triggeredAt <= reloadBootTime || triggeredAt <= lastHandled) {
+            return;
+          }
+        }
+        const lastHandled = Number(sessionStorage.getItem("neontype_last_force_reload_at") || "0");
+        if (triggeredAt > 0 && triggeredAt > lastHandled) {
+          sessionStorage.setItem("neontype_last_force_reload_at", String(triggeredAt));
+          window.location.reload();
         }
       });
 
