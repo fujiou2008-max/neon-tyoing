@@ -620,7 +620,7 @@
         <!-- お題表示エリア（背景カウントよりも前面に配置） -->
         <div class="w-full max-w-3xl space-y-5 relative z-[5]">
           <!-- ふりがな（ひらがな） -->
-          <div id="word-kana" class="text-lg sm:text-xl md:text-2xl text-cyan-300/90 font-bold tracking-widest min-h-[1.75rem]">
+          <div id="word-kana" class="text-2xl sm:text-3xl md:text-4xl text-cyan-300/95 font-bold tracking-widest min-h-[2.25rem]">
             じゅんびちゅう
           </div>
 
@@ -2659,7 +2659,7 @@
       const layer = document.getElementById("stage-bonus-popup-layer");
       if (!layer) return;
       const el = document.createElement("div");
-      el.style.top = `${16 + offsetY}px`;
+      el.style.bottom = `${22 + Math.max(0, offsetY)}px`;
       el.className = `combo-bonus-pop absolute left-1/2 px-4 py-1.5 rounded-full border-2 font-orbitron font-black tracking-wider whitespace-nowrap ${colorClass}`;
       el.textContent = text;
       layer.appendChild(el);
@@ -4592,7 +4592,9 @@
 
       let adminHasUnread = false;
       Object.values(allPlayersCache).forEach(p => {
-        if (p && Array.isArray(p.adminDms) && p.adminDms.some(d => d.from === "user" && !d.unreadByAdmin === false ? d.unread : d.unread)) {
+        if (!p || !p.adminDms) return;
+        const dmItems = Array.isArray(p.adminDms) ? p.adminDms : Object.values(p.adminDms);
+        if (dmItems.some(d => d && d.from === "user" && d.unread)) {
           adminHasUnread = true;
         }
       });
@@ -4873,8 +4875,21 @@
       tbody.innerHTML = playersList.map(p => {
         const isOnlineNow = p.lastSeen && (now - p.lastSeen < 120000);
         const lastLoginStr = p.lastSeen ? new Date(p.lastSeen).toLocaleString("ja-JP") : "-";
+        const isSelf = p.deviceId === playerData.deviceId;
         const dms = p.adminDms ? Object.values(p.adminDms) : [];
         const hasUnread = dms.some(d => d.from === "user" && d.unread);
+
+        const dmCellHtml = isSelf
+          ? `<span class="text-[11px] font-mono-code text-slate-600">-</span>`
+          : `<button onclick="openAdminViewDm('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-pink-950 border border-slate-700 text-xs font-bold ${hasUnread ? "text-pink-400 border-pink-500 animate-pulse" : "text-slate-300"}">
+                DM (${dms.length}) ${hasUnread ? "NEW!" : ""}
+              </button>`;
+
+        const deleteCellHtml = isSelf
+          ? `<span class="text-[11px] font-mono-code text-slate-600">自分</span>`
+          : `<button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 border border-red-500/50 text-red-200 hover:text-white font-bold transition">
+                完全削除
+              </button>`;
 
         return `
           <tr class="hover:bg-slate-900/60">
@@ -4894,16 +4909,8 @@
             </td>
             <td class="p-3 font-mono-code text-slate-300">${escapeHtml(lastLoginStr)}</td>
             <td class="p-3 font-mono-code text-cyan-300">R:${p.rating ?? 1500} / WPM:${Number(p.maxWpm || 0).toFixed(1)}</td>
-            <td class="p-3">
-              <button onclick="openAdminViewDm('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-pink-950 border border-slate-700 text-xs font-bold ${hasUnread ? "text-pink-400 border-pink-500 animate-pulse" : "text-slate-300"}">
-                DM (${dms.length}) ${hasUnread ? "NEW!" : ""}
-              </button>
-            </td>
-            <td class="p-3 text-right">
-              <button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 border border-red-500/50 text-red-200 hover:text-white font-bold transition">
-                完全削除
-              </button>
-            </td>
+            <td class="p-3">${dmCellHtml}</td>
+            <td class="p-3 text-right">${deleteCellHtml}</td>
           </tr>
         `;
       }).join("");
