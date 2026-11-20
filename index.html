@@ -212,10 +212,10 @@
     }
 
     @keyframes comboBonusPop {
-      0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.82); }
-      18%  { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
-      82%  { opacity: 1; transform: translate(-50%, -6px) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -16px) scale(0.95); }
+      0%   { opacity: 0; transform: translate(-50%, 8px) scale(0.85); }
+      18%  { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
+      82%  { opacity: 1; transform: translate(-50%, -4px) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -12px) scale(0.95); }
     }
     .combo-bonus-pop {
       animation: comboBonusPop 0.95s ease-out forwards;
@@ -349,7 +349,7 @@
 
       <!-- データリセットボタンとバージョン表示 -->
       <div class="fixed bottom-4 right-5 flex items-center gap-4">
-        <button onclick="openResetMyDataModal()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
+        <button onclick="confirmResetMyData()" class="text-xs font-mono-code text-red-400/90 hover:text-red-300 px-3 py-1.5 rounded bg-red-950/40 border border-red-500/40 hover:border-red-500 transition shadow-lg">
           <i class="fa-solid fa-triangle-exclamation mr-1"></i>データリセット
         </button>
         <span id="start-version-text" class="font-mono-code text-xs sm:text-sm text-slate-500 tracking-widest">
@@ -591,7 +591,7 @@
       </div>
 
       <!-- 中央タイピングステージ（タップでモバイルキーボード起動） -->
-      <div id="typing-stage" onclick="focusMobileInput()" class="min-h-[260px] sm:min-h-[320px] rounded-2xl bg-[#080c14] border border-cyan-500/30 p-6 sm:p-10 flex flex-col items-center justify-center text-center relative cursor-text overflow-hidden">
+      <div id="typing-stage" onclick="focusMobileInput()" class="min-h-[280px] sm:min-h-[340px] rounded-2xl bg-[#080c14] border border-cyan-500/30 p-6 sm:p-10 flex flex-col items-center justify-center text-center relative cursor-text overflow-hidden">
         <!-- お題枠の内側縁フラッシュエフェクト用オーバーレイ -->
         <div id="stage-inner-flash" class="pointer-events-none absolute inset-0 rounded-2xl z-[1]"></div>
 
@@ -599,9 +599,6 @@
         <div id="stage-bg-countdown" class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none overflow-hidden">
           <span id="stage-bg-countdown-num" class="font-orbitron font-black text-[150px] sm:text-[230px] leading-none text-cyan-300 opacity-0"></span>
         </div>
-
-        <!-- ボーナス・コンボ加算ポップアップ表示エリア -->
-        <div id="stage-bonus-popup-layer" class="pointer-events-none absolute inset-0 z-10"></div>
 
         <!-- ソロ待機オーバーレイ（スペースキー押下待ち） -->
         <div id="solo-ready-overlay" class="hidden absolute inset-0 bg-[#05070a]/95 z-20 flex flex-col items-center justify-center p-6 space-y-5">
@@ -617,10 +614,10 @@
           <span id="countdown-number" class="font-orbitron font-black text-7xl sm:text-9xl glow-cyan animate-ping">3</span>
         </div>
 
-        <!-- お題表示エリア（背景カウントよりも前面に配置） -->
-        <div class="w-full max-w-3xl space-y-5 relative z-[5]">
-          <!-- ふりがな（ひらがな） -->
-          <div id="word-kana" class="text-2xl sm:text-3xl md:text-4xl text-cyan-300/95 font-bold tracking-widest min-h-[2.25rem]">
+        <!-- お題表示エリア（背景カウントよりも前面に配置・よみがなを大きく配置） -->
+        <div class="w-full max-w-3xl space-y-4 sm:space-y-5 relative z-[5]">
+          <!-- ふりがな（ひらがな：視認性向上のため大きめに表示） -->
+          <div id="word-kana" class="text-2xl sm:text-3xl md:text-4xl text-cyan-300 font-black tracking-widest min-h-[2.25rem] drop-shadow-[0_0_8px_rgba(0,243,255,0.28)]">
             じゅんびちゅう
           </div>
 
@@ -635,9 +632,12 @@
           </div>
         </div>
 
+        <!-- ボーナス・コンボ加算ポップアップ表示エリア（よみがなと重ならないようステージ下部に配置） -->
+        <div id="stage-bonus-popup-layer" class="pointer-events-none absolute inset-x-0 bottom-9 z-10 h-14"></div>
+
         <!-- モバイル用キーボード入力補助フィールド -->
         <input id="mobile-hidden-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="opacity-0 absolute bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 pointer-events-none" />
-        <div class="mt-6 text-[11px] text-slate-500 font-mono-code relative z-[5]">
+        <div class="mt-10 text-[11px] text-slate-500 font-mono-code relative z-[5]">
           <i class="fa-solid fa-keyboard mr-1"></i>キーボード入力対応（スマホは画面タップでキーボード表示）
         </div>
       </div>
@@ -871,6 +871,15 @@
               <i class="fa-solid fa-medal mr-1 text-pink-400"></i>称号を変更
             </button>
           </div>
+          <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-mono-code text-slate-300">
+            <label for="mypage-kana-size-range" class="text-cyan-300 shrink-0">
+              よみがなサイズ: <strong id="mypage-kana-size-value">32</strong>px
+            </label>
+            <input id="mypage-kana-size-range" type="range" min="18" max="64" step="2" value="32" oninput="updateKanaFontSize(this.value)" class="w-full sm:w-48 accent-cyan-400 cursor-pointer" />
+            <button onclick="updateKanaFontSize(32)" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 hover:border-cyan-400 text-[11px] text-slate-300 shrink-0">
+              リセット
+            </button>
+          </div>
         </div>
       </div>
 
@@ -945,9 +954,15 @@
             <p class="text-xs text-slate-400">管理者専用システム管理画面</p>
           </div>
         </div>
-        <button onclick="navigate('mypage')" class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-bold">
-          戻る
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="adminTriggerForceReloadAll()" class="px-3.5 py-2 rounded-lg bg-red-600/20 border border-red-500/70 hover:bg-red-600 hover:text-white text-red-300 font-bold text-xs flex items-center gap-1.5 transition" title="接続中の全プレイヤーを強制リロードしてアップデートを反映">
+            <i class="fa-solid fa-rotate"></i>
+            <span>全プレイヤー強制更新</span>
+          </button>
+          <button onclick="navigate('mypage')" class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-bold">
+            戻る
+          </button>
+        </div>
       </div>
 
       <!-- ① 電光掲示板リアルタイム更新 & タイトル画面バージョン表記変更 -->
@@ -972,13 +987,6 @@
             <input id="admin-version-input" type="text" maxlength="24" placeholder="ver1.0" class="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-sm text-white font-mono-code focus:outline-none" />
             <button onclick="adminUpdateVersion()" class="px-5 py-2 rounded-lg bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-400 hover:text-slate-950 font-bold text-xs transition shrink-0">
               変更反映
-            </button>
-          </div>
-          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-            <span class="text-[11px] text-slate-400">全プレイヤーの画面を更新して最新を反映</span>
-            <button onclick="adminForceReloadAllPlayers()" class="px-4 py-2 rounded-lg bg-pink-600/20 border border-pink-500 text-pink-300 hover:bg-pink-600 hover:text-white font-bold text-xs transition shrink-0 flex items-center gap-1.5">
-              <i class="fa-solid fa-rotate"></i>
-              <span>全プレイヤー強制リロード</span>
             </button>
           </div>
         </div>
@@ -1106,6 +1114,23 @@
        モーダル & トースト通知群
        ===================================================================== -->
 
+  <!-- データ削除確認モーダル（自分のリセット / 管理者のプレイヤー完全削除共通） -->
+  <div id="modal-delete-confirm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500/60 text-center space-y-5 shadow-2xl">
+      <div class="text-red-400 text-3xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 id="delete-confirm-title" class="font-bold text-lg text-white">本当に削除しますか？</h3>
+      <p id="delete-confirm-desc" class="text-xs text-slate-400 leading-relaxed">※この操作は取り消せません。</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-delete-confirm-yes" class="py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
+          はい
+        </button>
+        <button onclick="closeDeleteConfirmModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
+          いいえ
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 初回ログイン時プレイヤー名登録モーダル -->
   <div id="modal-initial-name" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="max-w-md w-full p-6 sm:p-8 rounded-2xl bg-[#0a0f18] border border-cyan-400/60 space-y-5 shadow-2xl text-center">
@@ -1148,44 +1173,10 @@
       <h3 class="font-bold text-lg text-white">本当にリタイアしますか？</h3>
       <p class="text-xs text-slate-400">※オンライン対戦中の場合は敗北扱いとなります。</p>
       <div class="grid grid-cols-2 gap-3">
-        <button onclick="confirmRetire()" class="py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-sm transition">
+        <button id="btn-confirm-retire" onclick="confirmRetire()" class="py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-sm transition">
           はい
         </button>
         <button onclick="closeRetireModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
-          いいえ
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 自分のデータリセット確認モーダル -->
-  <div id="modal-reset-mydata" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500/60 text-center space-y-5 shadow-2xl">
-      <div class="text-red-400 text-3xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-      <h3 class="font-bold text-lg text-white">本当に自分のデータをリセットしますか？</h3>
-      <p class="text-xs text-slate-400">※戦績・称号・レートなどの保存データがすべて削除されます。</p>
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="confirmResetMyData()" class="py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
-          はい
-        </button>
-        <button onclick="closeResetMyDataModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
-          いいえ
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 管理者用：プレイヤーデータ完全削除確認モーダル -->
-  <div id="modal-admin-delete-player" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-sm w-full p-6 rounded-2xl bg-[#0a0f18] border border-red-500/60 text-center space-y-5 shadow-2xl">
-      <div class="text-red-400 text-3xl"><i class="fa-solid fa-user-slash"></i></div>
-      <h3 class="font-bold text-lg text-white">本当にこのプレイヤーのデータを削除しますか？</h3>
-      <p id="admin-delete-player-target-label" class="text-xs font-mono-code text-red-300 break-all"></p>
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="confirmAdminDeletePlayerCompletely()" class="py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
-          はい
-        </button>
-        <button onclick="closeAdminDeletePlayerModal()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm transition">
           いいえ
         </button>
       </div>
@@ -1326,6 +1317,7 @@
       getDatabase, ref, set, get, update, remove, push, onValue, onDisconnect, serverTimestamp, runTransaction
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+    // ご指定のFirebaseプロジェクト設定
     const firebaseConfig = {
       apiKey: "AIzaSyBOV4Y_3yTUDxY1Crk3FCvINi74OeSV0ho",
       authDomain: "neontype-a4bd6.firebaseapp.com",
@@ -1337,13 +1329,14 @@
       measurementId: "G-BN15PN41MC"
     };
 
+    // Firebase アプリ & Realtime Database の初期化
     let app = null;
     let db = null;
     let firebaseReady = false;
 
     try {
       app = initializeApp(firebaseConfig);
-      try { getAnalytics(app); } catch (e) {}
+      try { getAnalytics(app); } catch (e) { /* Analytics環境外エラー無視 */ }
       db = getDatabase(app);
       firebaseReady = true;
     } catch (err) {
@@ -1356,78 +1349,7 @@
     const SAVE_KEY = "neontype_save_v1";
     const APP_VERSION = "1.0";
 
-    function normalizeVersionString(rawVer) {
-      if (typeof rawVer === "number" && Number.isFinite(rawVer)) {
-        return `ver${rawVer}`;
-      }
-      if (typeof rawVer === "string") {
-        const trimmed = rawVer.trim();
-        if (trimmed.length > 0) return trimmed;
-      }
-      return "ver1.0";
-    }
-
-    function normalizeUpdateNoticeItem(rawItem, fallbackId = "") {
-      if (typeof rawItem === "string") {
-        const trimmed = rawItem.trim();
-        if (!trimmed) return null;
-        return {
-          id: fallbackId || ("upd_" + Math.random().toString(36).slice(2, 9)),
-          title: "お知らせ",
-          body: trimmed,
-          timestamp: 0,
-          updatedAt: 0
-        };
-      }
-      if (!rawItem || typeof rawItem !== "object") return null;
-      const title = typeof rawItem.title === "string" && rawItem.title.trim()
-        ? rawItem.title.trim()
-        : (typeof rawItem.heading === "string" && rawItem.heading.trim() ? rawItem.heading.trim() : "お知らせ");
-      const body = typeof rawItem.body === "string"
-        ? rawItem.body
-        : (typeof rawItem.content === "string"
-          ? rawItem.content
-          : (typeof rawItem.message === "string"
-            ? rawItem.message
-            : (typeof rawItem.text === "string" ? rawItem.text : "")));
-      if (!title && !body.trim()) return null;
-
-      let ts = 0;
-      if (typeof rawItem.timestamp === "number" && Number.isFinite(rawItem.timestamp)) {
-        ts = rawItem.timestamp;
-      } else if (typeof rawItem.createdAt === "number" && Number.isFinite(rawItem.createdAt)) {
-        ts = rawItem.createdAt;
-      } else if (typeof rawItem.timestamp === "string" && rawItem.timestamp) {
-        const parsedTs = Date.parse(rawItem.timestamp);
-        if (!Number.isNaN(parsedTs)) ts = parsedTs;
-      }
-
-      return {
-        id: rawItem.id || fallbackId || ("upd_" + Math.random().toString(36).slice(2, 9)),
-        title,
-        body,
-        timestamp: ts,
-        updatedAt: typeof rawItem.updatedAt === "number" ? rawItem.updatedAt : ts
-      };
-    }
-
-    function parseNoticesCollection(rawCollection) {
-      if (!rawCollection) return [];
-      const items = [];
-      if (Array.isArray(rawCollection)) {
-        rawCollection.forEach((val, idx) => {
-          const norm = normalizeUpdateNoticeItem(val, `upd_idx_${idx}`);
-          if (norm) items.push(norm);
-        });
-      } else if (typeof rawCollection === "object") {
-        Object.entries(rawCollection).forEach(([key, val]) => {
-          const norm = normalizeUpdateNoticeItem(val, key);
-          if (norm) items.push(norm);
-        });
-      }
-      return items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-    }
-
+    // デフォルトアバターSVG（外部画像不要のクリーンなシアンネオンアイコン）
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <rect width="100" height="100" fill="#0a0f18"/>
@@ -1436,6 +1358,7 @@
       </svg>`
     );
 
+    // 1デバイス1プレイヤー識別用IDを生成または取得
     function getOrCreateDeviceId() {
       let id = localStorage.getItem("neontype_device_id");
       if (!id) {
@@ -1445,6 +1368,7 @@
       return id;
     }
 
+    // 初期プレイヤーデータ生成関数（将来のアップデート時も互換維持）
     function createDefaultPlayerData() {
       return {
         schemaVersion: APP_VERSION,
@@ -1456,6 +1380,7 @@
         isBanned: false,
         equippedTitle: "駆け出しタイパー",
         unlockedTitles: ["駆け出しタイパー"],
+        kanaFontSize: 32,
         rating: 1500,
         lastRateBattleAt: 0,
         stats: {
@@ -1493,10 +1418,11 @@
       };
     }
 
+    // ローカルストレージからセーブデータを読み込み、欠損フィールドがあれば補完する
     function loadPlayerData() {
       const base = createDefaultPlayerData();
       try {
-        const raw = localStorage.getItem(SAVE_KEY);
+        const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem("neontype_save");
         if (!raw) return base;
         const parsed = JSON.parse(raw);
         const hasExistingName = typeof parsed.username === "string" && parsed.username.trim().length > 0;
@@ -1520,6 +1446,100 @@
 
     let playerData = loadPlayerData();
 
+    // 過去データ互換ヘルパー：お知らせ・バージョン・フレンド系データ正規化
+    function normalizeTimestampValue(ts) {
+      if (typeof ts === "number" && Number.isFinite(ts)) {
+        return ts < 1e12 ? ts * 1000 : ts;
+      }
+      if (typeof ts === "string" && ts.trim()) {
+        const num = Number(ts);
+        if (!Number.isNaN(num)) return num < 1e12 ? num * 1000 : num;
+        const parsed = Date.parse(ts);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+      return 0;
+    }
+
+    function normalizeVersionString(rawVal) {
+      if (!rawVal) return "ver1.0";
+      if (typeof rawVal === "string") {
+        const t = rawVal.trim();
+        return t || "ver1.0";
+      }
+      if (typeof rawVal === "object") {
+        const candidate = rawVal.text ?? rawVal.version ?? rawVal.ver ?? rawVal.value ?? "";
+        if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+      }
+      return "ver1.0";
+    }
+
+    function normalizeUpdateNoticeItem(id, val) {
+      if (val == null) return null;
+      if (typeof val === "string") {
+        return {
+          id: String(id),
+          title: "お知らせ",
+          content: val,
+          createdAt: 0
+        };
+      }
+      if (typeof val !== "object") return null;
+      const title = String(val.title ?? val.heading ?? val.subject ?? "お知らせ").trim() || "お知らせ";
+      const content = String(val.content ?? val.body ?? val.message ?? val.text ?? "").trim();
+      if (!content && !val.title) return null;
+      const createdAt = normalizeTimestampValue(val.createdAt ?? val.timestamp ?? val.updatedAt ?? val.date);
+      return {
+        id: String(val.id ?? id),
+        title,
+        content,
+        createdAt
+      };
+    }
+
+    function parseNoticesCollection(raw) {
+      if (!raw) return [];
+      const items = Array.isArray(raw)
+        ? raw.map((val, idx) => normalizeUpdateNoticeItem(`notice_${idx}`, val))
+        : Object.entries(raw).map(([id, val]) => normalizeUpdateNoticeItem(id, val));
+      return items
+        .filter(Boolean)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    function normalizeDictionaryMap(raw) {
+      if (!raw) return {};
+      if (Array.isArray(raw)) {
+        const out = {};
+        raw.forEach((item, idx) => {
+          if (!item) return;
+          if (typeof item === "string") {
+            out[item] = { friendId: item };
+          } else if (typeof item === "object") {
+            const key = item.friendId ?? item.fromId ?? item.toId ?? item.id ?? item.deviceId ?? String(idx);
+            out[key] = { ...item, id: item.id || key };
+          }
+        });
+        return out;
+      }
+      if (typeof raw === "object") {
+        const out = {};
+        Object.entries(raw).forEach(([k, v]) => {
+          if (v === false || v == null) return;
+          if (v === true) {
+            out[k] = { friendId: k };
+          } else if (typeof v === "object") {
+            const resolvedId = v.friendId ?? v.fromId ?? v.toId ?? v.deviceId ?? k;
+            out[resolvedId] = { ...v, friendId: resolvedId };
+          } else {
+            out[k] = { value: v };
+          }
+        });
+        return out;
+      }
+      return {};
+    }
+
+    // セーブデータをローカルストレージとFirebaseの両方へ自動保存
     function savePlayerData() {
       try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
@@ -1536,6 +1556,7 @@
           ? Number(((playerData.stats.totalMistypes / totalKeys) * 100).toFixed(1))
           : 0;
 
+        // プレイヤー一覧およびプロフィール参照用にFirebaseへ同期
         update(ref(db, `players/${playerData.deviceId}`), {
           deviceId: playerData.deviceId,
           username: playerData.username,
@@ -1553,6 +1574,7 @@
           lastSeen: serverTimestamp()
         }).catch(() => {});
 
+        // 各ランキングボード上の自分の名前・称号・アイコンもリアルタイムに最新へ同期
         const soloModes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
         soloModes.forEach(async (mode) => {
           try {
@@ -1584,7 +1606,10 @@
     }
 
     // ---------------------------------------------------------------------
-    // 3. Web Audio API 効果音エンジン
+    // 3. Web Audio API 効果音エンジン（外部音声ファイル不要）
+    //    - 打鍵音「トッ」：0コンボの低い音からコンボに応じて音程上昇、ミスでリセット
+    //    - 単語完了音 / ノーミス単語完了の豪華音
+    //    - UIボタン共通の軽快なタップ音
     // ---------------------------------------------------------------------
     let audioCtx = null;
     let isMuted = false;
@@ -1599,6 +1624,7 @@
       }
     }
 
+    // UIボタン押下時の控えめで心地よい電子タップ音
     function playUiTapSound() {
       if (isMuted) return;
       ensureAudioCtx();
@@ -1621,6 +1647,7 @@
       osc.stop(now + 0.04);
     }
 
+    // ほとんどのボタンに対してタップ音を自動付与
     document.addEventListener("pointerdown", (e) => {
       const target = e.target.closest("button, label[for='avatar-file-input'], .rmode-tab");
       if (!target || target.disabled) return;
@@ -1653,6 +1680,7 @@
       icon.className = isMuted ? "fa-solid fa-volume-xmark text-pink-400 text-sm" : "fa-solid fa-volume-high text-cyan-300 text-sm";
     };
 
+    // 「トッ」という軽快な打鍵音（コンボ数に応じて周波数が段階的に上がる）
     function playTypeTapSound(combo) {
       if (isMuted) return;
       ensureAudioCtx();
@@ -1662,6 +1690,7 @@
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
+      // 0コンボ時は低い210Hzから始まり、コンボが続くほど最大780Hzまで滑らかに上昇
       const clampedCombo = Math.min(combo, 120);
       const baseFreq = 210 + clampedCombo * 4.75;
 
@@ -1678,6 +1707,7 @@
       osc.stop(now + 0.055);
     }
 
+    // ミスタイプ時の低い警告音
     function playMistypeSound() {
       if (isMuted) return;
       ensureAudioCtx();
@@ -1700,6 +1730,7 @@
       osc.stop(now + 0.14);
     }
 
+    // 1単語打ち終えた時の効果音（ノーミス時は豪華な和音アルペジオを鳴らす）
     function playWordCompleteSound(isNoMiss) {
       if (isMuted) return;
       ensureAudioCtx();
@@ -1735,6 +1766,7 @@
       }
     }
 
+    // カウントダウン音
     function playBeepSound(freq = 660, duration = 0.1) {
       if (isMuted) return;
       ensureAudioCtx();
@@ -1962,7 +1994,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 5. 大・中・小 300語の厳選ワードリスト
+    // 5. 大・中・小 300語の厳選ワードリスト（必要打鍵数から大中小を自動分類・個別削除対応）
     // ---------------------------------------------------------------------
     function getRequiredKeystrokes(reading) {
       const matcher = new FlexibleRomajiMatcher(reading || "");
@@ -2085,7 +2117,7 @@
       { id: "s99", category: "short", text: "感謝", reading: "かんしゃ" },
       { id: "s100", category: "short", text: "奇跡", reading: "きせき" },
 
-      // === 中 (MEDIUM: 100語) ===
+      // === 中 (MEDIUM: 100語 - 四字熟語・短いことわざ・慣用句) ===
       { id: "m1", category: "medium", text: "一期一会", reading: "いちごいちえ" },
       { id: "m2", category: "medium", text: "電光石火", reading: "でんこうせっか" },
       { id: "m3", category: "medium", text: "疾風迅雷", reading: "しっぷうじんらい" },
@@ -2187,7 +2219,7 @@
       { id: "m99", category: "medium", text: "意気投合", reading: "いきとうごう" },
       { id: "m100", category: "medium", text: "順風満帆", reading: "じゅんぷうまんぱん" },
 
-      // === 大 (LONG: 100語) ===
+      // === 大 (LONG: 100語 - 短文・名言・実践フレーズ) ===
       { id: "l1", category: "long", text: "暗闇にネオンの光が浮かぶ", reading: "くらやみにねおんのひかりがうかぶ" },
       { id: "l2", category: "long", text: "一文字ずつの正確さが速度を生む", reading: "ひともじずつのせいかくさがそくどをうむ" },
       { id: "l3", category: "long", text: "今日の努力が明日の自分を支える", reading: "きょうのどりょくがあしたのじぶんをささえる" },
@@ -2603,6 +2635,7 @@
       document.getElementById("header-username").textContent = playerData.username || "Player";
       document.getElementById("header-rating").textContent = `RATE: ${playerData.rating}`;
       document.getElementById("home-my-rate").textContent = playerData.rating;
+      applyKanaFontSize();
 
       const adminBtn = document.getElementById("btn-open-admin");
       if (playerData.isAdmin) {
@@ -2610,6 +2643,7 @@
       } else {
         adminBtn.classList.add("hidden");
       }
+      updateUnreadDmBadges();
     }
 
     // ---------------------------------------------------------------------
@@ -2618,7 +2652,7 @@
     let gameState = {
       active: false,
       waitingSpace: false,
-      mode: "SPEED",
+      mode: "SPEED",        // FRASH, SPEED, OVERDRIVE, MARATHON, SADDEN DEATH, CASUAL, RATE
       isOnline: false,
       duration: 60,
       timeLeft: 60,
@@ -2635,7 +2669,7 @@
       matcher: null,
       timerInterval: null,
       lastSecondAnnounced: null,
-      _lastHeartbeatSec: null,
+      // オンライン対戦用フィールド
       matchId: null,
       opponent: null,
       opponentScore: 0,
@@ -2653,6 +2687,7 @@
 
     let lastPlayedConfig = { mode: "SPEED", duration: 60, isOnline: false };
 
+    // お題枠の内側縁フラッシュ演出（red / yellow / cyan / bonus-low / bonus-mid / bonus-high）
     function triggerScreenEdgeFlash(type) {
       const flashEl = document.getElementById("stage-inner-flash");
       if (!flashEl) return;
@@ -2680,6 +2715,7 @@
       }
     }
 
+    // ボーナスの大きさに応じて演出強度（フラッシュ＆ポップアップ）を段階的に変化させる
     function triggerScaledBonusEffect(bonusPoints, labelText, offsetY = 0) {
       let flashType = "bonus-low";
       let styleClass = "text-cyan-200/90 border-cyan-500/50 bg-cyan-950/75 text-[11px] sm:text-xs";
@@ -2696,17 +2732,19 @@
       showStageBonusPopup(labelText, styleClass, offsetY);
     }
 
+    // ステージ下部へのボーナス通知ポップアップ演出（よみがなと重ならない位置）
     function showStageBonusPopup(text, colorClass = "text-amber-300 border-amber-400/70 bg-amber-950/85", offsetY = 0) {
       const layer = document.getElementById("stage-bonus-popup-layer");
       if (!layer) return;
       const el = document.createElement("div");
-      el.style.bottom = `${22 + Math.max(0, offsetY)}px`;
-      el.className = `combo-bonus-pop absolute left-1/2 px-4 py-1.5 rounded-full border-2 font-orbitron font-black tracking-wider whitespace-nowrap ${colorClass}`;
+      el.style.bottom = `${offsetY}px`;
+      el.className = `combo-bonus-pop absolute left-1/2 px-3.5 py-1 rounded-full border font-orbitron font-black tracking-wider whitespace-nowrap ${colorClass}`;
       el.textContent = text;
       layer.appendChild(el);
       setTimeout(() => el.remove(), 980);
     }
 
+    // ステージ中央背面（お題文字の後ろ）に残り5秒のうすい数字を表示
     function triggerBackgroundCountdownNumber(sec) {
       const numEl = document.getElementById("stage-bg-countdown-num");
       if (!numEl) return;
@@ -2723,6 +2761,7 @@
       numEl.textContent = "";
     }
 
+    // 30COMBOごとのボーナス加算判定（30コンボごとに100→150→200→250→300→350→MAX400点）
     function awardComboMilestoneBonuses(prevCombo, newCombo) {
       const prevStep = Math.floor(prevCombo / 30);
       const newStep = Math.floor(newCombo / 30);
@@ -2737,12 +2776,13 @@
         triggerScaledBonusEffect(
           totalBonusPts,
           `COMBO BONUS! (${newStep * 30} COMBO) +${totalBonusPts} pts`,
-          0
+          18
         );
       }
     }
 
     function pickNextWord() {
+      // オンライン対戦時は両プレイヤーで完全に同一の単語列を順番に出題する
       if (gameState.isOnline && Array.isArray(gameState.sharedWordSequence) && gameState.sharedWordSequence.length > 0) {
         const seq = gameState.sharedWordSequence;
         const rawItem = seq[gameState.sharedWordIndex % seq.length];
@@ -2819,8 +2859,7 @@
         wordMistypes: 0,
         maxWpmInSession: 0,
         lastWordId: null,
-        lastSecondAnnounced: null,
-        _lastHeartbeatSec: null
+        lastSecondAnnounced: null
       };
 
       navigate("game");
@@ -2873,33 +2912,21 @@
       gameState.startTime = performance.now();
       gameState.timeLeft = gameState.duration;
       gameState.lastSecondAnnounced = null;
-      gameState._lastHeartbeatSec = null;
       clearBackgroundCountdownNumber();
       pickNextWord();
       focusMobileInput();
-
-      if (gameState.isOnline) {
-        syncOnlineScore();
-      }
 
       gameState.timerInterval = setInterval(() => {
         const elapsed = (performance.now() - gameState.startTime) / 1000;
         gameState.timeLeft = Math.max(0, gameState.duration - elapsed);
 
+        // 全モード共通：残り5秒からの視覚カウント（お題枠内側シアンフラッシュ＋文字の後ろ側にうすくカウント数字表示）
         if (gameState.timeLeft > 0 && gameState.timeLeft <= 5.0) {
           const secCeil = Math.ceil(gameState.timeLeft);
           if (secCeil >= 1 && secCeil <= 5 && gameState.lastSecondAnnounced !== secCeil) {
             gameState.lastSecondAnnounced = secCeil;
             triggerScreenEdgeFlash("cyan");
             triggerBackgroundCountdownNumber(secCeil);
-          }
-        }
-
-        if (gameState.isOnline) {
-          const wholeSec = Math.floor(gameState.timeLeft);
-          if (gameState._lastHeartbeatSec !== wholeSec) {
-            gameState._lastHeartbeatSec = wholeSec;
-            syncOnlineScore();
           }
         }
 
@@ -2944,6 +2971,7 @@
       const missRate = totalAttempts > 0 ? (gameState.mistypesInSession / totalAttempts) * 100 : 0;
       document.getElementById("game-miss-rate").textContent = `${missRate.toFixed(1)}%`;
 
+      // オンライン対戦時の優勢バー・スコア表示更新（残り30秒以下でゲージもスコアも非表示化）
       if (gameState.isOnline) {
         const labelsRow = document.getElementById("tug-labels-row");
         const barWrapper = document.getElementById("tug-bar-wrapper");
@@ -2974,6 +3002,27 @@
     };
 
     document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const retireModal = document.getElementById("modal-retire");
+        if (retireModal && !retireModal.classList.contains("hidden")) {
+          e.preventDefault();
+          closeRetireModal();
+          return;
+        }
+        if (currentView === "game") {
+          e.preventDefault();
+          openRetireModal();
+          return;
+        }
+      }
+
+      const retireModal = document.getElementById("modal-retire");
+      if (retireModal && !retireModal.classList.contains("hidden") && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        confirmRetire();
+        return;
+      }
+
       if (currentView === "start" && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const initModal = document.getElementById("modal-initial-name");
         if (!initModal || initModal.classList.contains("hidden")) {
@@ -2984,17 +3033,6 @@
       }
 
       if (currentView !== "game") return;
-
-      if (e.key === "Escape") {
-        e.preventDefault();
-        const retireModal = document.getElementById("modal-retire");
-        if (retireModal && !retireModal.classList.contains("hidden")) {
-          closeRetireModal();
-        } else {
-          openRetireModal();
-        }
-        return;
-      }
 
       if (gameState.waitingSpace && e.code === "Space") {
         e.preventDefault();
@@ -3029,6 +3067,7 @@
       const isHit = gameState.matcher.inputChar(ch);
 
       if (isHit) {
+        // 正解打鍵：1文字ごとに10ポイント加算
         gameState.typedCharsInSession++;
         const prevCombo = gameState.combo;
         gameState.combo++;
@@ -3037,10 +3076,14 @@
         }
         gameState.score += 10;
 
+        // 30COMBOごとの段階的ボーナス（100→150→200→...→MAX400点）
         awardComboMilestoneBonuses(prevCombo, gameState.combo);
+
+        // 「トッ」音（コンボ数に応じて音程上昇）
         playTypeTapSound(gameState.combo);
         renderCurrentWord();
 
+        // 1単語完了チェック（ボーナスの大きさに応じて演出強度を段階的に変化）
         if (gameState.matcher.isComplete()) {
           const isNoMiss = gameState.wordMistypes === 0;
           const cat = gameState.currentWord?.category;
@@ -3051,7 +3094,7 @@
             triggerScaledBonusEffect(
               completionBonus,
               `WORD BONUS! +${completionBonus} pts`,
-              38
+              0
             );
           }
 
@@ -3062,6 +3105,7 @@
         syncOnlineScore();
         updateGameHud();
       } else {
+        // ミスタイプ処理：オンライン時はミス前のコンボ×0.09（小数点以下切り捨て）を相手へ送る
         const comboBeforeMiss = gameState.combo;
         const giftCombo = Math.floor(comboBeforeMiss * 0.09);
         if (gameState.isOnline && giftCombo > 0) {
@@ -3093,6 +3137,10 @@
     // ---------------------------------------------------------------------
     window.openRetireModal = function() {
       document.getElementById("modal-retire").classList.remove("hidden");
+      setTimeout(() => {
+        const confirmBtn = document.getElementById("btn-confirm-retire");
+        if (confirmBtn) confirmBtn.focus();
+      }, 30);
     };
 
     window.closeRetireModal = function() {
@@ -3196,19 +3244,12 @@
         if (firebaseReady && db && matchId) {
           await update(ref(db, `matches/${matchId}/${gameState.mySlot}`), {
             score: gameState.score,
-            mistypes: gameState.mistypesInSession,
-            comboGiftTotal: gameState.sentComboGiftTotal || 0,
             finished: true
           }).catch(() => {});
-
-          await new Promise(r => setTimeout(r, 450));
           try {
-            const finalSnap = await get(ref(db, `matches/${matchId}/${gameState.oppSlot}`));
-            if (finalSnap.exists()) {
-              const oppFinal = finalSnap.val();
-              if (typeof oppFinal.score === "number" && oppFinal.score > gameState.opponentScore) {
-                gameState.opponentScore = oppFinal.score;
-              }
+            const latestSnap = await get(ref(db, `matches/${matchId}/${gameState.oppSlot}`));
+            if (latestSnap.exists()) {
+              gameState.opponentScore = latestSnap.val().score || gameState.opponentScore;
             }
           } catch (e) {}
         }
@@ -3309,7 +3350,7 @@
     }
 
     // ---------------------------------------------------------------------
-    // 11. オンライン対戦システム（過去データ互換・完全PvP・AIなし）
+    // 11. オンライン対戦システム（Firebase Realtime Database・完全PvP・AIなし）
     // ---------------------------------------------------------------------
     function buildSharedOnlineWordSequence(count = 160) {
       const pool = getAllWords();
@@ -3422,11 +3463,9 @@
         }
 
         const others = Object.values(entries).filter(p =>
-          p &&
-          p.deviceId &&
           p.deviceId !== playerData.deviceId &&
           !p.matchedMatchId &&
-          (mode !== "RATE" || Math.abs((p.rating ?? 1500) - playerData.rating) < 130)
+          (mode !== "RATE" || Math.abs((p.rating || 1500) - playerData.rating) < 130)
         );
 
         for (const opp of others) {
@@ -3486,6 +3525,19 @@
       navigate("home");
     };
 
+    async function fetchMatchDataWithRetry(matchId, attempts = 6) {
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const snap = await get(ref(db, `matches/${matchId}`));
+          if (snap.exists() && snap.val() && snap.val().p1 && snap.val().p2) {
+            return snap.val();
+          }
+        } catch (e) {}
+        await new Promise(resolve => setTimeout(resolve, 140));
+      }
+      return null;
+    }
+
     async function enterMatchedVsScreen(matchId, mySlot) {
       cleanupMatchmakingQueue();
       const oppSlot = mySlot === "p1" ? "p2" : "p1";
@@ -3493,37 +3545,16 @@
       gameState.mySlot = mySlot;
       gameState.oppSlot = oppSlot;
 
-      let snap = null;
-      for (let attempt = 0; attempt < 8; attempt++) {
-        snap = await get(ref(db, `matches/${matchId}`));
-        if (snap.exists()) break;
-        await new Promise(r => setTimeout(r, 200));
-      }
-
-      if (!snap || !snap.exists()) {
+      const matchData = await fetchMatchDataWithRetry(matchId);
+      if (!matchData) {
         isMatchClaiming = false;
         navigate("home");
         return;
       }
-      const matchData = snap.val();
-      const me = matchData[mySlot] || {
-        deviceId: playerData.deviceId,
-        username: playerData.username,
-        avatar: playerData.avatar,
-        equippedTitle: playerData.equippedTitle,
-        rating: playerData.rating,
-        avgMissRate: 0
-      };
-      const opp = matchData[oppSlot] || {
-        deviceId: "",
-        username: "Opponent",
-        avatar: DEFAULT_AVATAR,
-        equippedTitle: "駆け出しタイパー",
-        rating: 1500,
-        avgMissRate: 0
-      };
+      const me = matchData[mySlot];
+      const opp = matchData[oppSlot];
       gameState.opponent = opp;
-      gameState.opponentScore = Number(opp.score || 0);
+      gameState.opponentScore = opp?.score || 0;
       gameState.sharedWordSequence = Array.isArray(matchData.wordSequence) && matchData.wordSequence.length > 0
         ? matchData.wordSequence
         : buildSharedOnlineWordSequence(160);
@@ -3534,20 +3565,20 @@
       document.getElementById("matchmaking-vs").classList.remove("hidden");
 
       document.getElementById("vs-my-avatar").src = me.avatar || DEFAULT_AVATAR;
-      document.getElementById("vs-my-name").textContent = me.username || playerData.username;
-      document.getElementById("vs-my-rate").textContent = me.rating ?? playerData.rating;
+      document.getElementById("vs-my-name").textContent = me.username;
+      document.getElementById("vs-my-rate").textContent = me.rating;
       document.getElementById("vs-my-miss").textContent = `${me.avgMissRate ?? 0}%`;
       const myTitleEl = document.getElementById("vs-my-title");
-      myTitleEl.textContent = me.equippedTitle || playerData.equippedTitle;
-      myTitleEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(me.equippedTitle || playerData.equippedTitle)}`;
+      myTitleEl.textContent = me.equippedTitle;
+      myTitleEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(me.equippedTitle)}`;
 
       document.getElementById("vs-opp-avatar").src = opp.avatar || DEFAULT_AVATAR;
-      document.getElementById("vs-opp-name").textContent = opp.username || "Opponent";
-      document.getElementById("vs-opp-rate").textContent = opp.rating ?? 1500;
+      document.getElementById("vs-opp-name").textContent = opp.username;
+      document.getElementById("vs-opp-rate").textContent = opp.rating;
       document.getElementById("vs-opp-miss").textContent = `${opp.avgMissRate ?? 0}%`;
       const oppTitleEl = document.getElementById("vs-opp-title");
-      oppTitleEl.textContent = opp.equippedTitle || "駆け出しタイパー";
-      oppTitleEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(opp.equippedTitle || "駆け出しタイパー")}`;
+      oppTitleEl.textContent = opp.equippedTitle;
+      oppTitleEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(opp.equippedTitle)}`;
 
       let vsSec = 5;
       document.getElementById("vs-countdown-num").textContent = vsSec;
@@ -3564,45 +3595,12 @@
       }, 1000);
     }
 
-    function applyOpponentSnapshotData(oppData, oppSlot) {
-      if (!oppData || typeof oppData !== "object") return;
-      gameState.opponentScore = Number(oppData.score || 0);
-      const oppMistypes = Number(oppData.mistypes || 0);
-
-      let receivedCombo = 0;
-      if (typeof oppData.comboGiftTotal === "number") {
-        const oppGiftTotal = oppData.comboGiftTotal;
-        if (oppGiftTotal > gameState.lastProcessedOppGiftTotal) {
-          receivedCombo = oppGiftTotal - gameState.lastProcessedOppGiftTotal;
-          gameState.lastProcessedOppGiftTotal = oppGiftTotal;
-        }
-      } else if (oppMistypes > gameState.lastProcessedOppMistypes) {
-        const diffMiss = oppMistypes - gameState.lastProcessedOppMistypes;
-        gameState.lastProcessedOppMistypes = oppMistypes;
-        receivedCombo = diffMiss * 3;
-      }
-      gameState.opponentMistypes = oppMistypes;
-
-      if (gameState.active && receivedCombo > 0) {
-        const nowMs = performance.now();
-        if (nowMs - gameState.lastOppMissComboAt >= 500) {
-          gameState.lastOppMissComboAt = nowMs;
-          const prevCombo = gameState.combo;
-          gameState.combo += receivedCombo;
-          if (gameState.combo > gameState.maxComboInSession) {
-            gameState.maxComboInSession = gameState.combo;
-          }
-          awardComboMilestoneBonuses(prevCombo, gameState.combo);
-          triggerScreenEdgeFlash("yellow");
-          showStageBonusPopup(`OPPONENT MISS! +${receivedCombo} COMBO`, "text-yellow-300 border-yellow-400 bg-yellow-950/80", 0);
-          syncOnlineScore();
-        }
-      }
-
-      updateGameHud();
-    }
-
     function startOnlineBattleArena(matchId, mySlot, oppSlot) {
+      const preservedOpponent = gameState.opponent;
+      const preservedSequence = gameState.sharedWordSequence;
+
+      navigate("game");
+
       gameState = {
         ...gameState,
         active: false,
@@ -3611,14 +3609,15 @@
         duration: 120,
         timeLeft: 120,
         score: 0,
+        opponent: preservedOpponent,
         opponentScore: 0,
         opponentMistypes: 0,
         lastProcessedOppMistypes: 0,
         lastOppMissComboAt: 0,
+        sharedWordSequence: preservedSequence,
         sharedWordIndex: 0,
         sentComboGiftTotal: 0,
         lastProcessedOppGiftTotal: 0,
-        _lastHeartbeatSec: null,
         combo: 0,
         maxComboInSession: 0,
         typedCharsInSession: 0,
@@ -3632,7 +3631,6 @@
         oppSlot
       };
 
-      navigate("game");
       document.getElementById("solo-ready-overlay").classList.add("hidden");
       document.getElementById("online-tug-container").classList.remove("hidden");
       document.getElementById("game-mode-badge").textContent = gameState.mode === "RATE" ? "RATE BATTLE" : "CASUAL BATTLE";
@@ -3645,17 +3643,42 @@
       const matchRef = ref(db, `matches/${matchId}`);
       onDisconnect(ref(db, `matches/${matchId}/retiredBy`)).set(mySlot);
 
-      get(ref(db, `matches/${matchId}/${oppSlot}`)).then((initSnap) => {
-        if (initSnap.exists()) {
-          applyOpponentSnapshotData(initSnap.val(), oppSlot);
-        }
+      update(ref(db, `matches/${matchId}/${mySlot}`), {
+        score: 0,
+        mistypes: 0,
+        comboGiftTotal: 0,
+        ready: true
       }).catch(() => {});
 
       gameState.matchUnsubscribe = onValue(matchRef, (snap) => {
         if (!snap.exists()) return;
         const data = snap.val();
         if (data[oppSlot]) {
-          applyOpponentSnapshotData(data[oppSlot], oppSlot);
+          gameState.opponentScore = Number(data[oppSlot].score || 0);
+          const oppMistypes = Number(data[oppSlot].mistypes || 0);
+          gameState.opponentMistypes = oppMistypes;
+
+          // 相手がミスしたとき（ミス時の相手コンボ×0.09切り捨て分）を自分のコンボへ加算
+          const oppGiftTotal = Number(data[oppSlot].comboGiftTotal || 0);
+          if (gameState.active && oppGiftTotal > gameState.lastProcessedOppGiftTotal) {
+            const receivedCombo = oppGiftTotal - gameState.lastProcessedOppGiftTotal;
+            gameState.lastProcessedOppGiftTotal = oppGiftTotal;
+            const nowMs = performance.now();
+            if (nowMs - gameState.lastOppMissComboAt >= 500 && receivedCombo > 0) {
+              gameState.lastOppMissComboAt = nowMs;
+              const prevCombo = gameState.combo;
+              gameState.combo += receivedCombo;
+              if (gameState.combo > gameState.maxComboInSession) {
+                gameState.maxComboInSession = gameState.combo;
+              }
+              awardComboMilestoneBonuses(prevCombo, gameState.combo);
+              triggerScreenEdgeFlash("yellow");
+              showStageBonusPopup(`OPPONENT MISS! +${receivedCombo} COMBO`, "text-yellow-300 border-yellow-400 bg-yellow-950/80", 0);
+              syncOnlineScore();
+            }
+          }
+
+          updateGameHud();
         }
         if (data.retiredBy && data.retiredBy === oppSlot && gameState.active) {
           stopGameLoops();
@@ -3664,10 +3687,9 @@
         }
       });
 
-      syncOnlineScore();
-
       runThreeSecondCountdown(() => {
         beginActiveTypingSession();
+        syncOnlineScore();
       });
     }
 
@@ -3753,23 +3775,20 @@
       }
 
       const winLoseEl = document.getElementById("result-win-lose");
-      winLoseEl.textContent = iWon ? "VICTORY" : "DEFEAT";
-      winLoseEl.className = iWon
-        ? "font-orbitron font-black text-4xl sm:text-6xl glow-cyan"
-        : "font-orbitron font-black text-4xl sm:text-6xl glow-magenta";
+      winLoseEl.textContent = iRetired ? "RETIRED (DEFEAT)" : (iWon ? "VICTORY" : "DEFEAT");
+      winLoseEl.className = "font-orbitron font-black text-4xl sm:text-6xl " + (iWon && !iRetired ? "glow-cyan" : "glow-magenta");
 
       const diff = gameState.score - gameState.opponentScore;
-      const diffSign = diff >= 0 ? `+${diff}` : `${diff}`;
       document.getElementById("result-score-diff").textContent =
-        iRetired ? "リタイアによる敗北" : `あなた: ${gameState.score} pts / 相手: ${gameState.opponentScore} pts (差: ${diffSign} pts)`;
+        `あなた: ${gameState.score} pts / 相手: ${gameState.opponentScore} pts (${diff >= 0 ? "+" : ""}${diff})`;
 
-      const rateBox = document.getElementById("result-rate-change");
+      const rateChangeEl = document.getElementById("result-rate-change");
       if (isRateMode) {
-        rateBox.classList.remove("hidden");
-        const deltaStr = delta >= 0 ? `+${delta}` : `${delta}`;
-        rateBox.textContent = `RATE: ${oldRate} → ${playerData.rating} (${deltaStr})`;
+        rateChangeEl.classList.remove("hidden");
+        const sign = delta >= 0 ? "+" : "";
+        rateChangeEl.textContent = `RATE: ${oldRate} → ${playerData.rating} (${sign}${delta})`;
       } else {
-        rateBox.classList.add("hidden");
+        rateChangeEl.classList.add("hidden");
       }
 
       document.getElementById("res-score").textContent = gameState.score.toLocaleString();
@@ -3780,10 +3799,11 @@
     }
 
     // ---------------------------------------------------------------------
-    // 12. ランキング表示 (上位50名・リアルタイム同期)
+    // 12. ランキング画面（50位まで表示・プレイヤー名タップでマイページ詳細閲覧）
     // ---------------------------------------------------------------------
     let currentRankingMode = "FRASH";
     let rankingUnsubscribe = null;
+    let latestRatePlayersCache = [];
 
     window.selectRankingMode = function(mode) {
       currentRankingMode = mode;
@@ -3796,56 +3816,15 @@
       renderLeaderboard(mode);
     };
 
-    function renderLeaderboardRows(mode, entries) {
-      const tbody = document.getElementById("ranking-tbody");
-      let html = "";
-      for (let i = 0; i < 50; i++) {
-        const rank = i + 1;
-        const item = entries[i];
-        const rankColor = rank === 1 ? "text-amber-300 font-black" :
-                          rank === 2 ? "text-slate-200 font-bold" :
-                          rank === 3 ? "text-amber-600 font-bold" : "text-slate-500";
-
-        if (item) {
-          const liveProf = allPlayersCache[item.deviceId] || {};
-          const displayTitle = liveProf.equippedTitle || item.equippedTitle || "駆け出しタイパー";
-          const displayName = liveProf.username || item.username || "Player";
-          const displayAvatar = liveProf.avatar || item.avatar || DEFAULT_AVATAR;
-
-          const rarity = getTitleRarity(displayTitle);
-          const primaryVal = mode === "RATE"
-            ? Number(liveProf.rating ?? item.rating ?? 1500).toLocaleString()
-            : Number(item.score).toLocaleString();
-          const primaryColor = mode === "RATE" ? "text-amber-300" : "text-cyan-300";
-
-          html += `
-            <tr onclick="openRankedPlayerProfile('${escapeHtml(item.deviceId)}')" class="hover:bg-cyan-950/20 cursor-pointer transition">
-              <td class="py-3 px-4 font-mono-code ${rankColor}">#${rank}</td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2.5">
-                  <img src="${displayAvatar}" class="w-8 h-8 rounded-full object-cover border border-slate-700 bg-slate-900" />
-                  <div>
-                    <div class="text-[10px] px-2 py-0.2 rounded-full border inline-block title-rarity-${rarity}">${escapeHtml(displayTitle)}</div>
-                    <div class="font-bold text-slate-100 hover:text-cyan-300">${escapeHtml(displayName)}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-right font-mono-code font-bold ${primaryColor}">${primaryVal}</td>
-              <td class="py-3 px-4 text-right font-mono-code text-emerald-300 hidden sm:table-cell">${Number(liveProf.maxWpm ?? item.maxWpm ?? 0).toFixed(1)}</td>
-            </tr>
-          `;
-        } else {
-          html += `
-            <tr class="text-slate-600">
-              <td class="py-2.5 px-4 font-mono-code">#${rank}</td>
-              <td class="py-2.5 px-4 font-mono-code">Unknown</td>
-              <td class="py-2.5 px-4 text-right"></td>
-              <td class="py-2.5 px-4 text-right hidden sm:table-cell"></td>
-            </tr>
-          `;
-        }
-      }
-      tbody.innerHTML = html;
+    function getRateTierLabel(rate) {
+      const r = Number(rate || 1500);
+      if (r >= 2200) return "NEON GOD";
+      if (r >= 2000) return "LEGEND";
+      if (r >= 1850) return "MASTER";
+      if (r >= 1700) return "DIAMOND";
+      if (r >= 1550) return "PLATINUM";
+      if (r >= 1400) return "GOLD";
+      return "SILVER";
     }
 
     async function renderLeaderboard(mode) {
@@ -3854,147 +3833,184 @@
         rankingUnsubscribe = null;
       }
 
-      const tbody = document.getElementById("ranking-tbody");
+      const isRateMode = mode === "RATE";
       const scoreHeader = document.getElementById("ranking-col-score-header");
+      const subHeader = document.getElementById("ranking-col-sub-header");
       const subNote = document.getElementById("ranking-sub-note");
 
-      if (mode === "RATE") {
+      if (isRateMode) {
         scoreHeader.textContent = "RATE";
-        subNote.textContent = "※直近30日以内にレートバトルをプレイしたプレイヤーの現在レート順（リアルタイム更新）です。";
+        subHeader.textContent = "TIER / WPM";
+        subNote.textContent = "※レート戦の現在のレート上位50名をリアルタイム表示します。タップで詳細を確認できます。";
       } else {
         scoreHeader.textContent = "SCORE";
+        subHeader.textContent = "MAX WPM";
         subNote.textContent = "※プレイヤー名をタップするとその人のマイページ情報（最高WPM・平均ミス率など）を確認できます。";
       }
 
-      tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-xs text-slate-400 font-mono-code">LOADING...</td></tr>`;
+      const tbody = document.getElementById("ranking-tbody");
+      tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">読み込み中...</td></tr>`;
 
-      if (mode === "RATE") {
-        const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-        const filterActiveRatePlayers = (playersMap) => {
-          const cutoff = Date.now() - THIRTY_DAYS_MS;
-          return Object.values(playersMap)
-            .filter(p => p && p.deviceId && (p.lastRateBattleAt || 0) >= cutoff)
-            .sort((a, b) => (b.rating ?? 1500) - (a.rating ?? 1500))
+      if (isRateMode) {
+        const renderRateListFromPlayers = (playersArr) => {
+          const filtered = (playersArr || [])
+            .filter(p => p && p.username && !p.isBanned)
+            .map(p => ({
+              ...p,
+              rateVal: Number(p.rating ?? 1500),
+              lastRateBattleAt: Number(p.lastRateBattleAt ?? 0)
+            }))
+            .filter(p => p.rateVal !== 1500 || p.lastRateBattleAt > 0 || (p.modePlays && (p.modePlays.RATE || 0) > 0) || (p.rateWins || 0) > 0)
+            .sort((a, b) => b.rateVal - a.rateVal)
             .slice(0, 50);
+
+          latestRatePlayersCache = filtered;
+          drawRankingRows(filtered, true);
         };
 
         if (firebaseReady && db) {
-          rankingUnsubscribe = onValue(ref(db, "players"), (snap) => {
-            if (currentView !== "ranking" || currentRankingMode !== "RATE") return;
-            const data = snap.exists() ? snap.val() : {};
-            allPlayersCache = data;
-            renderLeaderboardRows("RATE", filterActiveRatePlayers(data));
+          const pRef = ref(db, "players");
+          rankingUnsubscribe = onValue(pRef, (snap) => {
+            const arr = snap.exists() ? Object.values(snap.val()) : [];
+            renderRateListFromPlayers(arr);
           });
         } else {
-          const localList = (playerData.lastRateBattleAt || 0) >= (Date.now() - THIRTY_DAYS_MS)
-            ? [playerData]
-            : [];
-          renderLeaderboardRows("RATE", localList);
+          renderRateListFromPlayers([playerData]);
         }
         return;
       }
 
+      let list = [];
       if (firebaseReady && db) {
-        rankingUnsubscribe = onValue(ref(db, `leaderboards/${mode}`), (snap) => {
-          if (currentView !== "ranking" || currentRankingMode !== mode) return;
-          let entries = [];
-          if (snap.exists()) {
-            entries = Object.values(snap.val()).sort((a, b) => b.score - a.score);
-          } else {
-            try {
-              entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
-            } catch (e) {}
-          }
-          renderLeaderboardRows(mode, entries);
-        });
-      } else {
-        let entries = [];
         try {
-          entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+          const snap = await get(ref(db, `leaderboards/${mode}`));
+          if (snap.exists()) {
+            list = Object.values(snap.val());
+          }
         } catch (e) {}
-        renderLeaderboardRows(mode, entries);
       }
+      if (list.length === 0) {
+        try {
+          list = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+        } catch (e) {}
+      }
+
+      list.sort((a, b) => b.score - a.score);
+      const top50 = list.slice(0, 50);
+      drawRankingRows(top50, false);
     }
 
-    let currentProfileModalTarget = null;
+    function drawRankingRows(rows, isRateMode = false) {
+      const tbody = document.getElementById("ranking-tbody");
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = isRateMode
+          ? `<tr><td colspan="4" class="p-8 text-center text-slate-500">まだレート戦の記録がありません。レートバトルに挑戦してランキング入りを目指しましょう！</td></tr>`
+          : `<tr><td colspan="4" class="p-8 text-center text-slate-500">まだ記録がありません。一番乗りを目指しましょう！</td></tr>`;
+        return;
+      }
 
-    window.openRankedPlayerProfile = async function(deviceId) {
-      let prof = null;
-      if (deviceId === playerData.deviceId) {
-        const totalKeys = playerData.stats.totalTypedChars + playerData.stats.totalMistypes;
-        prof = {
-          deviceId: playerData.deviceId,
-          username: playerData.username,
-          avatar: playerData.avatar,
-          equippedTitle: playerData.equippedTitle,
-          rating: playerData.rating,
-          maxWpm: playerData.stats.maxWpm,
-          avgWpm: playerData.stats.wpmCount > 0 ? (playerData.stats.wpmSum / playerData.stats.wpmCount).toFixed(1) : 0,
-          avgMissRate: totalKeys > 0 ? ((playerData.stats.totalMistypes / totalKeys) * 100).toFixed(1) : 0,
-          totalPlays: playerData.stats.totalPlays,
-          rateWins: playerData.stats.rateWins || 0,
-          casualWins: playerData.stats.casualWins || 0
-        };
-      } else if (firebaseReady && db) {
+      tbody.innerHTML = "";
+      rows.forEach((entry, idx) => {
+        const rank = idx + 1;
+        const rankBadge = rank === 1
+          ? `<span class="font-orbitron font-black text-amber-300 text-base"><i class="fa-solid fa-crown mr-1"></i>1</span>`
+          : rank === 2
+          ? `<span class="font-orbitron font-bold text-slate-200">2</span>`
+          : rank === 3
+          ? `<span class="font-orbitron font-bold text-amber-600">3</span>`
+          : `<span class="font-mono-code text-slate-400">${rank}</span>`;
+
+        const rarity = getTitleRarity(entry.equippedTitle);
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/80 cursor-pointer transition";
+        tr.onclick = () => openPlayerProfileModal(entry);
+
+        if (isRateMode) {
+          tr.innerHTML = `
+            <td class="py-3 px-4">${rankBadge}</td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-3">
+                <img src="${escapeHtml(entry.avatar || DEFAULT_AVATAR)}" class="w-9 h-9 rounded-full object-cover border border-amber-400/50 bg-slate-900 shrink-0" />
+                <div class="min-w-0">
+                  <div class="font-bold text-white truncate">${escapeHtml(entry.username)}</div>
+                  <span class="inline-block px-2 py-0.2 rounded-full border text-[10px] font-bold title-rarity-${rarity}">${escapeHtml(entry.equippedTitle || "駆け出しタイパー")}</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-right font-mono-code font-bold text-amber-300">${Number(entry.rateVal ?? entry.rating ?? 1500)}</td>
+            <td class="py-3 px-4 text-right font-mono-code text-cyan-300 hidden sm:table-cell">${getRateTierLabel(entry.rateVal ?? entry.rating ?? 1500)} <span class="text-slate-400 text-xs">/ WPM ${Number(entry.maxWpm || 0).toFixed(1)}</span></td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td class="py-3 px-4">${rankBadge}</td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-3">
+                <img src="${escapeHtml(entry.avatar || DEFAULT_AVATAR)}" class="w-9 h-9 rounded-full object-cover border border-cyan-500/40 bg-slate-900 shrink-0" />
+                <div class="min-w-0">
+                  <div class="font-bold text-white truncate">${escapeHtml(entry.username)}</div>
+                  <span class="inline-block px-2 py-0.2 rounded-full border text-[10px] font-bold title-rarity-${rarity}">${escapeHtml(entry.equippedTitle || "駆け出しタイパー")}</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-right font-mono-code font-bold text-cyan-300">${Number(entry.score || 0).toLocaleString()}</td>
+            <td class="py-3 px-4 text-right font-mono-code text-emerald-300 hidden sm:table-cell">${Number(entry.maxWpm || 0).toFixed(1)}</td>
+          `;
+        }
+        tbody.appendChild(tr);
+      });
+    }
+
+    let profileModalTargetPlayer = null;
+
+    async function openPlayerProfileModal(entry) {
+      let fullData = entry;
+      if (firebaseReady && db && entry.deviceId) {
         try {
-          const snap = await get(ref(db, `players/${deviceId}`));
-          if (snap.exists()) prof = snap.val();
+          const snap = await get(ref(db, `players/${entry.deviceId}`));
+          if (snap.exists()) {
+            fullData = { ...entry, ...snap.val() };
+          }
         } catch (e) {}
       }
 
-      if (!prof) {
-        prof = {
-          deviceId,
-          username: "Player",
-          avatar: DEFAULT_AVATAR,
-          equippedTitle: "駆け出しタイパー",
-          rating: 1500,
-          maxWpm: 0,
-          avgWpm: 0,
-          avgMissRate: 0,
-          totalPlays: 0,
-          rateWins: 0,
-          casualWins: 0
-        };
-      }
+      profileModalTargetPlayer = fullData;
+      document.getElementById("modal-prof-avatar").src = fullData.avatar || DEFAULT_AVATAR;
+      document.getElementById("modal-prof-name").textContent = fullData.username || "Player";
+      document.getElementById("modal-prof-rate").textContent = `RATE: ${fullData.rating ?? 1500}`;
 
-      currentProfileModalTarget = prof;
-      document.getElementById("modal-prof-avatar").src = prof.avatar || DEFAULT_AVATAR;
-      document.getElementById("modal-prof-name").textContent = prof.username || "Player";
-      document.getElementById("modal-prof-rate").textContent = `RATE: ${prof.rating ?? 1500}`;
-      const tName = prof.equippedTitle || "駆け出しタイパー";
       const tEl = document.getElementById("modal-prof-title");
+      const tName = fullData.equippedTitle || "駆け出しタイパー";
       tEl.textContent = tName;
       tEl.className = `inline-block px-2.5 py-0.5 rounded-full border text-[11px] font-bold title-rarity-${getTitleRarity(tName)} mb-1`;
 
-      document.getElementById("modal-prof-maxwpm").textContent = Number(prof.maxWpm || 0).toFixed(1);
-      document.getElementById("modal-prof-avgwpm").textContent = Number(prof.avgWpm || 0).toFixed(1);
-      document.getElementById("modal-prof-miss").textContent = `${Number(prof.avgMissRate || 0).toFixed(1)}%`;
-      document.getElementById("modal-prof-plays").textContent = prof.totalPlays || 0;
-      document.getElementById("modal-prof-ratewins").textContent = prof.rateWins || 0;
-      document.getElementById("modal-prof-casualwins").textContent = prof.casualWins || 0;
+      document.getElementById("modal-prof-maxwpm").textContent = Number(fullData.maxWpm || 0).toFixed(1);
+      document.getElementById("modal-prof-avgwpm").textContent = Number(fullData.avgWpm || 0).toFixed(1);
+      document.getElementById("modal-prof-miss").textContent = `${Number(fullData.avgMissRate || 0).toFixed(1)}%`;
+      document.getElementById("modal-prof-plays").textContent = Number(fullData.totalPlays || 0);
+      document.getElementById("modal-prof-ratewins").textContent = Number(fullData.rateWins || 0);
+      document.getElementById("modal-prof-casualwins").textContent = Number(fullData.casualWins || 0);
 
-      const friendActionEl = document.getElementById("modal-prof-friend-action");
-      const friendBtn = document.getElementById("btn-modal-prof-add-friend");
-      const friendBtnText = document.getElementById("btn-modal-prof-add-friend-text");
-      if (prof.deviceId && prof.deviceId !== playerData.deviceId) {
-        friendActionEl.classList.remove("hidden");
-        if (friendsMap[prof.deviceId]) {
-          friendBtn.disabled = true;
-          friendBtnText.textContent = "すでにフレンドです";
-        } else if (outgoingFriendReqsMap[prof.deviceId]) {
-          friendBtn.disabled = true;
-          friendBtnText.textContent = "フレンド申請送信済み";
+      const actionWrap = document.getElementById("modal-prof-friend-action");
+      const addBtn = document.getElementById("btn-modal-prof-add-friend");
+      const addText = document.getElementById("btn-modal-prof-add-friend-text");
+      if (fullData.deviceId && fullData.deviceId !== playerData.deviceId) {
+        actionWrap.classList.remove("hidden");
+        if (friendsMap[fullData.deviceId]) {
+          addBtn.disabled = true;
+          addText.textContent = "すでにフレンドです";
+        } else if (outgoingFriendReqsMap[fullData.deviceId]) {
+          addBtn.disabled = true;
+          addText.textContent = "フレンド申請送信済み";
         } else {
-          friendBtn.disabled = false;
-          friendBtnText.textContent = "フレンド申請を送る";
+          addBtn.disabled = false;
+          addText.textContent = "フレンド申請を送る";
         }
       } else {
-        friendActionEl.classList.add("hidden");
+        actionWrap.classList.add("hidden");
       }
 
       document.getElementById("modal-player-profile").classList.remove("hidden");
-    };
+    }
 
     window.closePlayerProfileModal = function(e) {
       if (e.target.id === "modal-player-profile") {
@@ -4003,602 +4019,475 @@
     };
 
     // ---------------------------------------------------------------------
-    // 13. 称号リスト画面 (獲得条件表示・装備切替・シークレット秘匿)
+    // 13. 称号リスト画面（レア度テキスト非表示・色表現・シークレット秘匿）
     // ---------------------------------------------------------------------
     function renderTitlesList() {
       const grid = document.getElementById("titles-grid");
+      grid.innerHTML = "";
       const unlockedSet = new Set(playerData.unlockedTitles);
 
-      grid.innerHTML = TITLES_MASTER.map(t => {
+      TITLES_MASTER.forEach(t => {
         const isUnlocked = unlockedSet.has(t.name);
-        const isEquipped = playerData.equippedTitle === t.name;
-
-        if (!isUnlocked && t.secret) {
-          return `
-            <div class="p-4 rounded-xl bg-[#0a0f18]/60 border border-slate-800/80 opacity-65 flex flex-col justify-between gap-2">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-500 text-sm"><i class="fa-solid fa-lock mr-1.5"></i>？？？</span>
-              </div>
-              <p class="text-xs text-slate-600">獲得するまで条件は秘密です</p>
-            </div>
-          `;
+        if (t.secret && !isUnlocked) {
+          return;
         }
 
-        const rarityClass = `title-rarity-${t.rarity}`;
-        return `
-          <div onclick="${isUnlocked ? `equipTitle('${escapeHtml(t.name)}')` : ""}"
-               class="p-4 rounded-xl bg-[#0a0f18] border ${isEquipped ? "border-cyan-400 ring-1 ring-cyan-400/50" : "border-slate-800"} ${isUnlocked ? "cursor-pointer hover:border-cyan-400/70" : "opacity-55"} transition flex flex-col justify-between gap-2">
+        const isEquipped = playerData.equippedTitle === t.name;
+        const card = document.createElement("div");
+        card.className = `p-4 rounded-xl bg-[#0a0f18] border flex flex-col justify-between gap-3 transition ${
+          isUnlocked
+            ? `title-rarity-${t.rarity} ${isEquipped ? "ring-2 ring-cyan-400" : "hover:brightness-110 cursor-pointer"}`
+            : "border-slate-800/80 opacity-55"
+        }`;
+
+        if (isUnlocked) {
+          card.onclick = () => equipTitle(t.name);
+        }
+
+        card.innerHTML = `
+          <div>
             <div class="flex items-center justify-between gap-2">
-              <span class="px-2.5 py-0.5 rounded-full border text-xs font-bold ${rarityClass}">${escapeHtml(t.name)}</span>
-              ${isEquipped ? `<span class="text-[11px] font-mono-code text-cyan-300 font-bold">EQUIPPED</span>` :
-                (isUnlocked ? `<span class="text-[11px] text-slate-400">タップで装備</span>` : `<span class="text-[11px] text-slate-600"><i class="fa-solid fa-lock"></i></span>`)}
+              <span class="font-bold text-base">${escapeHtml(t.name)}</span>
+              ${isEquipped ? `<span class="text-[10px] font-orbitron px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-black">EQUIPPED</span>` : ""}
             </div>
-            <p class="text-xs text-slate-300">${escapeHtml(t.desc)}</p>
+            <p class="text-xs text-slate-300/80 mt-1">${escapeHtml(t.desc)}</p>
+          </div>
+          <div class="text-[11px] font-mono-code ${isUnlocked ? "text-cyan-300" : "text-slate-500"}">
+            ${isUnlocked ? (isEquipped ? "装備中" : "タップして装備") : "未獲得"}
           </div>
         `;
-      }).join("");
+        grid.appendChild(card);
+      });
     }
 
-    window.equipTitle = function(titleName) {
-      if (!playerData.unlockedTitles.includes(titleName)) return;
+    function equipTitle(titleName) {
       playerData.equippedTitle = titleName;
       savePlayerData();
       renderTitlesList();
       refreshAllProfileUI();
       showToast(`称号「${titleName}」を装備しました`, getTitleRarity(titleName));
-    };
+    }
 
     // ---------------------------------------------------------------------
-    // 13.5. フレンド機能 & フレンド間DMチャットシステム
+    // 13.5. フレンド申請・フレンド一覧・フレンドDMシステム
     // ---------------------------------------------------------------------
     let friendsMap = {};
     let incomingFriendReqsMap = {};
     let outgoingFriendReqsMap = {};
-    let currentFriendDmTarget = null;
-    let friendDmUnsubscribe = null;
-    let friendDmReadState = {};
+    let allPlayersCache = {};
+    let activeFriendDmTargetId = null;
+    let activeFriendDmListener = null;
 
-    try {
-      friendDmReadState = JSON.parse(localStorage.getItem("neontype_friend_dm_read_v1") || "{}");
-    } catch (e) {}
-
-    function saveFriendDmReadState() {
-      try {
-        localStorage.setItem("neontype_friend_dm_read_v1", JSON.stringify(friendDmReadState));
-      } catch (e) {}
-    }
-
-    function normalizeFriendRelationEntry(rawVal, fallbackId = "") {
-      if (!rawVal) return null;
-      if (typeof rawVal === "boolean") {
-        if (!fallbackId) return null;
-        return {
-          deviceId: fallbackId,
-          username: "Friend",
-          avatar: DEFAULT_AVATAR,
-          equippedTitle: "駆け出しタイパー",
-          rating: 1500,
-          since: 0
-        };
-      }
-      if (typeof rawVal === "string") {
-        const id = fallbackId || rawVal;
-        if (!id) return null;
-        return {
-          deviceId: id,
-          username: "Friend",
-          avatar: DEFAULT_AVATAR,
-          equippedTitle: "駆け出しタイパー",
-          rating: 1500,
-          since: 0
-        };
-      }
-      if (typeof rawVal !== "object") return null;
-      const devId = rawVal.deviceId || rawVal.uid || rawVal.userId || rawVal.id || fallbackId;
-      if (!devId) return null;
-      const ts = typeof rawVal.since === "number" ? rawVal.since :
-                 (typeof rawVal.createdAt === "number" ? rawVal.createdAt :
-                 (typeof rawVal.timestamp === "number" ? rawVal.timestamp :
-                 (typeof rawVal.sentAt === "number" ? rawVal.sentAt : 0)));
-      return {
-        deviceId: String(devId),
-        username: rawVal.username || rawVal.name || rawVal.displayName || "Friend",
-        avatar: rawVal.avatar || rawVal.photoURL || DEFAULT_AVATAR,
-        equippedTitle: rawVal.equippedTitle || rawVal.title || "駆け出しタイパー",
-        rating: typeof rawVal.rating === "number" ? rawVal.rating : 1500,
-        since: ts
-      };
-    }
-
-    function normalizeFriendCollection(rawCollection) {
-      const result = {};
-      if (!rawCollection) return result;
-      if (Array.isArray(rawCollection)) {
-        rawCollection.forEach((item, idx) => {
-          const norm = normalizeFriendRelationEntry(item, String(idx));
-          if (norm && norm.deviceId) {
-            result[norm.deviceId] = norm;
-          }
-        });
-      } else if (typeof rawCollection === "object") {
-        Object.entries(rawCollection).forEach(([key, val]) => {
-          const norm = normalizeFriendRelationEntry(val, key);
-          if (norm && norm.deviceId) {
-            result[norm.deviceId] = norm;
-          }
-        });
-      }
-      return result;
-    }
-
-    function normalizeFriendDmMessage(rawMsg, fallbackKey = "") {
-      if (!rawMsg) return null;
-      if (typeof rawMsg === "string") {
-        return {
-          id: fallbackKey,
-          senderId: "",
-          senderName: "Friend",
-          text: rawMsg,
-          timestamp: 0
-        };
-      }
-      if (typeof rawMsg !== "object") return null;
-      const textVal = typeof rawMsg.text === "string" ? rawMsg.text :
-                      (typeof rawMsg.message === "string" ? rawMsg.message :
-                      (typeof rawMsg.body === "string" ? rawMsg.body : ""));
-      if (!textVal && !rawMsg.senderId && !rawMsg.from) return null;
-
-      let ts = 0;
-      if (typeof rawMsg.timestamp === "number" && Number.isFinite(rawMsg.timestamp)) {
-        ts = rawMsg.timestamp;
-      } else if (typeof rawMsg.createdAt === "number" && Number.isFinite(rawMsg.createdAt)) {
-        ts = rawMsg.createdAt;
-      } else if (typeof rawMsg.sentAt === "number" && Number.isFinite(rawMsg.sentAt)) {
-        ts = rawMsg.sentAt;
-      } else if (typeof rawMsg.timestamp === "string" && rawMsg.timestamp) {
-        const parsed = Date.parse(rawMsg.timestamp);
-        if (!Number.isNaN(parsed)) ts = parsed;
-      }
-
-      return {
-        id: rawMsg.id || fallbackKey,
-        senderId: rawMsg.senderId || rawMsg.from || rawMsg.uid || rawMsg.userId || "",
-        senderName: rawMsg.senderName || rawMsg.username || rawMsg.name || "Friend",
-        text: textVal,
-        timestamp: ts
-      };
-    }
-
-    function getFriendDmRoomId(idA, idB) {
-      return [String(idA), String(idB)].sort().join("__");
-    }
-
-    function updateFriendBadges() {
-      const reqCount = Object.keys(incomingFriendReqsMap).length;
-      const hasBadge = reqCount > 0;
-      const hBadge = document.getElementById("header-friend-badge");
-      const homeBadge = document.getElementById("home-friend-badge");
-      if (hBadge) hBadge.classList.toggle("hidden", !hasBadge);
-      if (homeBadge) homeBadge.classList.toggle("hidden", !hasBadge);
+    function getFriendChatId(idA, idB) {
+      return [idA, idB].sort().join("__");
     }
 
     function initFriendsListeners() {
       if (!firebaseReady || !db || !playerData.deviceId) return;
 
+      onValue(ref(db, "players"), (snap) => {
+        allPlayersCache = snap.exists() ? snap.val() : {};
+        if (currentView === "friends") renderFriendsView();
+        if (activeFriendDmTargetId) updateFriendDmHeaderStatus();
+      });
+
       onValue(ref(db, `friends/${playerData.deviceId}`), (snap) => {
-        friendsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
+        friendsMap = snap.exists() ? normalizeDictionaryMap(snap.val()) : {};
         if (currentView === "friends") renderFriendsView();
       });
 
-      onValue(ref(db, `friendRequestsIncoming/${playerData.deviceId}`), (snap) => {
-        incomingFriendReqsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
-        updateFriendBadges();
+      onValue(ref(db, `friendRequests/${playerData.deviceId}`), (snap) => {
+        incomingFriendReqsMap = snap.exists() ? normalizeDictionaryMap(snap.val()) : {};
+        updateFriendBadge();
         if (currentView === "friends") renderFriendsView();
       });
 
-      onValue(ref(db, `friendRequestsOutgoing/${playerData.deviceId}`), (snap) => {
-        outgoingFriendReqsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
-        if (currentView === "friends") renderFriendsView();
+      onValue(ref(db, `friendRequestsSent/${playerData.deviceId}`), (snap) => {
+        outgoingFriendReqsMap = snap.exists() ? normalizeDictionaryMap(snap.val()) : {};
       });
     }
 
-    async function sendFriendRequestToUser(targetDeviceId, targetUsername = "Player") {
-      if (!targetDeviceId || targetDeviceId === playerData.deviceId) {
-        showToast("自分自身にはフレンド申請できません", "GR");
-        return;
-      }
-      if (friendsMap[targetDeviceId]) {
-        showToast("すでにフレンドです", "RR");
-        return;
-      }
+    function updateFriendBadge() {
+      const pendingCount = Object.keys(incomingFriendReqsMap).length;
+      const hBadge = document.getElementById("header-friend-badge");
+      const homeBadge = document.getElementById("home-friend-badge");
+      if (hBadge) hBadge.classList.toggle("hidden", pendingCount === 0);
+      if (homeBadge) homeBadge.classList.toggle("hidden", pendingCount === 0);
+    }
+
+    async function sendFriendRequestTo(targetDeviceId, targetName = "Player") {
       if (!firebaseReady || !db) {
         showToast("オンラインサーバーに接続できません", "GR");
-        return;
+        return false;
+      }
+      const cleanId = String(targetDeviceId || "").trim();
+      if (!cleanId) {
+        showToast("プレイヤーIDを入力してください", "GR");
+        return false;
+      }
+      if (cleanId === playerData.deviceId) {
+        showToast("自分自身にはフレンド申請できません", "GR");
+        return false;
+      }
+      if (friendsMap[cleanId]) {
+        showToast("すでにフレンドです", "RR");
+        return false;
+      }
+      if (outgoingFriendReqsMap[cleanId]) {
+        showToast("すでにフレンド申請を送信済みです", "RR");
+        return false;
       }
 
       try {
-        const targetSnap = await get(ref(db, `players/${targetDeviceId}`));
+        const targetSnap = await get(ref(db, `players/${cleanId}`));
         if (!targetSnap.exists()) {
-          showToast("該当するプレイヤーが見つかりません", "GR");
-          return;
+          showToast("指定されたプレイヤーIDが見つかりません", "GR");
+          return false;
         }
-        const targetProf = targetSnap.val();
-        const myInfo = {
-          deviceId: playerData.deviceId,
-          username: playerData.username,
-          avatar: playerData.avatar,
-          equippedTitle: playerData.equippedTitle,
-          rating: playerData.rating,
-          sentAt: Date.now()
-        };
-        const oppInfo = {
-          deviceId: targetProf.deviceId,
-          username: targetProf.username || targetUsername,
-          avatar: targetProf.avatar || DEFAULT_AVATAR,
-          equippedTitle: targetProf.equippedTitle || "駆け出しタイパー",
-          rating: targetProf.rating ?? 1500,
-          sentAt: Date.now()
-        };
+        const targetProfile = targetSnap.val();
+        const resolvedName = targetProfile.username || targetName || "Player";
 
-        await set(ref(db, `friendRequestsIncoming/${targetDeviceId}/${playerData.deviceId}`), myInfo);
-        await set(ref(db, `friendRequestsOutgoing/${playerData.deviceId}/${targetDeviceId}`), oppInfo);
+        await set(ref(db, `friendRequests/${cleanId}/${playerData.deviceId}`), {
+          fromId: playerData.deviceId,
+          fromName: playerData.username || "Player",
+          fromAvatar: playerData.avatar || DEFAULT_AVATAR,
+          fromTitle: playerData.equippedTitle || "駆け出しタイパー",
+          sentAt: Date.now()
+        });
 
-        outgoingFriendReqsMap[targetDeviceId] = oppInfo;
-        showToast(`${oppInfo.username} さんにフレンド申請を送りました！`, "RR");
-        if (currentView === "friends") renderFriendsView();
+        await set(ref(db, `friendRequestsSent/${playerData.deviceId}/${cleanId}`), {
+          toId: cleanId,
+          toName: resolvedName,
+          sentAt: Date.now()
+        });
+
+        outgoingFriendReqsMap[cleanId] = { toId: cleanId, toName: resolvedName, sentAt: Date.now() };
+        showToast(`${resolvedName} さんにフレンド申請を送りました！`, "RR");
+        return true;
       } catch (e) {
         showToast("フレンド申請の送信に失敗しました", "GR");
+        return false;
       }
     }
 
-    window.sendFriendRequestByIdInput = function() {
+    window.sendFriendRequestByIdInput = async function() {
       const inp = document.getElementById("friend-id-input");
-      const targetId = inp.value.trim();
-      if (!targetId) {
-        showToast("プレイヤーIDを入力してください", "GR");
-        return;
-      }
-      sendFriendRequestToUser(targetId);
-      inp.value = "";
+      const val = inp ? inp.value.trim() : "";
+      const ok = await sendFriendRequestTo(val);
+      if (ok && inp) inp.value = "";
     };
 
-    window.sendFriendRequestFromResult = function() {
+    window.sendFriendRequestFromProfileModal = async function() {
+      if (!profileModalTargetPlayer || !profileModalTargetPlayer.deviceId) return;
+      const ok = await sendFriendRequestTo(profileModalTargetPlayer.deviceId, profileModalTargetPlayer.username);
+      if (ok) {
+        const btn = document.getElementById("btn-modal-prof-add-friend");
+        const txt = document.getElementById("btn-modal-prof-add-friend-text");
+        if (btn) btn.disabled = true;
+        if (txt) txt.textContent = "フレンド申請送信済み";
+      }
+    };
+
+    window.sendFriendRequestFromResult = async function() {
       const opp = gameState.opponent;
       if (!opp || !opp.deviceId) return;
-      sendFriendRequestToUser(opp.deviceId, opp.username);
-      const btn = document.getElementById("btn-result-add-friend");
-      const txt = document.getElementById("btn-result-add-friend-text");
-      if (btn && txt) {
-        btn.disabled = true;
-        txt.textContent = "フレンド申請送信済み";
+      const ok = await sendFriendRequestTo(opp.deviceId, opp.username);
+      if (ok) {
+        const btn = document.getElementById("btn-result-add-friend");
+        const txt = document.getElementById("btn-result-add-friend-text");
+        if (btn) btn.disabled = true;
+        if (txt) txt.textContent = "フレンド申請送信済み";
       }
     };
 
-    window.sendFriendRequestFromProfileModal = function() {
-      if (!currentProfileModalTarget || !currentProfileModalTarget.deviceId) return;
-      sendFriendRequestToUser(currentProfileModalTarget.deviceId, currentProfileModalTarget.username);
-      const btn = document.getElementById("btn-modal-prof-add-friend");
-      const txt = document.getElementById("btn-modal-prof-add-friend-text");
-      if (btn && txt) {
-        btn.disabled = true;
-        txt.textContent = "フレンド申請送信済み";
-      }
-    };
-
-    window.acceptFriendRequest = async function(requesterId) {
-      if (!firebaseReady || !db) return;
-      const reqInfo = incomingFriendReqsMap[requesterId];
-      if (!reqInfo) return;
-
-      let latestOpp = reqInfo;
+    window.acceptFriendRequest = async function(fromId) {
+      if (!firebaseReady || !db || !fromId) return;
+      const reqInfo = incomingFriendReqsMap[fromId] || {};
+      const now = Date.now();
       try {
-        const snap = await get(ref(db, `players/${requesterId}`));
-        if (snap.exists()) latestOpp = { ...reqInfo, ...snap.val() };
+        await set(ref(db, `friends/${playerData.deviceId}/${fromId}`), {
+          friendId: fromId,
+          addedAt: now
+        });
+        await set(ref(db, `friends/${fromId}/${playerData.deviceId}`), {
+          friendId: playerData.deviceId,
+          addedAt: now
+        });
+        await remove(ref(db, `friendRequests/${playerData.deviceId}/${fromId}`));
+        await remove(ref(db, `friendRequestsSent/${fromId}/${playerData.deviceId}`));
+        showToast(`${reqInfo.fromName || "プレイヤー"} とフレンドになりました！`, "SR");
+      } catch (e) {
+        showToast("承認処理に失敗しました", "GR");
+      }
+    };
+
+    window.declineFriendRequest = async function(fromId) {
+      if (!firebaseReady || !db || !fromId) return;
+      try {
+        await remove(ref(db, `friendRequests/${playerData.deviceId}/${fromId}`));
+        await remove(ref(db, `friendRequestsSent/${fromId}/${playerData.deviceId}`));
+        showToast("フレンド申請を辞退しました", "R");
       } catch (e) {}
-
-      const friendDataForOpp = {
-        deviceId: latestOpp.deviceId,
-        username: latestOpp.username || "Player",
-        avatar: latestOpp.avatar || DEFAULT_AVATAR,
-        equippedTitle: latestOpp.equippedTitle || "駆け出しタイパー",
-        rating: latestOpp.rating ?? 1500,
-        since: Date.now()
-      };
-      const friendDataForMe = {
-        deviceId: playerData.deviceId,
-        username: playerData.username,
-        avatar: playerData.avatar,
-        equippedTitle: playerData.equippedTitle,
-        rating: playerData.rating,
-        since: Date.now()
-      };
-
-      await set(ref(db, `friends/${playerData.deviceId}/${requesterId}`), friendDataForOpp);
-      await set(ref(db, `friends/${requesterId}/${playerData.deviceId}`), friendDataForMe);
-      await remove(ref(db, `friendRequestsIncoming/${playerData.deviceId}/${requesterId}`));
-      await remove(ref(db, `friendRequestsOutgoing/${requesterId}/${playerData.deviceId}`));
-
-      showToast(`${friendDataForOpp.username} さんとフレンドになりました！`, "SR");
-      renderFriendsView();
     };
 
-    window.rejectFriendRequest = async function(requesterId) {
-      if (!firebaseReady || !db) return;
-      await remove(ref(db, `friendRequestsIncoming/${playerData.deviceId}/${requesterId}`));
-      await remove(ref(db, `friendRequestsOutgoing/${requesterId}/${playerData.deviceId}`));
-      showToast("フレンド申請を拒否しました", "R");
-      renderFriendsView();
-    };
-
-    window.removeFriendRelation = async function(friendId) {
-      if (!firebaseReady || !db) return;
-      await remove(ref(db, `friends/${playerData.deviceId}/${friendId}`));
-      await remove(ref(db, `friends/${friendId}/${playerData.deviceId}`));
-      showToast("フレンドを解除しました", "R");
-      renderFriendsView();
+    window.removeFriend = async function(friendId) {
+      if (!firebaseReady || !db || !friendId) return;
+      try {
+        await remove(ref(db, `friends/${playerData.deviceId}/${friendId}`));
+        await remove(ref(db, `friends/${friendId}/${playerData.deviceId}`));
+        showToast("フレンドを解除しました", "R");
+        renderFriendsView();
+      } catch (e) {}
     };
 
     function renderFriendsView() {
-      document.getElementById("friends-my-id-display").textContent = playerData.deviceId;
+      const idDisp = document.getElementById("friends-my-id-display");
+      if (idDisp) idDisp.textContent = playerData.deviceId;
 
-      const reqEntries = Object.values(incomingFriendReqsMap || {});
-      const reqSection = document.getElementById("friend-requests-section");
+      const reqKeys = Object.keys(incomingFriendReqsMap);
+      const reqSec = document.getElementById("friend-requests-section");
+      const reqCount = document.getElementById("friend-requests-count");
       const reqList = document.getElementById("friend-requests-list");
-      document.getElementById("friend-requests-count").textContent = reqEntries.length;
 
-      if (reqEntries.length > 0) {
-        reqSection.classList.remove("hidden");
-        reqList.innerHTML = reqEntries.map(reqItem => `
-          <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <img src="${reqItem.avatar || DEFAULT_AVATAR}" class="w-10 h-10 rounded-full object-cover border border-amber-400 bg-slate-800 shrink-0" />
-              <div class="min-w-0">
-                <div class="font-bold text-sm text-white truncate">${escapeHtml(reqItem.username || "Player")}</div>
-                <div class="text-[11px] font-mono-code text-amber-300">RATE: ${reqItem.rating ?? 1500}</div>
+      if (reqSec && reqCount && reqList) {
+        reqCount.textContent = reqKeys.length;
+        if (reqKeys.length === 0) {
+          reqSec.classList.add("hidden");
+          reqList.innerHTML = "";
+        } else {
+          reqSec.classList.remove("hidden");
+          reqList.innerHTML = "";
+          reqKeys.forEach(fromId => {
+            const info = incomingFriendReqsMap[fromId] || {};
+            const pInfo = allPlayersCache[fromId] || {};
+            const name = pInfo.username || info.fromName || "Player";
+            const avatar = pInfo.avatar || info.fromAvatar || DEFAULT_AVATAR;
+            const div = document.createElement("div");
+            div.className = "p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between gap-3";
+            div.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <img src="${escapeHtml(avatar)}" class="w-10 h-10 rounded-full object-cover border border-amber-400/60 bg-slate-950 shrink-0" />
+                <div class="min-w-0">
+                  <div class="font-bold text-sm text-white truncate">${escapeHtml(name)}</div>
+                  <div class="text-[10px] font-mono-code text-slate-400 truncate">${escapeHtml(fromId)}</div>
+                </div>
               </div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="acceptFriendRequest('${escapeHtml(reqItem.deviceId)}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition">
-                承認
-              </button>
-              <button onclick="rejectFriendRequest('${escapeHtml(reqItem.deviceId)}')" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-pink-500 text-slate-300 hover:text-pink-300 font-bold text-xs transition">
-                拒否
-              </button>
-            </div>
-          </div>
-        `).join("");
-      } else {
-        reqSection.classList.add("hidden");
+              <div class="flex gap-1.5 shrink-0">
+                <button onclick="acceptFriendRequest('${escapeHtml(fromId)}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 text-xs font-bold transition">承認</button>
+                <button onclick="declineFriendRequest('${escapeHtml(fromId)}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950 border border-slate-700 hover:border-red-500 text-slate-300 hover:text-red-300 text-xs font-bold transition">辞退</button>
+              </div>
+            `;
+            reqList.appendChild(div);
+          });
+        }
       }
 
-      const friendEntries = Object.values(friendsMap || {});
-      document.getElementById("friends-list-count").textContent = friendEntries.length;
-      const listGrid = document.getElementById("friends-list-grid");
+      const friendIds = Object.keys(friendsMap);
+      const countEl = document.getElementById("friends-list-count");
+      const gridEl = document.getElementById("friends-list-grid");
+      if (countEl) countEl.textContent = friendIds.length;
+      if (!gridEl) return;
 
-      if (friendEntries.length === 0) {
-        listGrid.innerHTML = `<div class="col-span-full text-center text-xs text-slate-500 py-8">まだフレンドがいません。プレイヤーIDや対戦リザルトから申請してみましょう！</div>`;
+      gridEl.innerHTML = "";
+      if (friendIds.length === 0) {
+        gridEl.innerHTML = `<div class="col-span-full p-6 text-center text-xs text-slate-500">まだフレンドがいません。プレイヤーIDを入力するか、対戦・ランキングから申請を送ってみましょう！</div>`;
         return;
       }
 
-      listGrid.innerHTML = friendEntries.map(f => {
-        const liveP = allPlayersCache[f.deviceId] || {};
-        const name = liveP.username || f.username || "Friend";
-        const avatar = liveP.avatar || f.avatar || DEFAULT_AVATAR;
-        const rate = liveP.rating ?? f.rating ?? 1500;
-        const isOnlineNow = liveP.lastSeen && (Date.now() - liveP.lastSeen < 120000);
-
-        return `
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0 cursor-pointer" onclick="openRankedPlayerProfile('${escapeHtml(f.deviceId)}')">
-              <img src="${avatar}" class="w-11 h-11 rounded-full object-cover border border-emerald-400/70 bg-slate-800 shrink-0" />
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full ${isOnlineNow ? "bg-emerald-400" : "bg-slate-600"} shrink-0"></span>
-                  <span class="font-bold text-sm text-white truncate">${escapeHtml(name)}</span>
-                </div>
-                <div class="text-[11px] font-mono-code text-cyan-300">RATE: ${rate}</div>
-              </div>
+      friendIds.forEach(fid => {
+        const p = allPlayersCache[fid] || { deviceId: fid, username: "Player", avatar: DEFAULT_AVATAR, rating: 1500 };
+        const isOnline = p.lastSeen && (Date.now() - normalizeTimestampValue(p.lastSeen) < 90000);
+        const card = document.createElement("div");
+        card.className = "p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 flex items-center justify-between gap-3 transition";
+        card.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="relative shrink-0">
+              <img src="${escapeHtml(p.avatar || DEFAULT_AVATAR)}" class="w-11 h-11 rounded-full object-cover border border-emerald-400/50 bg-slate-950" />
+              <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-900 ${isOnline ? "bg-emerald-400" : "bg-slate-600"}"></span>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="openFriendDmModal('${escapeHtml(f.deviceId)}')" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition flex items-center gap-1">
-                <i class="fa-regular fa-comment-dots"></i> DM
-              </button>
-              <button onclick="removeFriendRelation('${escapeHtml(f.deviceId)}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950/70 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-red-300 text-xs transition" title="フレンド解除">
-                <i class="fa-solid fa-user-xmark"></i>
-              </button>
+            <div class="min-w-0">
+              <div class="font-bold text-sm text-white truncate">${escapeHtml(p.username || "Player")}</div>
+              <div class="text-[11px] font-mono-code text-amber-300">RATE: ${p.rating ?? 1500} <span class="text-slate-500">• ${isOnline ? "ONLINE" : "OFFLINE"}</span></div>
             </div>
           </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openFriendDmModal('${escapeHtml(fid)}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 text-xs font-bold transition">
+              <i class="fa-regular fa-comment-dots mr-1"></i>DM
+            </button>
+            <button onclick="removeFriend('${escapeHtml(fid)}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-red-300 text-xs transition" title="フレンド解除">
+              <i class="fa-solid fa-user-xmark"></i>
+            </button>
+          </div>
         `;
-      }).join("");
+        gridEl.appendChild(card);
+      });
+    }
+
+    function updateFriendDmHeaderStatus() {
+      if (!activeFriendDmTargetId) return;
+      const p = allPlayersCache[activeFriendDmTargetId] || {};
+      const nameEl = document.getElementById("friend-dm-name");
+      const avEl = document.getElementById("friend-dm-avatar");
+      const stEl = document.getElementById("friend-dm-status");
+      if (nameEl) nameEl.textContent = p.username || "Friend";
+      if (avEl) avEl.src = p.avatar || DEFAULT_AVATAR;
+      if (stEl) {
+        const isOnline = p.lastSeen && (Date.now() - normalizeTimestampValue(p.lastSeen) < 90000);
+        stEl.textContent = isOnline ? "ONLINE" : "OFFLINE";
+        stEl.className = `text-[10px] font-mono-code ${isOnline ? "text-emerald-400" : "text-slate-500"}`;
+      }
     }
 
     window.openFriendDmModal = function(friendId) {
-      const fBase = friendsMap[friendId];
-      if (!fBase) return;
-      const liveP = allPlayersCache[friendId] || {};
-      currentFriendDmTarget = {
-        deviceId: friendId,
-        username: liveP.username || fBase.username || "Friend",
-        avatar: liveP.avatar || fBase.avatar || DEFAULT_AVATAR,
-        isOnline: !!(liveP.lastSeen && (Date.now() - liveP.lastSeen < 120000))
-      };
-
-      document.getElementById("friend-dm-avatar").src = currentFriendDmTarget.avatar;
-      document.getElementById("friend-dm-name").textContent = currentFriendDmTarget.username;
-      const statusEl = document.getElementById("friend-dm-status");
-      statusEl.textContent = currentFriendDmTarget.isOnline ? "ONLINE" : "OFFLINE";
-      statusEl.className = currentFriendDmTarget.isOnline
-        ? "text-[10px] font-mono-code text-emerald-400"
-        : "text-[10px] font-mono-code text-slate-500";
-
+      if (!firebaseReady || !db || !friendId) return;
+      activeFriendDmTargetId = friendId;
+      updateFriendDmHeaderStatus();
       document.getElementById("modal-friend-dm").classList.remove("hidden");
-      document.getElementById("friend-dm-input").value = "";
-
-      if (friendDmUnsubscribe) {
-        friendDmUnsubscribe();
-        friendDmUnsubscribe = null;
+      const inp = document.getElementById("friend-dm-input");
+      if (inp) {
+        inp.value = "";
+        setTimeout(() => inp.focus(), 50);
       }
 
-      if (firebaseReady && db) {
-        const roomId = getFriendDmRoomId(playerData.deviceId, friendId);
-        const altRoomId = `${playerData.deviceId}__${friendId}`;
-        let latestPrimary = {};
-        let latestAlt = {};
+      if (activeFriendDmListener) {
+        activeFriendDmListener();
+        activeFriendDmListener = null;
+      }
 
-        const mergeAndRender = () => {
-          const merged = { ...(latestAlt || {}), ...(latestPrimary || {}) };
-          renderFriendDmMessages(merged);
-        };
+      const chatId = getFriendChatId(playerData.deviceId, friendId);
+      const listEl = document.getElementById("friend-dm-messages");
+      listEl.innerHTML = `<div class="text-slate-500 text-center py-4">読み込み中...</div>`;
 
-        const unsubPrimary = onValue(ref(db, `friendDms/${roomId}`), (snap) => {
-          latestPrimary = snap.exists() ? snap.val() : {};
-          mergeAndRender();
-        });
-
-        let unsubAlt = null;
-        if (altRoomId !== roomId) {
-          unsubAlt = onValue(ref(db, `friendDms/${altRoomId}`), (snap) => {
-            latestAlt = snap.exists() ? snap.val() : {};
-            mergeAndRender();
-          });
+      activeFriendDmListener = onValue(ref(db, `friendDms/${chatId}`), (snap) => {
+        listEl.innerHTML = "";
+        if (!snap.exists()) {
+          listEl.innerHTML = `<div class="text-slate-500 text-center py-6">まだメッセージはありません。最初のメッセージを送ってみましょう！</div>`;
+          return;
         }
+        const rawVal = snap.val();
+        const msgs = (Array.isArray(rawVal) ? rawVal : Object.values(rawVal).filter(Boolean))
+          .sort((a, b) => normalizeTimestampValue(a.timestamp) - normalizeTimestampValue(b.timestamp));
 
-        friendDmUnsubscribe = () => {
-          unsubPrimary();
-          if (unsubAlt) unsubAlt();
-        };
-      }
+        msgs.forEach(m => {
+          const isMine = m.senderId === playerData.deviceId;
+          const row = document.createElement("div");
+          row.className = `flex flex-col ${isMine ? "items-end" : "items-start"}`;
+          const bubble = document.createElement("div");
+          bubble.className = `max-w-[80%] px-3 py-2 rounded-xl ${
+            isMine
+              ? "bg-emerald-500/20 border border-emerald-400/50 text-emerald-100"
+              : "bg-slate-800 border border-slate-700 text-slate-100"
+          }`;
+          bubble.innerHTML = `
+            <div class="text-[10px] font-mono-code ${isMine ? "text-emerald-300" : "text-cyan-300"} mb-0.5">${escapeHtml(m.senderName || (isMine ? playerData.username : "Friend"))}</div>
+            <div class="whitespace-pre-wrap break-words">${escapeHtml(m.text || "")}</div>
+          `;
+          row.appendChild(bubble);
+          listEl.appendChild(row);
+        });
+        listEl.scrollTop = listEl.scrollHeight;
+      });
     };
 
     window.closeFriendDmModal = function() {
       document.getElementById("modal-friend-dm").classList.add("hidden");
-      if (friendDmUnsubscribe) {
-        friendDmUnsubscribe();
-        friendDmUnsubscribe = null;
+      activeFriendDmTargetId = null;
+      if (activeFriendDmListener) {
+        activeFriendDmListener();
+        activeFriendDmListener = null;
       }
-      currentFriendDmTarget = null;
     };
-
-    function renderFriendDmMessages(msgsObj) {
-      const container = document.getElementById("friend-dm-messages");
-      const rawItems = Array.isArray(msgsObj)
-        ? msgsObj.map((v, idx) => normalizeFriendDmMessage(v, String(idx)))
-        : Object.entries(msgsObj || {}).map(([k, v]) => normalizeFriendDmMessage(v, k));
-      const list = rawItems.filter(Boolean).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-      if (list.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-center py-8">メッセージを送って会話を始めましょう</div>`;
-        return;
-      }
-      container.innerHTML = list.map(m => {
-        const isMine = m.senderId === playerData.deviceId;
-        const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }) : "";
-        return `
-          <div class="flex flex-col ${isMine ? "items-end" : "items-start"}">
-            <div class="max-w-[80%] px-3.5 py-2 rounded-2xl ${isMine ? "bg-cyan-500/20 border border-cyan-400/50 text-cyan-100" : "bg-slate-800/90 border border-slate-700 text-slate-100"}">
-              <div class="whitespace-pre-wrap break-words">${escapeHtml(m.text)}</div>
-            </div>
-            <span class="text-[10px] font-mono-code text-slate-500 mt-0.5 px-1">${timeStr}</span>
-          </div>
-        `;
-      }).join("");
-      container.scrollTop = container.scrollHeight;
-    }
 
     window.sendFriendDmMessage = async function() {
-      if (!currentFriendDmTarget || !firebaseReady || !db) return;
+      if (!firebaseReady || !db || !activeFriendDmTargetId) return;
       const inp = document.getElementById("friend-dm-input");
-      const text = inp.value.trim();
+      const text = inp ? inp.value.trim() : "";
       if (!text) return;
 
-      const roomId = getFriendDmRoomId(playerData.deviceId, currentFriendDmTarget.deviceId);
-      await push(ref(db, `friendDms/${roomId}`), {
-        senderId: playerData.deviceId,
-        senderName: playerData.username,
-        text: text.slice(0, 300),
-        timestamp: Date.now()
-      });
-
+      const chatId = getFriendChatId(playerData.deviceId, activeFriendDmTargetId);
       inp.value = "";
-      inp.focus();
+      try {
+        await push(ref(db, `friendDms/${chatId}`), {
+          senderId: playerData.deviceId,
+          senderName: playerData.username || "Player",
+          text: text.slice(0, 300),
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        showToast("メッセージ送信に失敗しました", "GR");
+      }
     };
 
     // ---------------------------------------------------------------------
-    // 14. マイページ & 管理者パネル & 双方向DM & お知らせボックス
+    // 14. マイページ & 管理者パネル & リアルタイム同期
     // ---------------------------------------------------------------------
-    let allPlayersCache = {};
-    let updateNoticesCache = [];
-    let editingUpdateNoticeId = null;
-
     function renderMyPage() {
-      const s = playerData.stats;
       document.getElementById("mypage-avatar").src = playerData.avatar || DEFAULT_AVATAR;
-      document.getElementById("mypage-name-input").value = playerData.username;
+      document.getElementById("mypage-name-input").value = playerData.username || "";
       document.getElementById("mypage-device-id").textContent = playerData.deviceId;
+      const clampedSize = Math.min(64, Math.max(18, Number(playerData.kanaFontSize) || 32));
+      const rangeEl = document.getElementById("mypage-kana-size-range");
+      const valEl = document.getElementById("mypage-kana-size-value");
+      if (rangeEl) rangeEl.value = clampedSize;
+      if (valEl) valEl.textContent = clampedSize;
 
-      const tEl = document.getElementById("mypage-equipped-title");
-      tEl.textContent = playerData.equippedTitle;
-      tEl.className = `inline-block px-3 py-0.5 rounded-full border text-xs font-bold title-rarity-${getTitleRarity(playerData.equippedTitle)}`;
+      const titleEl = document.getElementById("mypage-equipped-title");
+      titleEl.textContent = playerData.equippedTitle;
+      titleEl.className = `inline-block px-3 py-0.5 rounded-full border text-xs font-bold title-rarity-${getTitleRarity(playerData.equippedTitle)}`;
 
+      const s = playerData.stats;
       const avgWpm = s.wpmCount > 0 ? (s.wpmSum / s.wpmCount).toFixed(1) : "0.0";
       const totalKeys = s.totalTypedChars + s.totalMistypes;
       const avgMiss = totalKeys > 0 ? ((s.totalMistypes / totalKeys) * 100).toFixed(1) : "0.0";
 
       document.getElementById("stat-rating").textContent = playerData.rating;
-      document.getElementById("stat-max-wpm").textContent = Number(s.maxWpm).toFixed(1);
+      document.getElementById("stat-max-wpm").textContent = Number(s.maxWpm || 0).toFixed(1);
       document.getElementById("stat-avg-wpm").textContent = avgWpm;
       document.getElementById("stat-avg-miss").textContent = `${avgMiss}%`;
-      document.getElementById("stat-total-plays").textContent = s.totalPlays;
-      document.getElementById("stat-max-combo").textContent = s.maxCombo;
+      document.getElementById("stat-total-plays").textContent = s.totalPlays || 0;
+      document.getElementById("stat-max-combo").textContent = s.maxCombo || 0;
       document.getElementById("stat-rate-wins").textContent = s.rateWins || 0;
       document.getElementById("stat-casual-wins").textContent = s.casualWins || 0;
 
-      document.getElementById("stat-mode-frash").textContent = s.modePlays.FRASH || 0;
-      document.getElementById("stat-mode-speed").textContent = s.modePlays.SPEED || 0;
-      document.getElementById("stat-mode-overdrive").textContent = s.modePlays.OVERDRIVE || 0;
-      document.getElementById("stat-mode-marathon").textContent = s.modePlays.MARATHON || 0;
-      document.getElementById("stat-mode-sadden").textContent = s.modePlays["SADDEN DEATH"] || 0;
+      document.getElementById("stat-mode-frash").textContent = s.modePlays?.FRASH || 0;
+      document.getElementById("stat-mode-speed").textContent = s.modePlays?.SPEED || 0;
+      document.getElementById("stat-mode-overdrive").textContent = s.modePlays?.OVERDRIVE || 0;
+      document.getElementById("stat-mode-marathon").textContent = s.modePlays?.MARATHON || 0;
+      document.getElementById("stat-mode-sadden").textContent = s.modePlays?.["SADDEN DEATH"] || 0;
       document.getElementById("stat-sadden-clear").textContent = s.saddenClearCount || 0;
-      document.getElementById("stat-mode-casual").textContent = s.modePlays.CASUAL || 0;
-      document.getElementById("stat-mode-rate").textContent = s.modePlays.RATE || 0;
+      document.getElementById("stat-mode-casual").textContent = s.modePlays?.CASUAL || 0;
+      document.getElementById("stat-mode-rate").textContent = s.modePlays?.RATE || 0;
       document.getElementById("stat-casual-w2").textContent = s.casualWins || 0;
       document.getElementById("stat-rate-w2").textContent = s.rateWins || 0;
-
-      updateAdminDmBadges();
     }
 
     window.saveUsername = function() {
       const inp = document.getElementById("mypage-name-input");
       const raw = inp.value.trim();
-      if (!raw) {
-        showToast("名前を入力してください", "GR");
-        return;
-      }
+      if (!raw) return;
 
       if (raw === "admin11233") {
         playerData.isAdmin = true;
         playerData.username = "Admin";
-        inp.value = "Admin";
         checkAndUnlockTitles();
         savePlayerData();
         refreshAllProfileUI();
         renderMyPage();
-        showToast("管理者権限が有効化されました（称号「管理者」獲得）", "GR");
+        showToast("管理者権限が解放されました！", "GR");
         return;
       }
 
       playerData.username = raw.slice(0, 20);
+      playerData.nameInitialized = true;
       savePlayerData();
       refreshAllProfileUI();
+      renderMyPage();
       showToast("ユーザーネームを保存しました", "RR");
     };
 
     window.handleAvatarUpload = function(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      if (file.size > 1.5 * 1024 * 1024) {
-        showToast("画像サイズは1.5MB以下にしてください", "GR");
-        return;
-      }
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -4609,7 +4498,16 @@
           canvas.width = size;
           canvas.height = size;
           const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, size, size);
+          ctx.fillStyle = "#0a0f18";
+          ctx.fillRect(0, 0, size, size);
+
+          const scale = Math.max(size / img.width, size / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          const x = (size - w) / 2;
+          const y = (size - h) / 2;
+          ctx.drawImage(img, x, y, w, h);
+
           playerData.avatar = canvas.toDataURL("image/jpeg", 0.82);
           savePlayerData();
           refreshAllProfileUI();
@@ -4621,80 +4519,159 @@
       reader.readAsDataURL(file);
     };
 
-    function renderUserAdminDmThread(messages) {
-      const histEl = document.getElementById("user-admin-dm-history");
-      if (!histEl) return;
-      if (!messages || messages.length === 0) {
-        histEl.innerHTML = `<div class="text-slate-500 text-center py-4">まだメッセージはありません</div>`;
-        return;
+    function applyKanaFontSize() {
+      const size = Math.min(64, Math.max(18, Number(playerData.kanaFontSize) || 32));
+      const kanaEl = document.getElementById("word-kana");
+      if (kanaEl) {
+        kanaEl.style.fontSize = `${size}px`;
+        kanaEl.style.lineHeight = "1.25";
       }
-      histEl.innerHTML = messages.map(m => {
-        const isFromAdmin = m.from === "admin";
-        const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-        return `
-          <div class="p-2.5 rounded-lg ${isFromAdmin ? "bg-pink-950/40 border border-pink-500/40" : "bg-cyan-950/30 border border-cyan-500/30"} space-y-1">
-            <div class="flex items-center justify-between text-[10px] font-mono-code">
-              <span class="${isFromAdmin ? "text-pink-400 font-bold" : "text-cyan-300 font-bold"}">${isFromAdmin ? "管理者 (Admin)" : "あなた"}</span>
-              <span class="text-slate-500">${escapeHtml(timeStr)}</span>
-            </div>
-            <div class="text-slate-100 whitespace-pre-wrap break-words">${escapeHtml(m.text)}</div>
-          </div>
-        `;
-      }).join("");
-      histEl.scrollTop = histEl.scrollHeight;
+      const valEl = document.getElementById("mypage-kana-size-value");
+      if (valEl) valEl.textContent = size;
+      const rangeEl = document.getElementById("mypage-kana-size-range");
+      if (rangeEl && Number(rangeEl.value) !== size) rangeEl.value = size;
     }
 
-    function updateAdminDmBadges() {
-      const unreadAdminReplies = (playerData.unreadDms || []).filter(m => m.from === "admin" && !m.read);
-      const hasUnreadReply = unreadAdminReplies.length > 0;
+    window.updateKanaFontSize = function(newSize) {
+      const size = Math.min(64, Math.max(18, Number(newSize) || 32));
+      playerData.kanaFontSize = size;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
+      applyKanaFontSize();
+    };
 
-      const userBadge = document.getElementById("mypage-user-dm-badge");
-      if (userBadge) userBadge.classList.toggle("hidden", !hasUnreadReply);
+    // ---------------------------------------------------------------------
+    // データ削除確認モーダル（自分のリセット / 管理者のプレイヤー完全削除共通）
+    // ---------------------------------------------------------------------
+    let pendingDeleteCallback = null;
 
-      let adminHasUnread = false;
-      Object.values(allPlayersCache).forEach(p => {
-        if (!p || !p.adminDms) return;
-        const dmItems = Array.isArray(p.adminDms) ? p.adminDms : Object.values(p.adminDms);
-        if (dmItems.some(d => d && d.from === "user" && d.unread)) {
-          adminHasUnread = true;
+    function openDeleteConfirmModal(title, desc, onConfirm) {
+      pendingDeleteCallback = typeof onConfirm === "function" ? onConfirm : null;
+      const titleEl = document.getElementById("delete-confirm-title");
+      const descEl = document.getElementById("delete-confirm-desc");
+      if (titleEl) titleEl.textContent = title;
+      if (descEl) descEl.textContent = desc;
+      document.getElementById("modal-delete-confirm").classList.remove("hidden");
+    }
+
+    window.closeDeleteConfirmModal = function() {
+      pendingDeleteCallback = null;
+      document.getElementById("modal-delete-confirm").classList.add("hidden");
+    };
+
+    document.getElementById("btn-delete-confirm-yes")?.addEventListener("click", async () => {
+      const cb = pendingDeleteCallback;
+      closeDeleteConfirmModal();
+      if (cb) await cb();
+    });
+
+    window.confirmResetMyData = function() {
+      openDeleteConfirmModal(
+        "本当に自分のデータを削除しますか？",
+        "※名前・アイコン・称号・戦績・ランキング記録がすべて初期化されます。この操作は取り消せません。",
+        async () => {
+          const devId = playerData.deviceId;
+          localStorage.removeItem(SAVE_KEY);
+          localStorage.removeItem("neontype_save");
+
+          if (firebaseReady && db && devId) {
+            try {
+              await remove(ref(db, `players/${devId}`));
+              const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+              for (const m of modes) {
+                const snap = await get(ref(db, `leaderboards/${m}`));
+                if (snap.exists()) {
+                  const obj = snap.val();
+                  Object.entries(obj).forEach(([k, v]) => {
+                    if (v && v.deviceId === devId) {
+                      remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {});
+                    }
+                  });
+                }
+              }
+            } catch (e) {}
+          }
+
+          playerData = createDefaultPlayerData();
+          savePlayerData();
+          location.reload();
+        }
+      );
+    };
+
+    // ---------------------------------------------------------------------
+    // プレイヤー用：管理者との双方向DM（要望送信＆返信閲覧）
+    // ---------------------------------------------------------------------
+    let userAdminDmUnsub = null;
+
+    function startUserAdminDmListener() {
+      if (!firebaseReady || !db || !playerData.deviceId) return;
+      if (userAdminDmUnsub) {
+        userAdminDmUnsub();
+        userAdminDmUnsub = null;
+      }
+      userAdminDmUnsub = onValue(ref(db, `players/${playerData.deviceId}/adminDms`), (snap) => {
+        const dms = snap.exists() ? Object.values(snap.val()) : [];
+        const hasUnreadReply = dms.some(d => d.from === "admin" && d.unread);
+        const badge = document.getElementById("mypage-user-dm-badge");
+        if (badge) badge.classList.toggle("hidden", !hasUnreadReply);
+        if (!document.getElementById("modal-admin-dm").classList.contains("hidden")) {
+          renderUserAdminDmThread(dms);
         }
       });
+    }
 
-      const hdrBadge = document.getElementById("header-admin-badge");
-      const homeBadge = document.getElementById("home-admin-badge");
-      const mpAdminBadge = document.getElementById("mypage-admin-dm-badge");
-      if (playerData.isAdmin) {
-        if (hdrBadge) hdrBadge.classList.toggle("hidden", !adminHasUnread);
-        if (homeBadge) homeBadge.classList.toggle("hidden", !adminHasUnread);
-        if (mpAdminBadge) mpAdminBadge.classList.toggle("hidden", !adminHasUnread);
-      } else {
-        if (hdrBadge) hdrBadge.classList.add("hidden");
-        if (homeBadge) homeBadge.classList.add("hidden");
-        if (mpAdminBadge) mpAdminBadge.classList.add("hidden");
+    function renderUserAdminDmThread(dms) {
+      const box = document.getElementById("user-admin-dm-history");
+      if (!box) return;
+      const sorted = [...(dms || [])].sort((a, b) => normalizeTimestampValue(a.timestamp) - normalizeTimestampValue(b.timestamp));
+      if (sorted.length === 0) {
+        box.innerHTML = `<div class="text-slate-500 text-center py-4">まだメッセージはありません</div>`;
+        return;
       }
+      box.innerHTML = "";
+      sorted.forEach(m => {
+        const isAdmin = m.from === "admin";
+        const div = document.createElement("div");
+        div.className = `p-2.5 rounded-lg border ${
+          isAdmin
+            ? "bg-pink-950/35 border-pink-500/40 text-pink-100"
+            : "bg-slate-900 border-slate-800 text-slate-200"
+        }`;
+        const timeStr = m.timestamp ? new Date(normalizeTimestampValue(m.timestamp)).toLocaleString("ja-JP") : "";
+        div.innerHTML = `
+          <div class="flex justify-between text-[10px] font-mono-code ${isAdmin ? "text-pink-300" : "text-cyan-300"} mb-1">
+            <span>${isAdmin ? "管理者 (Admin)" : "あなた"}</span>
+            <span>${escapeHtml(timeStr)}</span>
+          </div>
+          <div class="whitespace-pre-wrap break-words">${escapeHtml(m.text || "")}</div>
+        `;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
     }
 
     window.openAdminDmModal = async function() {
-      document.getElementById("modal-admin-dm").classList.remove("hidden");
       document.getElementById("admin-dm-textarea").value = "";
+      document.getElementById("modal-admin-dm").classList.remove("hidden");
 
-      if (firebaseReady && db) {
+      if (firebaseReady && db && playerData.deviceId) {
         try {
           const snap = await get(ref(db, `players/${playerData.deviceId}/adminDms`));
-          if (snap.exists()) {
-            const list = Object.values(snap.val()).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            playerData.unreadDms = list.map(m => ({ ...m, read: true }));
-            savePlayerData();
+          const rawObj = snap.exists() ? snap.val() : {};
+          const updates = {};
+          Object.entries(rawObj).forEach(([k, v]) => {
+            if (v && v.from === "admin" && v.unread) {
+              updates[`${k}/unread`] = false;
+            }
+          });
+          if (Object.keys(updates).length > 0) {
+            await update(ref(db, `players/${playerData.deviceId}/adminDms`), updates);
           }
+          renderUserAdminDmThread(Object.values(rawObj));
         } catch (e) {}
       }
-
-      if (Array.isArray(playerData.unreadDms)) {
-        playerData.unreadDms = playerData.unreadDms.map(m => ({ ...m, read: true }));
-        savePlayerData();
-      }
-      updateAdminDmBadges();
-      renderUserAdminDmThread(playerData.unreadDms || []);
+      const badge = document.getElementById("mypage-user-dm-badge");
+      if (badge) badge.classList.add("hidden");
     };
 
     window.closeUserAdminDmModal = function() {
@@ -4702,134 +4679,120 @@
     };
 
     window.sendAdminDm = async function() {
-      const ta = document.getElementById("admin-dm-textarea");
-      const msg = ta.value.trim();
-      if (!msg) return;
+      const txt = document.getElementById("admin-dm-textarea").value.trim();
+      if (!txt) return;
 
-      const dmEntry = {
+      const dmPayload = {
         from: "user",
         senderId: playerData.deviceId,
-        senderName: playerData.username,
-        text: msg,
+        senderName: playerData.username || "Player",
+        text: txt,
         timestamp: Date.now(),
-        unread: true,
-        read: true
+        unread: true
       };
 
-      playerData.unreadDms = [...(playerData.unreadDms || []), dmEntry];
-      savePlayerData();
-
       if (firebaseReady && db) {
-        await push(ref(db, `players/${playerData.deviceId}/adminDms`), dmEntry).catch(() => {});
-        await push(ref(db, `adminDms/${playerData.deviceId}`), dmEntry).catch(() => {});
+        try {
+          await update(ref(db, `players/${playerData.deviceId}`), {
+            deviceId: playerData.deviceId,
+            username: playerData.username || "Player",
+            avatar: playerData.avatar || DEFAULT_AVATAR,
+            lastSeen: serverTimestamp()
+          });
+          await push(ref(db, `players/${playerData.deviceId}/adminDms`), dmPayload);
+          showToast("管理者にメッセージを送信しました！", "RR");
+        } catch (e) {
+          showToast("送信に失敗しました", "GR");
+        }
       }
 
-      ta.value = "";
-      renderUserAdminDmThread(playerData.unreadDms);
-      showToast("管理者にメッセージを送信しました", "RR");
+      document.getElementById("modal-admin-dm").classList.add("hidden");
     };
 
-    let currentViewingDmPlayerId = null;
+    // ---------------------------------------------------------------------
+    // 管理者パネル機能（ニュース・バージョン・お知らせ・プレイヤー管理・ワード追加/削除・ランキング保守）
+    // ---------------------------------------------------------------------
+    let adminPlayersCache = [];
+    let currentAdminWordFilter = "all";
+    let updateNoticesCache = [];
+    let editingUpdateNoticeId = null;
 
-    function renderAdminPanel() {
-      document.getElementById("admin-news-input").value = document.getElementById("news-ticker-text").textContent.trim();
-      document.getElementById("admin-version-input").value = normalizeVersionString(document.getElementById("start-version-text").textContent.trim());
-      renderAdminPlayersTable();
-      renderAdminWordList();
-      renderAdminRankingCleanup();
-      renderAdminUpdateNoticesList();
+    function updateUnreadDmBadges() {
+      const hasUnread = adminPlayersCache.some(p =>
+        p && p.deviceId !== playerData.deviceId &&
+        p.adminDms && Object.values(p.adminDms).some(d => d.from === "user" && d.unread)
+      );
+      const show = Boolean(playerData.isAdmin && hasUnread);
+      const hBadge = document.getElementById("header-admin-badge");
+      const homeBadge = document.getElementById("home-admin-badge");
+      const mpBadge = document.getElementById("mypage-admin-dm-badge");
+      if (hBadge) hBadge.classList.toggle("hidden", !show);
+      if (homeBadge) homeBadge.classList.toggle("hidden", !show);
+      if (mpBadge) mpBadge.classList.toggle("hidden", !show);
     }
 
-    window.adminUpdateNews = function() {
-      const text = document.getElementById("admin-news-input").value.trim();
-      if (!text) return;
-      document.getElementById("news-ticker-text").textContent = text;
-      localStorage.setItem("neontype_news_v1", text);
-      if (firebaseReady && db) {
-        set(ref(db, "config/newsTicker"), text).catch(() => {});
+    function renderAdminPanel() {
+      if (!playerData.isAdmin) {
+        navigate("home");
+        return;
       }
-      showToast("電光掲示板ニュースを即時更新しました", "SR");
+      document.getElementById("admin-news-input").value = document.getElementById("news-ticker-text").textContent.trim();
+      document.getElementById("admin-version-input").value = document.getElementById("start-version-text").textContent.trim();
+      previewAdminWordRomaji();
+      renderAdminWordsList();
+      renderAdminPlayersTable();
+      renderAdminUpdateNoticesList();
+      renderAdminRankingCleanup();
+    }
+
+    window.adminTriggerForceReloadAll = async function() {
+      if (!firebaseReady || !db) {
+        showToast("サーバーに接続できません", "GR");
+        return;
+      }
+      try {
+        await set(ref(db, "config/forceReload"), {
+          triggeredAt: Date.now(),
+          by: playerData.deviceId
+        });
+        showToast("全プレイヤーへ強制更新を送信しました", "SR");
+      } catch (e) {
+        showToast("強制更新の送信に失敗しました", "GR");
+      }
+    };
+
+    window.adminUpdateNews = function() {
+      const val = document.getElementById("admin-news-input").value.trim();
+      if (!val) return;
+      document.getElementById("news-ticker-text").textContent = val;
+      if (firebaseReady && db) {
+        set(ref(db, "config/newsTicker"), val).catch(() => {});
+      }
+      showToast("電光掲示板を更新しました", "RR");
     };
 
     window.adminUpdateVersion = function() {
-      const ver = normalizeVersionString(document.getElementById("admin-version-input").value.trim());
-      if (!ver) return;
-      document.getElementById("admin-version-input").value = ver;
-      document.getElementById("start-version-text").textContent = ver;
-      localStorage.setItem("neontype_version_v1", ver);
+      const val = document.getElementById("admin-version-input").value.trim();
+      if (!val) return;
+      document.getElementById("start-version-text").textContent = val;
+      document.title = `NEONTYPE | ${val}`;
+      localStorage.setItem("neontype_custom_version", val);
       if (firebaseReady && db) {
-        set(ref(db, "config/version"), ver).catch(() => {});
+        set(ref(db, "config/version"), val).catch(() => {});
       }
-      showToast(`バージョン表記を「${ver}」に変更しました`, "SR");
+      showToast(`バージョン表記を「${val}」に変更しました`, "RR");
     };
-
-    window.adminForceReloadAllPlayers = async function() {
-      if (!playerData.isAdmin) return;
-      const reloadSignal = {
-        triggeredAt: Date.now(),
-        by: playerData.deviceId
-      };
-      if (firebaseReady && db) {
-        try {
-          await set(ref(db, "config/forceReload"), reloadSignal);
-          showToast("全プレイヤーへ強制リロード信号を送信しました", "SR");
-        } catch (e) {
-          showToast("強制リロード信号の送信に失敗しました", "GR");
-        }
-      } else {
-        location.reload();
-      }
-    };
-
-    function renderAdminUpdateNoticesList() {
-      const box = document.getElementById("admin-update-list");
-      if (!box) return;
-      if (!updateNoticesCache || updateNoticesCache.length === 0) {
-        box.innerHTML = `<div class="p-4 text-center text-slate-500">投稿されたお知らせはありません</div>`;
-        return;
-      }
-      box.innerHTML = updateNoticesCache.map(n => {
-        const dt = n.timestamp ? new Date(n.timestamp).toLocaleString("ja-JP") : "";
-        return `
-          <div class="p-3 flex items-start justify-between gap-3 bg-slate-900/50">
-            <div class="space-y-1 min-w-0">
-              <div class="font-bold text-cyan-300 truncate">${escapeHtml(n.title)}</div>
-              <div class="text-slate-300 whitespace-pre-wrap break-words">${escapeHtml(n.body)}</div>
-              <div class="text-[10px] font-mono-code text-slate-500">${escapeHtml(dt)}</div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="startEditAdminUpdateNotice('${escapeHtml(n.id)}')" class="px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 font-bold text-[11px] transition">
-                編集
-              </button>
-              <button onclick="deleteAdminUpdateNotice('${escapeHtml(n.id)}')" class="px-2.5 py-1 rounded bg-red-950/70 border border-red-500/40 text-red-300 hover:bg-red-600 hover:text-white font-bold text-[11px] transition">
-                削除
-              </button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function syncAdminUpdateFormState() {
-      const headingEl = document.getElementById("admin-update-form-heading");
-      const editingBadge = document.getElementById("admin-update-editing-badge");
-      const cancelBtn = document.getElementById("btn-cancel-edit-update");
-      const submitBtn = document.getElementById("btn-submit-admin-update");
-      const isEditing = Boolean(editingUpdateNoticeId);
-
-      if (headingEl) headingEl.textContent = isEditing ? "お知らせの編集" : "お知らせボックスへの投稿";
-      if (editingBadge) editingBadge.classList.toggle("hidden", !isEditing);
-      if (cancelBtn) cancelBtn.classList.toggle("hidden", !isEditing);
-      if (submitBtn) submitBtn.textContent = isEditing ? "変更を保存する" : "お知らせを投稿する";
-    }
 
     window.startEditAdminUpdateNotice = function(noticeId) {
       const target = updateNoticesCache.find(n => n.id === noticeId);
       if (!target) return;
-      editingUpdateNoticeId = noticeId;
+      editingUpdateNoticeId = target.id;
       document.getElementById("admin-update-title").value = target.title || "";
-      document.getElementById("admin-update-body").value = target.body || "";
-      syncAdminUpdateFormState();
+      document.getElementById("admin-update-body").value = target.content || "";
+      document.getElementById("admin-update-form-heading").textContent = "お知らせの編集";
+      document.getElementById("admin-update-editing-badge").classList.remove("hidden");
+      document.getElementById("btn-cancel-edit-update").classList.remove("hidden");
+      document.getElementById("btn-submit-admin-update").textContent = "変更を保存する";
       document.getElementById("admin-update-title").focus();
     };
 
@@ -4837,15 +4800,16 @@
       editingUpdateNoticeId = null;
       document.getElementById("admin-update-title").value = "";
       document.getElementById("admin-update-body").value = "";
-      syncAdminUpdateFormState();
+      document.getElementById("admin-update-form-heading").textContent = "お知らせボックスへの投稿";
+      document.getElementById("admin-update-editing-badge").classList.add("hidden");
+      document.getElementById("btn-cancel-edit-update").classList.add("hidden");
+      document.getElementById("btn-submit-admin-update").textContent = "お知らせを投稿する";
     };
 
     window.adminPostUpdateNotice = async function() {
-      const titleEl = document.getElementById("admin-update-title");
-      const bodyEl = document.getElementById("admin-update-body");
-      const title = titleEl.value.trim();
-      const body = bodyEl.value.trim();
-      if (!title || !body) {
+      const title = document.getElementById("admin-update-title").value.trim();
+      const content = document.getElementById("admin-update-body").value.trim();
+      if (!title || !content) {
         showToast("タイトルと内容の両方を入力してください", "GR");
         return;
       }
@@ -4853,379 +4817,368 @@
       if (editingUpdateNoticeId) {
         const targetId = editingUpdateNoticeId;
         const existing = updateNoticesCache.find(n => n.id === targetId);
-        const updatedNotice = {
+        const updatedItem = {
           id: targetId,
           title,
-          body,
-          timestamp: existing?.timestamp || Date.now(),
+          content,
+          createdAt: existing?.createdAt || Date.now(),
           updatedAt: Date.now()
         };
 
         if (firebaseReady && db) {
-          await update(ref(db, `updateNotices/${targetId}`), updatedNotice).catch(() => {});
+          try {
+            await update(ref(db, `updateNotices/${targetId}`), updatedItem);
+          } catch (e) {
+            showToast("お知らせの更新に失敗しました", "GR");
+            return;
+          }
         } else {
-          updateNoticesCache = updateNoticesCache.map(n => n.id === targetId ? updatedNotice : n);
+          updateNoticesCache = updateNoticesCache.map(n => n.id === targetId ? updatedItem : n);
           localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesCache));
           renderAdminUpdateNoticesList();
+          renderUpdateNoticeModalList();
         }
 
-        editingUpdateNoticeId = null;
-        titleEl.value = "";
-        bodyEl.value = "";
-        syncAdminUpdateFormState();
-        showToast("お知らせを更新しました", "SR");
+        cancelEditAdminUpdateNotice();
+        showToast("お知らせを更新しました！", "RR");
         return;
       }
 
-      const noticeData = {
+      const item = {
+        id: "upd_" + Date.now(),
         title,
-        body,
-        timestamp: Date.now()
+        content,
+        createdAt: Date.now()
       };
 
       if (firebaseReady && db) {
-        const pushedRef = await push(ref(db, "updateNotices"), noticeData);
-        noticeData.id = pushedRef.key;
+        try {
+          await set(ref(db, `updateNotices/${item.id}`), item);
+        } catch (e) {
+          showToast("お知らせの投稿に失敗しました", "GR");
+          return;
+        }
       } else {
-        noticeData.id = "upd_" + Date.now();
-        updateNoticesCache = [noticeData, ...updateNoticesCache];
+        updateNoticesCache.unshift(item);
         localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesCache));
         renderAdminUpdateNoticesList();
+        renderUpdateNoticeModalList();
       }
 
-      titleEl.value = "";
-      bodyEl.value = "";
-      syncAdminUpdateFormState();
-      showToast("お知らせを投稿しました", "SR");
+      document.getElementById("admin-update-title").value = "";
+      document.getElementById("admin-update-body").value = "";
+      showToast("お知らせを投稿しました！", "RR");
     };
 
-    window.deleteAdminUpdateNotice = async function(noticeId) {
+    window.adminDeleteUpdateNotice = async function(noticeId) {
       if (editingUpdateNoticeId === noticeId) {
         cancelEditAdminUpdateNotice();
       }
       if (firebaseReady && db) {
-        await remove(ref(db, `updateNotices/${noticeId}`)).catch(() => {});
+        try {
+          await remove(ref(db, `updateNotices/${noticeId}`));
+        } catch (e) {}
       } else {
         updateNoticesCache = updateNoticesCache.filter(n => n.id !== noticeId);
         localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesCache));
         renderAdminUpdateNoticesList();
+        renderUpdateNoticeModalList();
       }
       showToast("お知らせを削除しました", "R");
     };
 
-    window.openUpdateNoticeModal = function() {
-      const modal = document.getElementById("modal-update-notice");
-      const listEl = document.getElementById("update-notice-modal-list");
-      modal.classList.remove("hidden");
-
-      const badge = document.getElementById("header-update-badge");
-      if (badge) badge.classList.add("hidden");
-
-      if (!updateNoticesCache || updateNoticesCache.length === 0) {
-        listEl.innerHTML = `<div class="text-slate-500 text-center py-8">現在お知らせはありません</div>`;
+    function renderAdminUpdateNoticesList() {
+      const listEl = document.getElementById("admin-update-list");
+      if (!listEl) return;
+      if (!updateNoticesCache.length) {
+        listEl.innerHTML = `<div class="p-3 text-center text-slate-500">投稿されたお知らせはありません</div>`;
         return;
       }
-
-      listEl.innerHTML = updateNoticesCache.map(n => {
-        const dt = n.timestamp ? new Date(n.timestamp).toLocaleString("ja-JP") : "";
-        return `
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-bold text-sm text-cyan-300">${escapeHtml(n.title)}</span>
-              <span class="text-[10px] font-mono-code text-slate-500 shrink-0">${escapeHtml(dt)}</span>
-            </div>
-            <p class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(n.body)}</p>
+      listEl.innerHTML = "";
+      updateNoticesCache.forEach(n => {
+        const div = document.createElement("div");
+        div.className = "p-2.5 flex items-center justify-between gap-2 bg-slate-900/60";
+        div.innerHTML = `
+          <div class="min-w-0">
+            <div class="font-bold text-cyan-300 truncate">${escapeHtml(n.title)}</div>
+            <div class="text-slate-400 truncate">${escapeHtml(n.content)}</div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="startEditAdminUpdateNotice('${escapeHtml(n.id)}')" class="px-2.5 py-1 rounded bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 font-bold">編集</button>
+            <button onclick="adminDeleteUpdateNotice('${escapeHtml(n.id)}')" class="px-2.5 py-1 rounded bg-red-950/70 border border-red-500/40 text-red-300 font-bold">削除</button>
           </div>
         `;
-      }).join("");
+        listEl.appendChild(div);
+      });
+    }
+
+    function renderUpdateNoticeModalList() {
+      const box = document.getElementById("update-notice-modal-list");
+      if (!box) return;
+      if (!updateNoticesCache.length) {
+        box.innerHTML = `<div class="p-6 text-center text-slate-500">現在新しいお知らせはありません</div>`;
+        return;
+      }
+      box.innerHTML = "";
+      updateNoticesCache.forEach(n => {
+        const dateStr = n.createdAt ? new Date(n.createdAt).toLocaleString("ja-JP") : "";
+        const card = document.createElement("div");
+        card.className = "p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5";
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-sm text-cyan-300">${escapeHtml(n.title)}</span>
+            <span class="text-[10px] font-mono-code text-slate-500 shrink-0">${escapeHtml(dateStr)}</span>
+          </div>
+          <p class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(n.content)}</p>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    window.openUpdateNoticeModal = function() {
+      renderUpdateNoticeModalList();
+      document.getElementById("modal-update-notice").classList.remove("hidden");
+      const badge = document.getElementById("header-update-badge");
+      if (badge) badge.classList.add("hidden");
     };
 
     function renderAdminPlayersTable() {
       const tbody = document.getElementById("admin-player-tbody");
-      const playersList = Object.values(allPlayersCache).filter(p => p && p.deviceId);
-      document.getElementById("admin-player-count").textContent = `${playersList.length} Players`;
+      const countEl = document.getElementById("admin-player-count");
+      if (!tbody) return;
 
-      if (playersList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">登録プレイヤーデータ待機中...</td></tr>`;
+      countEl.textContent = `${adminPlayersCache.length} Players`;
+      tbody.innerHTML = "";
+
+      if (adminPlayersCache.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">プレイヤーデータがありません</td></tr>`;
         return;
       }
 
-      const now = Date.now();
-      tbody.innerHTML = playersList.map(p => {
-        const isOnlineNow = p.lastSeen && (now - p.lastSeen < 120000);
-        const lastLoginStr = p.lastSeen ? new Date(p.lastSeen).toLocaleString("ja-JP") : "-";
+      adminPlayersCache.forEach(p => {
         const isSelf = p.deviceId === playerData.deviceId;
+        const lastSeenMs = normalizeTimestampValue(p.lastSeen);
+        const isOnline = lastSeenMs > 0 && (Date.now() - lastSeenMs < 90000);
+        const lastLoginStr = lastSeenMs > 0
+          ? new Date(lastSeenMs).toLocaleString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+          : "未記録";
+
         const dms = p.adminDms ? Object.values(p.adminDms) : [];
         const hasUnread = dms.some(d => d.from === "user" && d.unread);
+        const hasContacted = dms.length > 0;
+
+        const dmBtnStyle = hasUnread
+          ? "text-pink-400 border-pink-500 animate-pulse"
+          : (hasContacted
+            ? "text-cyan-300 border-cyan-500/60 hover:border-cyan-400"
+            : "text-slate-300 border-slate-700");
 
         const dmCellHtml = isSelf
           ? `<span class="text-[11px] font-mono-code text-slate-600">-</span>`
-          : `<button onclick="openAdminViewDm('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-pink-950 border border-slate-700 text-xs font-bold ${hasUnread ? "text-pink-400 border-pink-500 animate-pulse" : "text-slate-300"}">
+          : `<button onclick="openAdminViewDm('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-pink-950 border text-xs font-bold ${dmBtnStyle}">
                 DM (${dms.length}) ${hasUnread ? "NEW!" : ""}
               </button>`;
 
-        const deleteCellHtml = isSelf
-          ? `<span class="text-[11px] font-mono-code text-slate-600">自分</span>`
-          : `<button onclick="openAdminDeletePlayerModal('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 border border-red-500/50 text-red-200 hover:text-white font-bold transition">
+        const actionCellHtml = isSelf
+          ? `<span class="text-[11px] font-mono-code text-slate-600">SELF</span>`
+          : `<button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-700 border border-red-500/50 text-red-200 font-bold">
                 完全削除
               </button>`;
 
-        return `
-          <tr class="hover:bg-slate-900/60">
-            <td class="p-3 font-mono-code">
-              ${isOnlineNow
-                ? `<span class="inline-flex items-center gap-1 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>ONLINE</span>`
-                : `<span class="text-slate-500">OFFLINE</span>`}
-            </td>
-            <td class="p-3">
-              <div class="flex items-center gap-2">
-                <img src="${p.avatar || DEFAULT_AVATAR}" class="w-7 h-7 rounded-full object-cover bg-slate-800" />
-                <div>
-                  <div class="font-bold text-white">${escapeHtml(p.username || "Player")}</div>
-                  <div class="text-[10px] font-mono-code text-slate-500">${escapeHtml(p.deviceId)}</div>
-                </div>
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/70";
+        tr.innerHTML = `
+          <td class="p-3 font-mono-code">
+            ${isOnline
+              ? `<span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>ONLINE</span>`
+              : `<span class="text-slate-500">OFFLINE</span>`}
+          </td>
+          <td class="p-3">
+            <div class="flex items-center gap-2">
+              <img src="${escapeHtml(p.avatar || DEFAULT_AVATAR)}" class="w-7 h-7 rounded-full object-cover bg-slate-900" />
+              <div>
+                <div class="font-bold text-white">${escapeHtml(p.username || "Player")} ${isSelf ? `<span class="text-[10px] text-cyan-400">(自分)</span>` : ""}</div>
+                <div class="text-[10px] font-mono-code text-slate-500">${escapeHtml(p.deviceId)}</div>
               </div>
-            </td>
-            <td class="p-3 font-mono-code text-slate-300">${escapeHtml(lastLoginStr)}</td>
-            <td class="p-3 font-mono-code text-cyan-300">R:${p.rating ?? 1500} / WPM:${Number(p.maxWpm || 0).toFixed(1)}</td>
-            <td class="p-3">${dmCellHtml}</td>
-            <td class="p-3 text-right">${deleteCellHtml}</td>
-          </tr>
+            </div>
+          </td>
+          <td class="p-3 font-mono-code text-slate-300">${escapeHtml(lastLoginStr)}</td>
+          <td class="p-3 font-mono-code text-cyan-300">R:${p.rating ?? 1500} / WPM:${Number(p.maxWpm || 0).toFixed(1)}</td>
+          <td class="p-3">${dmCellHtml}</td>
+          <td class="p-3 text-right">${actionCellHtml}</td>
         `;
-      }).join("");
+        tbody.appendChild(tr);
+      });
     }
 
-    function renderAdminViewDmThread(list) {
-      const dmListEl = document.getElementById("view-dm-list");
-      const sorted = [...(list || [])].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-      if (sorted.length === 0) {
-        dmListEl.innerHTML = `<div class="text-slate-500 text-center py-4">メッセージはありません</div>`;
-        return;
-      }
-      dmListEl.innerHTML = sorted.map(d => {
-        const isAdminMsg = d.from === "admin";
-        const timeStr = d.timestamp ? new Date(d.timestamp).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-        return `
-          <div class="p-2.5 rounded-lg ${isAdminMsg ? "bg-pink-950/40 border border-pink-500/40 ml-4" : "bg-slate-900 border border-slate-800 mr-4"}">
-            <div class="flex items-center justify-between text-[10px] font-mono-code mb-1">
-              <span class="${isAdminMsg ? "text-pink-400 font-bold" : "text-cyan-300 font-bold"}">${isAdminMsg ? "管理者 (あなた)" : escapeHtml(d.senderName || "Player")}</span>
-              <span class="text-slate-500">${escapeHtml(timeStr)}</span>
-            </div>
-            <div class="text-slate-200 whitespace-pre-wrap break-words">${escapeHtml(d.text)}</div>
-          </div>
-        `;
-      }).join("");
-      dmListEl.scrollTop = dmListEl.scrollHeight;
-    }
+    let currentViewingDmPlayerId = null;
 
     window.openAdminViewDm = async function(deviceId) {
+      if (deviceId === playerData.deviceId) return;
       currentViewingDmPlayerId = deviceId;
-      const p = allPlayersCache[deviceId] || {};
-      document.getElementById("view-dm-sender").textContent = p.username || deviceId;
+      const p = adminPlayersCache.find(item => item.deviceId === deviceId);
+      document.getElementById("view-dm-sender").textContent = p?.username || deviceId;
       document.getElementById("admin-reply-dm-textarea").value = "";
 
-      let list = p.adminDms ? Object.entries(p.adminDms).map(([k, v]) => ({ _key: k, ...v })) : [];
-      renderAdminViewDmThread(list);
-
-      if (firebaseReady && db && p.adminDms) {
+      if (firebaseReady && db && p?.adminDms) {
         const updates = {};
         Object.entries(p.adminDms).forEach(([k, v]) => {
-          if (v && v.unread) updates[`${k}/unread`] = false;
+          if (v && v.from === "user" && v.unread) {
+            updates[`${k}/unread`] = false;
+          }
         });
         if (Object.keys(updates).length > 0) {
           await update(ref(db, `players/${deviceId}/adminDms`), updates).catch(() => {});
         }
       }
 
+      const listEl = document.getElementById("view-dm-list");
+      const dms = p?.adminDms ? Object.values(p.adminDms) : [];
+      dms.sort((a, b) => normalizeTimestampValue(a.timestamp) - normalizeTimestampValue(b.timestamp));
+
+      if (dms.length === 0) {
+        listEl.innerHTML = `<div class="text-slate-500 text-center py-4">メッセージ履歴はありません。下の欄から直接メッセージを送信できます。</div>`;
+      } else {
+        listEl.innerHTML = dms.map(d => {
+          const isAdmin = d.from === "admin";
+          const tStr = d.timestamp ? new Date(normalizeTimestampValue(d.timestamp)).toLocaleString("ja-JP") : "";
+          return `
+            <div class="p-2.5 rounded-lg border ${
+              isAdmin
+                ? "bg-cyan-950/35 border-cyan-500/40 text-cyan-100"
+                : "bg-slate-900 border-slate-800 text-slate-200"
+            }">
+              <div class="flex justify-between text-[10px] font-mono-code ${isAdmin ? "text-cyan-300" : "text-pink-300"} mb-0.5">
+                <span>${isAdmin ? "管理者 (返信)" : escapeHtml(d.senderName || p?.username || "Player")}</span>
+                <span>${escapeHtml(tStr)}</span>
+              </div>
+              <div class="whitespace-pre-wrap break-words">${escapeHtml(d.text || "")}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
       document.getElementById("btn-send-admin-reply").onclick = async () => {
-        const ta = document.getElementById("admin-reply-dm-textarea");
-        const replyText = ta.value.trim();
-        if (!replyText || !currentViewingDmPlayerId) return;
-
-        const adminMsg = {
-          from: "admin",
-          senderId: playerData.deviceId,
-          senderName: "Admin",
-          text: replyText,
-          timestamp: Date.now(),
-          unread: false,
-          read: false
-        };
-
+        const replyText = document.getElementById("admin-reply-dm-textarea").value.trim();
+        if (!replyText) return;
         if (firebaseReady && db) {
-          await push(ref(db, `players/${currentViewingDmPlayerId}/adminDms`), adminMsg).catch(() => {});
+          try {
+            await push(ref(db, `players/${deviceId}/adminDms`), {
+              from: "admin",
+              senderId: playerData.deviceId,
+              senderName: "Admin",
+              text: replyText,
+              timestamp: Date.now(),
+              unread: true
+            });
+            showToast("返信・メッセージを送信しました！", "RR");
+            document.getElementById("admin-reply-dm-textarea").value = "";
+            setTimeout(() => openAdminViewDm(deviceId), 150);
+          } catch (e) {
+            showToast("送信に失敗しました", "GR");
+          }
         }
-
-        if (currentViewingDmPlayerId === playerData.deviceId) {
-          playerData.unreadDms = [...(playerData.unreadDms || []), adminMsg];
-          savePlayerData();
-        }
-
-        list = [...list, adminMsg];
-        renderAdminViewDmThread(list);
-        ta.value = "";
-        showToast("プレイヤーへメッセージを送信しました", "SR");
       };
 
       document.getElementById("btn-clear-player-dms").onclick = async () => {
         if (firebaseReady && db) {
           await remove(ref(db, `players/${deviceId}/adminDms`)).catch(() => {});
-          await remove(ref(db, `adminDms/${deviceId}`)).catch(() => {});
+          showToast("DM履歴を消去しました", "R");
+          closeAdminViewDmModal();
         }
-        list = [];
-        renderAdminViewDmThread(list);
-        showToast("DM履歴を消去しました", "RR");
       };
 
       document.getElementById("modal-view-dm").classList.remove("hidden");
     };
 
     window.closeAdminViewDmModal = function() {
-      document.getElementById("modal-view-dm").classList.add("hidden");
       currentViewingDmPlayerId = null;
+      document.getElementById("modal-view-dm").classList.add("hidden");
     };
 
-    let pendingAdminDeleteDeviceId = null;
+    window.adminDeletePlayerCompletely = function(deviceId) {
+      if (deviceId === playerData.deviceId) return;
+      const targetPlayer = adminPlayersCache.find(item => item.deviceId === deviceId);
+      const targetName = targetPlayer?.username || deviceId;
 
-    window.openAdminDeletePlayerModal = function(deviceId) {
-      if (!deviceId || deviceId === playerData.deviceId) return;
-      pendingAdminDeleteDeviceId = deviceId;
-      const targetProf = allPlayersCache[deviceId] || {};
-      const labelEl = document.getElementById("admin-delete-player-target-label");
-      if (labelEl) {
-        labelEl.textContent = `${targetProf.username || "Player"} (${deviceId})`;
-      }
-      document.getElementById("modal-admin-delete-player").classList.remove("hidden");
-    };
-
-    window.closeAdminDeletePlayerModal = function() {
-      pendingAdminDeleteDeviceId = null;
-      document.getElementById("modal-admin-delete-player").classList.add("hidden");
-    };
-
-    window.confirmAdminDeletePlayerCompletely = async function() {
-      const targetId = pendingAdminDeleteDeviceId;
-      closeAdminDeletePlayerModal();
-      if (!targetId) return;
-      await adminDeletePlayerCompletely(targetId);
-    };
-
-    window.adminDeletePlayerCompletely = async function(deviceId) {
-      if (!firebaseReady && !db) return;
-      await remove(ref(db, `players/${deviceId}`)).catch(() => {});
-      await remove(ref(db, `adminDms/${deviceId}`)).catch(() => {});
-      await remove(ref(db, `friends/${deviceId}`)).catch(() => {});
-      await remove(ref(db, `friendRequestsIncoming/${deviceId}`)).catch(() => {});
-      await remove(ref(db, `friendRequestsOutgoing/${deviceId}`)).catch(() => {});
-      delete allPlayersCache[deviceId];
-
-      const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
-      for (const m of modes) {
-        try {
-          const snap = await get(ref(db, `leaderboards/${m}`));
-          if (snap.exists()) {
-            const filtered = Object.values(snap.val()).filter(item => item.deviceId !== deviceId);
-            const objMap = {};
-            filtered.forEach((item, i) => { objMap[`rank_${i + 1}`] = item; });
-            await set(ref(db, `leaderboards/${m}`), objMap);
+      openDeleteConfirmModal(
+        `「${targetName}」のデータを完全に削除しますか？`,
+        "※プレイヤーデータ・ランキング記録・フレンド情報などが削除されます。この操作は取り消せません。",
+        async () => {
+          if (firebaseReady && db) {
+            try {
+              await remove(ref(db, `players/${deviceId}`));
+              await remove(ref(db, `friends/${deviceId}`));
+              await remove(ref(db, `friendRequests/${deviceId}`));
+              await remove(ref(db, `friendRequestsSent/${deviceId}`));
+              const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+              for (const m of modes) {
+                const snap = await get(ref(db, `leaderboards/${m}`));
+                if (snap.exists()) {
+                  const obj = snap.val();
+                  Object.entries(obj).forEach(([k, v]) => {
+                    if (v && v.deviceId === deviceId) {
+                      remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {});
+                    }
+                  });
+                }
+              }
+              showToast("プレイヤーデータを完全削除しました", "SR");
+            } catch (e) {
+              showToast("削除中にエラーが発生しました", "GR");
+            }
           }
-        } catch (e) {}
-      }
-
-      if (deviceId === playerData.deviceId) {
-        localStorage.removeItem(SAVE_KEY);
-        localStorage.removeItem("neontype_device_id");
-        location.reload();
-        return;
-      }
-
-      renderAdminPlayersTable();
-      showToast("プレイヤーデータを完全削除しました", "SR");
+        }
+      );
     };
 
     window.previewAdminWordRomaji = function() {
       const reading = document.getElementById("admin-word-reading").value.trim();
-      const prevEl = document.getElementById("admin-romaji-preview");
+      const previewEl = document.getElementById("admin-romaji-preview");
       if (!reading) {
-        prevEl.textContent = "ひらがなを入力すると自動解析されます";
+        previewEl.textContent = "ひらがなを入力すると自動解析されます";
         return;
       }
-      const m = new FlexibleRomajiMatcher(reading);
+      const matcher = new FlexibleRomajiMatcher(reading);
+      const { remaining } = matcher.getDisplayParts();
       const strokes = getRequiredKeystrokes(reading);
       const cat = classifyWordByKeystrokes(reading);
-      const catLabel = cat === "short" ? "小" : (cat === "medium" ? "中" : "大");
-      const sample = m.chunks.map(c => c.options.join("/")).join(" ");
-      prevEl.textContent = `[自動判定: ${catLabel} / 最小${strokes}打鍵] 候補: ${sample}`;
+      const catLabel = cat === "short" ? "小 (〜10打鍵)" : (cat === "medium" ? "中 (11〜19打鍵)" : "大 (20打鍵〜)");
+      previewEl.textContent = `基本ローマ字: ${remaining} / 必要打鍵数: ${strokes}打鍵 → 自動分類: 【${catLabel}】`;
     };
 
     window.adminAddWord = function() {
       const text = document.getElementById("admin-word-text").value.trim();
-      const reading = document.getElementById("admin-word-reading").value.trim();
+      const reading = normalizeKana(document.getElementById("admin-word-reading").value.trim());
       if (!text || !reading) {
-        showToast("表示文字とひらがな読みを入力してください", "GR");
+        showToast("表示文字とひらがな読みの両方を入力してください", "GR");
         return;
       }
 
       const category = classifyWordByKeystrokes(reading);
-      const strokes = getRequiredKeystrokes(reading);
       const newWord = {
-        id: "custom_" + Date.now(),
+        id: "cust_" + Date.now(),
         category,
         text,
-        reading: normalizeKana(reading),
+        reading,
         isCustom: true
       };
 
       customAdminWords.push(newWord);
       localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
+
       if (firebaseReady && db) {
         set(ref(db, `customWords/${newWord.id}`), newWord).catch(() => {});
       }
 
       document.getElementById("admin-word-text").value = "";
       document.getElementById("admin-word-reading").value = "";
-      document.getElementById("admin-romaji-preview").textContent = "ひらがなを入力すると自動解析されます";
-      renderAdminWordList();
-      const sizeLabel = category === "short" ? "小" : (category === "medium" ? "中" : "大");
-      showToast(`ワード「${text}」を「${sizeLabel} (${strokes}打鍵)」として追加しました`, "RR");
+      previewAdminWordRomaji();
+      renderAdminWordsList();
+      showToast(`ワード「${text}」を追加しました`, "RR");
     };
 
-    let adminWordFilter = "all";
-    window.filterAdminWords = function(cat) {
-      adminWordFilter = cat;
-      renderAdminWordList();
-    };
-
-    function renderAdminWordList() {
-      const all = getAllWords();
-      const filtered = adminWordFilter === "all" ? all : all.filter(w => w.category === adminWordFilter);
-      document.getElementById("admin-word-total").textContent = `表示 ${filtered.length} / 全 ${all.length} 語`;
-
-      const listEl = document.getElementById("admin-word-list");
-      listEl.innerHTML = filtered.map(w => {
-        const strokes = getRequiredKeystrokes(w.reading);
-        const catBadge = w.category === "short"
-          ? `<span class="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px]">小 (${strokes}打鍵)</span>`
-          : (w.category === "medium"
-            ? `<span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px]">中 (${strokes}打鍵)</span>`
-            : `<span class="px-1.5 py-0.5 rounded bg-pink-950 text-pink-300 text-[10px]">大 (${strokes}打鍵)</span>`);
-        return `
-          <div class="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-900/60">
-            <div class="flex items-center gap-2 min-w-0">
-              ${catBadge}
-              <span class="font-bold text-white truncate">${escapeHtml(w.text)}</span>
-              <span class="text-slate-400 truncate">(${escapeHtml(w.reading)})</span>
-            </div>
-            <button onclick="adminDeleteWord('${escapeHtml(w.id)}')" class="px-2.5 py-1 rounded bg-red-950/70 hover:bg-red-600 border border-red-500/40 text-red-200 hover:text-white text-[11px] font-bold shrink-0 transition">
-              削除
-            </button>
-          </div>
-        `;
-      }).join("");
-    }
-
-    window.adminDeleteWord = function(wordId) {
-      const isCustom = customAdminWords.some(w => w.id === wordId);
+    window.adminDeleteWord = function(wordId, isCustom) {
       if (isCustom) {
         customAdminWords = customAdminWords.filter(w => w.id !== wordId);
         localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
@@ -5239,30 +5192,73 @@
           set(ref(db, `deletedDefaultWords/${wordId}`), true).catch(() => {});
         }
       }
-      renderAdminWordList();
-      showToast("ワードを削除しました", "RR");
+      renderAdminWordsList();
+      showToast("ワードを削除しました", "R");
     };
 
-    window.renderAdminRankingCleanup = async function() {
-      const mode = document.getElementById("admin-rank-mode-select").value;
-      const box = document.getElementById("admin-rank-cleanup-list");
-      box.innerHTML = `<div class="p-3 text-slate-500">読み込み中...</div>`;
+    window.filterAdminWords = function(cat) {
+      currentAdminWordFilter = cat;
+      renderAdminWordsList();
+    };
+
+    function renderAdminWordsList() {
+      const all = getAllWords();
+      const list = currentAdminWordFilter === "all"
+        ? all
+        : all.filter(w => w.category === currentAdminWordFilter);
+
+      document.getElementById("admin-word-total").textContent = `表示 ${list.length} / 全 ${all.length} 語`;
+      const container = document.getElementById("admin-word-list");
+      container.innerHTML = "";
+
+      list.slice(0, 150).forEach(w => {
+        const strokes = getRequiredKeystrokes(w.reading);
+        const catBadge = w.category === "short"
+          ? `<span class="text-cyan-300">[小:${strokes}打鍵]</span>`
+          : w.category === "medium"
+          ? `<span class="text-amber-300">[中:${strokes}打鍵]</span>`
+          : `<span class="text-pink-300">[大:${strokes}打鍵]</span>`;
+
+        const row = document.createElement("div");
+        row.className = "p-2.5 flex items-center justify-between gap-2 hover:bg-slate-900/70";
+        row.innerHTML = `
+          <div class="truncate">
+            ${catBadge}
+            <strong class="text-white ml-1">${escapeHtml(w.text)}</strong>
+            <span class="text-slate-400 ml-1">(${escapeHtml(w.reading)})</span>
+          </div>
+          <button onclick="adminDeleteWord('${escapeHtml(w.id)}', ${Boolean(w.isCustom)})" class="px-2 py-0.5 rounded bg-red-950/70 hover:bg-red-700 border border-red-500/40 text-red-300 text-[11px] font-bold shrink-0">
+            削除
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    async function renderAdminRankingCleanup() {
+      const sel = document.getElementById("admin-rank-mode-select");
+      const listEl = document.getElementById("admin-rank-cleanup-list");
+      if (!sel || !listEl) return;
+      const mode = sel.value;
+      listEl.innerHTML = `<div class="p-3 text-slate-400">読み込み中...</div>`;
 
       if (mode === "RATE") {
-        const playersList = Object.values(allPlayersCache)
-          .filter(p => p && p.deviceId)
-          .sort((a, b) => (b.rating ?? 1500) - (a.rating ?? 1500));
-
-        if (playersList.length === 0) {
-          box.innerHTML = `<div class="p-3 text-slate-500">レート登録データはありません</div>`;
+        const rateList = [...latestRatePlayersCache];
+        if (!rateList.length) {
+          listEl.innerHTML = `<div class="p-3 text-slate-500">レートランキングデータはありません</div>`;
           return;
         }
-        box.innerHTML = playersList.map(p => `
-          <div class="p-2.5 flex items-center justify-between">
-            <span><strong class="text-white">${escapeHtml(p.username || "Player")}</strong> - <span class="font-mono-code text-amber-300">RATE: ${p.rating ?? 1500}</span></span>
-            <button onclick="adminResetPlayerRate('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 text-red-200 hover:text-white font-bold">1500へリセット</button>
-          </div>
-        `).join("");
+        listEl.innerHTML = "";
+        rateList.forEach((entry) => {
+          const rVal = Number(entry.rateVal ?? entry.rating ?? 1500);
+          const row = document.createElement("div");
+          row.className = "p-2 flex items-center justify-between gap-2";
+          row.innerHTML = `
+            <span class="font-mono-code text-slate-200">${escapeHtml(entry.username)} - <strong class="text-amber-300">RATE ${rVal}</strong></span>
+            <button onclick="adminDeleteRateEntry('${escapeHtml(entry.deviceId)}')" class="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-red-300 text-[11px]">RATEリセット</button>
+          `;
+          listEl.appendChild(row);
+        });
         return;
       }
 
@@ -5270,63 +5266,78 @@
       if (firebaseReady && db) {
         try {
           const snap = await get(ref(db, `leaderboards/${mode}`));
-          if (snap.exists()) entries = Object.values(snap.val());
+          if (snap.exists()) {
+            entries = Object.entries(snap.val()).map(([k, v]) => ({ key: k, ...v }));
+          }
         } catch (e) {}
       }
-      if (entries.length === 0) {
-        try { entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]"); } catch (e) {}
-      }
 
-      if (entries.length === 0) {
-        box.innerHTML = `<div class="p-3 text-slate-500">このモードの登録スコアはありません</div>`;
+      if (!entries.length) {
+        listEl.innerHTML = `<div class="p-3 text-slate-500">このモードのランキングデータはありません</div>`;
         return;
       }
 
-      box.innerHTML = entries.map((item, idx) => `
-        <div class="p-2.5 flex items-center justify-between">
-          <span>#${idx + 1} <strong class="text-white">${escapeHtml(item.username)}</strong> - <span class="font-mono-code text-cyan-300">${item.score} pts</span></span>
-          <button onclick="adminRemoveRankEntry('${mode}', ${idx})" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-600 text-red-200 hover:text-white font-bold">削除</button>
-        </div>
-      `).join("");
+      listEl.innerHTML = "";
+      entries.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "p-2 flex items-center justify-between gap-2";
+        row.innerHTML = `
+          <span class="font-mono-code text-slate-200">${escapeHtml(item.username)} - <strong class="text-cyan-300">${Number(item.score || 0).toLocaleString()} pts</strong></span>
+          <button onclick="adminDeleteSingleRankEntry('${escapeHtml(mode)}', '${escapeHtml(item.key)}')" class="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-red-300 text-[11px]">記録削除</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    window.adminDeleteRateEntry = async function(deviceId) {
+      if (!firebaseReady || !db || !deviceId) return;
+      try {
+        await update(ref(db, `players/${deviceId}`), {
+          rating: 1500,
+          rateWins: 0,
+          lastRateBattleAt: 0
+        });
+        if (deviceId === playerData.deviceId) {
+          playerData.rating = 1500;
+          playerData.stats.rateWins = 0;
+          playerData.lastRateBattleAt = 0;
+          savePlayerData();
+          refreshAllProfileUI();
+        }
+        showToast("レートを1500にリセットしました", "R");
+        renderAdminRankingCleanup();
+      } catch (e) {}
     };
 
-    window.adminResetPlayerRate = async function(deviceId) {
-      if (firebaseReady && db) {
-        await update(ref(db, `players/${deviceId}`), { rating: 1500, lastRateBattleAt: 0 }).catch(() => {});
-      }
-      if (allPlayersCache[deviceId]) {
-        allPlayersCache[deviceId].rating = 1500;
-        allPlayersCache[deviceId].lastRateBattleAt = 0;
-      }
-      if (deviceId === playerData.deviceId) {
-        playerData.rating = 1500;
-        playerData.lastRateBattleAt = 0;
-        savePlayerData();
-        refreshAllProfileUI();
-      }
+    window.adminDeleteSingleRankEntry = async function(mode, rankKey) {
+      if (!firebaseReady || !db) return;
+      await remove(ref(db, `leaderboards/${mode}/${rankKey}`)).catch(() => {});
+      showToast("ランキング記録を削除しました", "R");
       renderAdminRankingCleanup();
-      showToast("プレイヤーのレートを1500にリセットしました", "RR");
     };
 
     window.adminClearSelectedRankingMode = async function() {
       const mode = document.getElementById("admin-rank-mode-select").value;
       if (mode === "RATE") {
-        if (firebaseReady && db) {
-          const playersList = Object.values(allPlayersCache).filter(p => p && p.deviceId);
-          for (const p of playersList) {
-            await update(ref(db, `players/${p.deviceId}`), { rating: 1500, lastRateBattleAt: 0 }).catch(() => {});
-            if (allPlayersCache[p.deviceId]) {
-              allPlayersCache[p.deviceId].rating = 1500;
-              allPlayersCache[p.deviceId].lastRateBattleAt = 0;
+        if (!firebaseReady || !db) return;
+        for (const p of latestRatePlayersCache) {
+          if (p && p.deviceId) {
+            await update(ref(db, `players/${p.deviceId}`), {
+              rating: 1500,
+              rateWins: 0,
+              lastRateBattleAt: 0
+            }).catch(() => {});
+            if (p.deviceId === playerData.deviceId) {
+              playerData.rating = 1500;
+              playerData.stats.rateWins = 0;
+              playerData.lastRateBattleAt = 0;
+              savePlayerData();
+              refreshAllProfileUI();
             }
           }
         }
-        playerData.rating = 1500;
-        playerData.lastRateBattleAt = 0;
-        savePlayerData();
-        refreshAllProfileUI();
+        showToast("RATEランキングを全リセットしました", "R");
         renderAdminRankingCleanup();
-        showToast("RATEランキングを全リセットしました", "SR");
         return;
       }
 
@@ -5334,148 +5345,102 @@
       if (firebaseReady && db) {
         await remove(ref(db, `leaderboards/${mode}`)).catch(() => {});
       }
+      showToast(`${mode} のランキングを一括削除しました`, "R");
       renderAdminRankingCleanup();
-      showToast(`${mode} のランキングを一括削除しました`, "SR");
-    };
-
-    window.adminRemoveRankEntry = async function(mode, indexToRemove) {
-      let entries = [];
-      if (firebaseReady && db) {
-        try {
-          const snap = await get(ref(db, `leaderboards/${mode}`));
-          if (snap.exists()) entries = Object.values(snap.val()).sort((a, b) => b.score - a.score);
-        } catch (e) {}
-      }
-      if (entries.length === 0) {
-        try { entries = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]"); } catch (e) {}
-      }
-      entries.splice(indexToRemove, 1);
-      localStorage.setItem(`neontype_lb_${mode}`, JSON.stringify(entries));
-      if (firebaseReady && db) {
-        const objMap = {};
-        entries.forEach((item, i) => { objMap[`rank_${i + 1}`] = item; });
-        await set(ref(db, `leaderboards/${mode}`), objMap).catch(() => {});
-      }
-      renderAdminRankingCleanup();
-      showToast("ランキング記録を削除しました", "RR");
-    };
-
-    window.confirmResetMyData = function() {
-      closeResetMyDataModal();
-      localStorage.removeItem(SAVE_KEY);
-      localStorage.removeItem("neontype_device_id");
-      localStorage.removeItem("neontype_custom_words_v1");
-      localStorage.removeItem("neontype_deleted_default_words_v1");
-      localStorage.removeItem("neontype_friend_dm_read_v1");
-      ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"].forEach(m => {
-        localStorage.removeItem(`neontype_lb_${m}`);
-      });
-      if (firebaseReady && db && playerData.deviceId) {
-        remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
-      }
-      location.reload();
-    };
-
-    window.openResetMyDataModal = function() {
-      document.getElementById("modal-reset-mydata").classList.remove("hidden");
-    };
-
-    window.closeResetMyDataModal = function() {
-      document.getElementById("modal-reset-mydata").classList.add("hidden");
     };
 
     // ---------------------------------------------------------------------
-    // 15. Firebase リアルタイム同期リスナー初期化
+    // 15. Firebase リアルタイム監視の初期化
     // ---------------------------------------------------------------------
-    function initRealtimeListeners() {
+    function initFirebaseRealtimeListeners() {
       const dot = document.getElementById("firebase-dot");
       const statusText = document.getElementById("firebase-status-text");
 
-      const savedNews = localStorage.getItem("neontype_news_v1");
-      if (savedNews) document.getElementById("news-ticker-text").textContent = savedNews;
-      const savedVer = localStorage.getItem("neontype_version_v1");
-      if (savedVer) document.getElementById("start-version-text").textContent = normalizeVersionString(savedVer);
-
+      const savedVer = localStorage.getItem("neontype_custom_version");
+      if (savedVer) {
+        const normVer = normalizeVersionString(savedVer);
+        document.getElementById("start-version-text").textContent = normVer;
+        document.title = `NEONTYPE | ${normVer}`;
+      }
       try {
-        const cachedNotices = JSON.parse(localStorage.getItem("neontype_update_notices_v1") || "[]");
-        const parsedCached = parseNoticesCollection(cachedNotices);
-        if (parsedCached.length > 0) {
-          updateNoticesCache = parsedCached;
+        const localNotices = JSON.parse(localStorage.getItem("neontype_update_notices_v1") || "[]");
+        if (Array.isArray(localNotices) && localNotices.length > 0) {
+          updateNoticesCache = parseNoticesCollection(localNotices);
+          renderUpdateNoticeModalList();
         }
       } catch (e) {}
 
       if (!firebaseReady || !db) {
-        if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-500";
-        if (statusText) statusText.textContent = "OFFLINE";
+        dot.className = "w-2 h-2 rounded-full bg-slate-500";
+        statusText.textContent = "OFFLINE";
         return;
       }
 
-      if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
-      if (statusText) statusText.textContent = "ONLINE";
+      onValue(ref(db, ".info/connected"), (snap) => {
+        const connected = Boolean(snap.val());
+        if (connected) {
+          dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+          statusText.textContent = "ONLINE";
+          const myRef = ref(db, `players/${playerData.deviceId}`);
+          onDisconnect(myRef).update({ lastSeen: serverTimestamp() }).catch(() => {});
+          savePlayerData();
+        } else {
+          dot.className = "w-2 h-2 rounded-full bg-amber-400";
+          statusText.textContent = "RECONNECTING";
+        }
+      });
 
       onValue(ref(db, "config/newsTicker"), (snap) => {
-        if (snap.exists()) {
-          const val = String(snap.val() ?? "");
-          document.getElementById("news-ticker-text").textContent = val;
-          localStorage.setItem("neontype_news_v1", val);
+        if (snap.exists() && snap.val()) {
+          const rawVal = snap.val();
+          const newsText = typeof rawVal === "string"
+            ? rawVal
+            : String(rawVal.text ?? rawVal.message ?? rawVal.content ?? "");
+          if (newsText.trim()) {
+            document.getElementById("news-ticker-text").textContent = newsText.trim();
+          }
         }
       });
 
       onValue(ref(db, "config/version"), (snap) => {
-        if (snap.exists()) {
-          const val = normalizeVersionString(snap.val());
-          document.getElementById("start-version-text").textContent = val;
-          localStorage.setItem("neontype_version_v1", val);
+        if (snap.exists() && snap.val()) {
+          const ver = normalizeVersionString(snap.val());
+          document.getElementById("start-version-text").textContent = ver;
+          document.title = `NEONTYPE | ${ver}`;
+          localStorage.setItem("neontype_custom_version", ver);
         }
       });
 
-      const reloadBootTime = Date.now();
-      let handledInitialForceReload = false;
+      const appBootTime = Date.now();
+      let isInitialForceReloadSnap = true;
       onValue(ref(db, "config/forceReload"), (snap) => {
-        if (!snap.exists()) return;
         const val = snap.val();
-        const triggeredAt = typeof val === "object" && val !== null ? Number(val.triggeredAt || 0) : Number(val || 0);
-        if (!handledInitialForceReload) {
-          handledInitialForceReload = true;
-          const lastHandled = Number(sessionStorage.getItem("neontype_last_force_reload_at") || "0");
-          if (!triggeredAt || triggeredAt <= reloadBootTime || triggeredAt <= lastHandled) {
-            return;
-          }
+        if (isInitialForceReloadSnap) {
+          isInitialForceReloadSnap = false;
+          return;
         }
-        const lastHandled = Number(sessionStorage.getItem("neontype_last_force_reload_at") || "0");
-        if (triggeredAt > 0 && triggeredAt > lastHandled) {
-          sessionStorage.setItem("neontype_last_force_reload_at", String(triggeredAt));
-          window.location.reload();
+        const triggeredAt = typeof val === "object" && val !== null ? normalizeTimestampValue(val.triggeredAt) : normalizeTimestampValue(val);
+        if (triggeredAt > appBootTime) {
+          savePlayerData();
+          location.reload();
         }
       });
 
       onValue(ref(db, "updateNotices"), (snap) => {
-        const prevCount = updateNoticesCache.length;
-        if (snap.exists()) {
-          updateNoticesCache = parseNoticesCollection(snap.val());
-        } else {
+        if (!snap.exists()) {
           updateNoticesCache = [];
+          renderUpdateNoticeModalList();
+          if (currentView === "admin") renderAdminUpdateNoticesList();
+          return;
         }
+        const prevTopId = updateNoticesCache[0]?.id;
+        updateNoticesCache = parseNoticesCollection(snap.val());
         localStorage.setItem("neontype_update_notices_v1", JSON.stringify(updateNoticesCache));
-        if (updateNoticesCache.length > prevCount && currentView !== "start") {
+        renderUpdateNoticeModalList();
+        if (currentView === "admin") renderAdminUpdateNoticesList();
+        if (prevTopId && updateNoticesCache[0] && updateNoticesCache[0].id !== prevTopId) {
           const badge = document.getElementById("header-update-badge");
           if (badge) badge.classList.remove("hidden");
-        }
-        if (currentView === "admin") renderAdminUpdateNoticesList();
-      });
-
-      onValue(ref(db, `players/${playerData.deviceId}/adminDms`), (snap) => {
-        if (!snap.exists()) return;
-        const list = Object.values(snap.val()).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        const prevUnreadIds = new Set((playerData.unreadDms || []).filter(m => m.read).map(m => `${m.timestamp}_${m.text}`));
-        playerData.unreadDms = list.map(m => ({
-          ...m,
-          read: prevUnreadIds.has(`${m.timestamp}_${m.text}`) || m.from === "user"
-        }));
-        savePlayerData();
-        updateAdminDmBadges();
-        if (!document.getElementById("modal-admin-dm").classList.contains("hidden")) {
-          renderUserAdminDmThread(playerData.unreadDms);
         }
       });
 
@@ -5484,52 +5449,57 @@
           customAdminWords = Object.values(snap.val()).map(w => ({
             ...w,
             isCustom: true,
-            category: classifyWordByKeystrokes(w.reading || "")
+            category: classifyWordByKeystrokes(w.reading)
           }));
           localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
-          if (currentView === "admin") renderAdminWordList();
+          if (currentView === "admin") renderAdminWordsList();
         }
       });
 
       onValue(ref(db, "deletedDefaultWords"), (snap) => {
         if (snap.exists()) {
-          deletedDefaultWordIds = new Set(Object.keys(snap.val()));
+          const ids = Object.keys(snap.val()).filter(k => snap.val()[k]);
+          deletedDefaultWordIds = new Set(ids);
           localStorage.setItem("neontype_deleted_default_words_v1", JSON.stringify(Array.from(deletedDefaultWordIds)));
-          if (currentView === "admin") renderAdminWordList();
+          if (currentView === "admin") renderAdminWordsList();
         }
       });
 
       onValue(ref(db, "players"), (snap) => {
-        allPlayersCache = snap.exists() ? snap.val() : {};
-        updateAdminDmBadges();
-        if (currentView === "admin") renderAdminPlayersTable();
-        if (currentView === "friends") renderFriendsView();
+        if (!snap.exists()) {
+          adminPlayersCache = [];
+        } else {
+          adminPlayersCache = Object.values(snap.val());
+        }
+
+        const meRemote = adminPlayersCache.find(p => p.deviceId === playerData.deviceId);
+        if (meRemote && meRemote.isBanned) {
+          playerData.isBanned = true;
+          savePlayerData();
+          document.getElementById("ban-lock-screen").classList.remove("hidden");
+          stopGameLoops();
+        }
+
+        updateUnreadDmBadges();
+        if (currentView === "admin") {
+          renderAdminPlayersTable();
+          if (currentViewingDmPlayerId) {
+            const modalVisible = !document.getElementById("modal-view-dm").classList.contains("hidden");
+            if (modalVisible) openAdminViewDm(currentViewingDmPlayerId);
+          }
+        }
       });
 
       initOnlineQueueCounters();
+      startUserAdminDmListener();
       initFriendsListeners();
-
-      if (playerData.nameInitialized && playerData.username) {
-        update(ref(db, `players/${playerData.deviceId}`), {
-          deviceId: playerData.deviceId,
-          username: playerData.username,
-          avatar: playerData.avatar,
-          isAdmin: playerData.isAdmin,
-          equippedTitle: playerData.equippedTitle,
-          rating: playerData.rating,
-          lastRateBattleAt: playerData.lastRateBattleAt || 0,
-          lastSeen: serverTimestamp()
-        }).catch(() => {});
-        onDisconnect(ref(db, `players/${playerData.deviceId}/lastSeen`)).set(serverTimestamp());
-      }
     }
 
     // ---------------------------------------------------------------------
-    // 16. アプリ起動シーケンス
+    // 16. 起動時初期化処理
     // ---------------------------------------------------------------------
     refreshAllProfileUI();
-    initRealtimeListeners();
-    navigate("start");
+    initFirebaseRealtimeListeners();
   </script>
 </body>
 </html>
