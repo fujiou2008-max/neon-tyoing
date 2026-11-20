@@ -4007,6 +4007,107 @@
       } catch (e) {}
     }
 
+    function normalizeFriendRelationEntry(rawVal, fallbackId = "") {
+      if (!rawVal) return null;
+      if (typeof rawVal === "boolean") {
+        if (!fallbackId) return null;
+        return {
+          deviceId: fallbackId,
+          username: "Friend",
+          avatar: DEFAULT_AVATAR,
+          equippedTitle: "駆け出しタイパー",
+          rating: 1500,
+          since: 0
+        };
+      }
+      if (typeof rawVal === "string") {
+        const id = fallbackId || rawVal;
+        if (!id) return null;
+        return {
+          deviceId: id,
+          username: "Friend",
+          avatar: DEFAULT_AVATAR,
+          equippedTitle: "駆け出しタイパー",
+          rating: 1500,
+          since: 0
+        };
+      }
+      if (typeof rawVal !== "object") return null;
+      const devId = rawVal.deviceId || rawVal.uid || rawVal.userId || rawVal.id || fallbackId;
+      if (!devId) return null;
+      const ts = typeof rawVal.since === "number" ? rawVal.since :
+                 (typeof rawVal.createdAt === "number" ? rawVal.createdAt :
+                 (typeof rawVal.timestamp === "number" ? rawVal.timestamp :
+                 (typeof rawVal.sentAt === "number" ? rawVal.sentAt : 0)));
+      return {
+        deviceId: String(devId),
+        username: rawVal.username || rawVal.name || rawVal.displayName || "Friend",
+        avatar: rawVal.avatar || rawVal.photoURL || DEFAULT_AVATAR,
+        equippedTitle: rawVal.equippedTitle || rawVal.title || "駆け出しタイパー",
+        rating: typeof rawVal.rating === "number" ? rawVal.rating : 1500,
+        since: ts
+      };
+    }
+
+    function normalizeFriendCollection(rawCollection) {
+      const result = {};
+      if (!rawCollection) return result;
+      if (Array.isArray(rawCollection)) {
+        rawCollection.forEach((item, idx) => {
+          const norm = normalizeFriendRelationEntry(item, String(idx));
+          if (norm && norm.deviceId) {
+            result[norm.deviceId] = norm;
+          }
+        });
+      } else if (typeof rawCollection === "object") {
+        Object.entries(rawCollection).forEach(([key, val]) => {
+          const norm = normalizeFriendRelationEntry(val, key);
+          if (norm && norm.deviceId) {
+            result[norm.deviceId] = norm;
+          }
+        });
+      }
+      return result;
+    }
+
+    function normalizeFriendDmMessage(rawMsg, fallbackKey = "") {
+      if (!rawMsg) return null;
+      if (typeof rawMsg === "string") {
+        return {
+          id: fallbackKey,
+          senderId: "",
+          senderName: "Friend",
+          text: rawMsg,
+          timestamp: 0
+        };
+      }
+      if (typeof rawMsg !== "object") return null;
+      const textVal = typeof rawMsg.text === "string" ? rawMsg.text :
+                      (typeof rawMsg.message === "string" ? rawMsg.message :
+                      (typeof rawMsg.body === "string" ? rawMsg.body : ""));
+      if (!textVal && !rawMsg.senderId && !rawMsg.from) return null;
+
+      let ts = 0;
+      if (typeof rawMsg.timestamp === "number" && Number.isFinite(rawMsg.timestamp)) {
+        ts = rawMsg.timestamp;
+      } else if (typeof rawMsg.createdAt === "number" && Number.isFinite(rawMsg.createdAt)) {
+        ts = rawMsg.createdAt;
+      } else if (typeof rawMsg.sentAt === "number" && Number.isFinite(rawMsg.sentAt)) {
+        ts = rawMsg.sentAt;
+      } else if (typeof rawMsg.timestamp === "string" && rawMsg.timestamp) {
+        const parsed = Date.parse(rawMsg.timestamp);
+        if (!Number.isNaN(parsed)) ts = parsed;
+      }
+
+      return {
+        id: rawMsg.id || fallbackKey,
+        senderId: rawMsg.senderId || rawMsg.from || rawMsg.uid || rawMsg.userId || "",
+        senderName: rawMsg.senderName || rawMsg.username || rawMsg.name || "Friend",
+        text: textVal,
+        timestamp: ts
+      };
+    }
+
     function getFriendDmRoomId(idA, idB) {
       return [String(idA), String(idB)].sort().join("__");
     }
@@ -4024,18 +4125,18 @@
       if (!firebaseReady || !db || !playerData.deviceId) return;
 
       onValue(ref(db, `friends/${playerData.deviceId}`), (snap) => {
-        friendsMap = snap.exists() ? snap.val() : {};
+        friendsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
         if (currentView === "friends") renderFriendsView();
       });
 
       onValue(ref(db, `friendRequestsIncoming/${playerData.deviceId}`), (snap) => {
-        incomingFriendReqsMap = snap.exists() ? snap.val() : {};
+        incomingFriendReqsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
         updateFriendBadges();
         if (currentView === "friends") renderFriendsView();
       });
 
       onValue(ref(db, `friendRequestsOutgoing/${playerData.deviceId}`), (snap) => {
-        outgoingFriendReqsMap = snap.exists() ? snap.val() : {};
+        outgoingFriendReqsMap = snap.exists() ? normalizeFriendCollection(snap.val()) : {};
         if (currentView === "friends") renderFriendsView();
       });
     }
@@ -4279,9 +4380,32 @@
 
       if (firebaseReady && db) {
         const roomId = getFriendDmRoomId(playerData.deviceId, friendId);
-        friendDmUnsubscribe = onValue(ref(db, `friendDms/${roomId}`), (snap) => {
-          renderFriendDmMessages(snap.exists() ? snap.val() : {});
+        const altRoomId = `${playerData.deviceId}__${friendId}`;
+        let latestPrimary = {};
+        let latestAlt = {};
+
+        const mergeAndRender = () => {
+          const merged = { ...(latestAlt || {}), ...(latestPrimary || {}) };
+          renderFriendDmMessages(merged);
+        };
+
+        const unsubPrimary = onValue(ref(db, `friendDms/${roomId}`), (snap) => {
+          latestPrimary = snap.exists() ? snap.val() : {};
+          mergeAndRender();
         });
+
+        let unsubAlt = null;
+        if (altRoomId !== roomId) {
+          unsubAlt = onValue(ref(db, `friendDms/${altRoomId}`), (snap) => {
+            latestAlt = snap.exists() ? snap.val() : {};
+            mergeAndRender();
+          });
+        }
+
+        friendDmUnsubscribe = () => {
+          unsubPrimary();
+          if (unsubAlt) unsubAlt();
+        };
       }
     };
 
@@ -4296,7 +4420,10 @@
 
     function renderFriendDmMessages(msgsObj) {
       const container = document.getElementById("friend-dm-messages");
-      const list = Object.values(msgsObj || {}).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      const rawItems = Array.isArray(msgsObj)
+        ? msgsObj.map((v, idx) => normalizeFriendDmMessage(v, String(idx)))
+        : Object.entries(msgsObj || {}).map(([k, v]) => normalizeFriendDmMessage(v, k));
+      const list = rawItems.filter(Boolean).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
       if (list.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-center py-8">メッセージを送って会話を始めましょう</div>`;
         return;
