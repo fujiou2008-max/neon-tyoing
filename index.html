@@ -990,11 +990,11 @@
         <div id="admin-update-list" class="max-h-48 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs"></div>
       </div>
 
-      <!-- ② & ③ プレイヤーリスト・オンライン状況・最終ログイン・BAN管理・DM確認 -->
+      <!-- ② & ③ プレイヤーリスト・オンライン状況・最終ログイン・DM確認 -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-pink-500/30 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-pink-400 flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> 登録プレイヤー一覧 / オンライン監視 / 最終ログイン / BAN / 完全削除 / 要望DM
+            <i class="fa-solid fa-users"></i> 登録プレイヤー一覧 / オンライン監視 / 最終ログイン / 完全削除 / 要望DM
           </h3>
           <span id="admin-player-count" class="text-xs font-mono-code text-slate-400">0 Players</span>
         </div>
@@ -1007,7 +1007,7 @@
                 <th class="p-3">最終ログイン</th>
                 <th class="p-3">RATE / WPM</th>
                 <th class="p-3">要望DM</th>
-                <th class="p-3 text-right">操作 (BAN / 完全削除)</th>
+                <th class="p-3 text-right">操作 (完全削除)</th>
               </tr>
             </thead>
             <tbody id="admin-player-tbody" class="divide-y divide-slate-800">
@@ -4638,6 +4638,7 @@
       tbody.innerHTML = players.map(p => {
         const isOnline = !!presenceCache[p.deviceId] || !!presenceCache[p.recordKey];
         const isBanned = !!bansMap[p.deviceId] || !!bansMap[p.recordKey];
+        const isSelf = p.deviceId === playerData.deviceId || p.recordKey === playerData.deviceId;
         const userDms = allDmsCache[p.deviceId] ? Object.values(allDmsCache[p.deviceId]) : [];
         const unreadCount = userDms.filter(m => m.sender !== "admin" && m.unread).length;
         const lastLoginStr = isOnline
@@ -4669,37 +4670,27 @@
               </button>
             </td>
             <td class="p-3 text-right space-x-1">
-              <button onclick="togglePlayerBan('${escapeHtml(p.deviceId)}', ${!isBanned})"
-                class="px-2.5 py-1 rounded text-[11px] font-bold ${isBanned ? "bg-emerald-600/30 text-emerald-300 border border-emerald-500" : "bg-amber-600/20 text-amber-300 border border-amber-500/50"}">
-                ${isBanned ? "BAN解除" : "BAN"}
-              </button>
-              <button onclick="adminDeletePlayerData('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}', '${escapeHtml(p.recordKey)}')"
+              ${isSelf ? "" : `<button onclick="adminDeletePlayerData('${escapeHtml(p.deviceId)}', '${escapeHtml(p.username)}', '${escapeHtml(p.recordKey)}')"
                 class="px-2.5 py-1 rounded text-[11px] font-bold bg-red-600/25 text-red-300 border border-red-500/50 hover:bg-red-600 hover:text-white">
                 完全削除
-              </button>
+              </button>`}
             </td>
           </tr>
         `;
       }).join("");
     }
 
-    window.togglePlayerBan = async function(targetId, shouldBan) {
-      if (!playerData.isAdmin || !firebaseReady || !db) return;
-      if (shouldBan) {
-        await set(ref(db, `bans/${targetId}`), true);
-        showToast("対象プレイヤーをBANしました", "GR");
-      } else {
-        await remove(ref(db, `bans/${targetId}`));
-        showToast("BANを解除しました", "RR");
-      }
-      renderAdminPlayersTable();
-    };
-
     window.adminDeletePlayerData = async function(targetId, targetName, recordKey = "") {
       if (!playerData.isAdmin || !firebaseReady || !db) return;
+      if (targetId === playerData.deviceId || (recordKey && recordKey === playerData.deviceId)) {
+        showToast("自分自身のアカウントは削除できません", "GR");
+        return;
+      }
       if (!confirm(`プレイヤー「${targetName}」のデータを完全に削除（初期化）しますか？`)) return;
 
-      const candidateIds = Array.from(new Set([targetId, recordKey].filter(Boolean)));
+      const candidateIds = Array.from(new Set([targetId, recordKey].filter(Boolean))).filter(id => id !== playerData.deviceId);
+      if (candidateIds.length === 0) return;
+
       for (const id of candidateIds) {
         await set(ref(db, `force_resets/${id}`), true).catch(() => {});
         await remove(ref(db, `players/${id}`)).catch(() => {});
@@ -4720,7 +4711,9 @@
         if (snap.exists()) {
           const allMap = snap.val();
           for (const [k, val] of Object.entries(allMap)) {
+            if (k === playerData.deviceId) continue;
             const valDevId = val && typeof val === "object" ? val.deviceId : "";
+            if (valDevId === playerData.deviceId) continue;
             if (candidateIds.includes(k) || (valDevId && candidateIds.includes(valDevId))) {
               await remove(ref(db, `players/${k}`)).catch(() => {});
               delete allPlayersCache[k];
@@ -4738,20 +4731,6 @@
           filtered.forEach((item, idx) => { newMap[`rank_${idx + 1}`] = item; });
           await set(ref(db, `leaderboards/${m}`), newMap);
         }
-      }
-
-      if (candidateIds.includes(playerData.deviceId)) {
-        const keepId = playerData.deviceId;
-        localStorage.removeItem(SAVE_KEY);
-        localStorage.removeItem("neontype_save");
-        playerData = createDefaultPlayerData();
-        playerData.deviceId = keepId;
-        try {
-          localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
-        } catch (e) {}
-        refreshAllProfileUI();
-        navigate("start");
-        return;
       }
 
       showToast("プレイヤーデータを完全削除しました", "GR");
