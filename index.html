@@ -536,7 +536,7 @@
     </section>
 
     <!-- 4. ゲームプレイ画面 (Typing Arena) -->
-    <section id="view-game" class="hidden flex-1 flex flex-col max-w-5xl w-full mx-auto p-3 sm:p-6 justify-between gap-4">
+    <section id="view-game" class="hidden flex-1 flex flex-col max-w-5xl w-full mx-auto px-3 sm:px-6 pt-8 sm:pt-12 pb-4 sm:pb-6 justify-center gap-5 sm:gap-6">
       <!-- 上部ステータスバー（残り時間・スコア・WPM・ミス率・コンボ・リタイア） -->
       <div class="space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3 bg-[#0a0f18] border border-slate-700/90 rounded-2xl p-3.5 sm:p-4 shadow-lg">
@@ -591,7 +591,7 @@
       </div>
 
       <!-- 中央タイピングステージ（タップでモバイルキーボード起動） -->
-      <div id="typing-stage" onclick="focusMobileInput()" class="flex-1 min-h-[260px] sm:min-h-[320px] rounded-2xl bg-[#080c14] border border-cyan-500/30 p-6 sm:p-10 flex flex-col items-center justify-center text-center relative cursor-text overflow-hidden">
+      <div id="typing-stage" onclick="focusMobileInput()" class="min-h-[260px] sm:min-h-[320px] rounded-2xl bg-[#080c14] border border-cyan-500/30 p-6 sm:p-10 flex flex-col items-center justify-center text-center relative cursor-text overflow-hidden">
         <!-- お題枠の内側縁フラッシュエフェクト用オーバーレイ -->
         <div id="stage-inner-flash" class="pointer-events-none absolute inset-0 rounded-2xl z-[1]"></div>
 
@@ -1017,23 +1017,15 @@
         </div>
       </div>
 
-      <!-- ④ ワードリスト追加・全単語個別削除（大・中・小 + ゆらぎ自動変換プレビュー） -->
+      <!-- ④ ワードリスト追加・全単語個別削除（打鍵数から大・中・小を自動判定 + ゆらぎ自動変換プレビュー） -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-emerald-500/30 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h3 class="font-bold text-sm text-emerald-400 flex items-center gap-2">
-            <i class="fa-solid fa-book"></i> ワードリスト管理（全単語個別削除・追加対応）
+            <i class="fa-solid fa-book"></i> ワードリスト管理（必要打鍵数から大・中・小を自動分類・個別削除対応）
           </h3>
-          <button id="btn-admin-restore-defaults" onclick="adminRestoreDeletedDefaults()" class="hidden px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 text-[11px] font-bold transition">
-            削除した初期ワードを復元
-          </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-          <select id="admin-word-cat" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-            <option value="short">短い単語</option>
-            <option value="medium">中くらいの単語</option>
-            <option value="long">長い単語</option>
-          </select>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
           <input id="admin-word-text" type="text" placeholder="表示文字 (例: 電光石火)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
           <input id="admin-word-reading" type="text" oninput="previewAdminWordRomaji()" placeholder="ひらがな読み (例: でんこうせっか)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" />
           <button onclick="adminAddWord()" class="px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400 text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 font-bold text-xs transition">
@@ -1043,7 +1035,7 @@
 
         <!-- ゆらぎ解析プレビュー -->
         <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs font-mono-code space-y-1">
-          <div class="text-slate-400">ローマ字・ゆらぎ解析プレビュー:</div>
+          <div class="text-slate-400">ローマ字・ゆらぎ解析＆自動サイズ判定プレビュー:</div>
           <div id="admin-romaji-preview" class="text-cyan-300">ひらがなを入力すると自動解析されます</div>
         </div>
 
@@ -1051,9 +1043,9 @@
         <div class="flex items-center justify-between pt-2">
           <div class="flex gap-2 text-xs">
             <button onclick="filterAdminWords('all')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-200">すべて</button>
-            <button onclick="filterAdminWords('short')" class="px-2.5 py-1 rounded bg-slate-800 text-cyan-300">小</button>
-            <button onclick="filterAdminWords('medium')" class="px-2.5 py-1 rounded bg-slate-800 text-amber-300">中</button>
-            <button onclick="filterAdminWords('long')" class="px-2.5 py-1 rounded bg-slate-800 text-pink-300">大</button>
+            <button onclick="filterAdminWords('short')" class="px-2.5 py-1 rounded bg-slate-800 text-cyan-300">小 (〜10打鍵)</button>
+            <button onclick="filterAdminWords('medium')" class="px-2.5 py-1 rounded bg-slate-800 text-amber-300">中 (11〜19打鍵)</button>
+            <button onclick="filterAdminWords('long')" class="px-2.5 py-1 rounded bg-slate-800 text-pink-300">大 (20打鍵〜)</button>
           </div>
           <span id="admin-word-total" class="text-xs font-mono-code text-slate-400">計 0 語</span>
         </div>
@@ -1859,8 +1851,26 @@
     }
 
     // ---------------------------------------------------------------------
-    // 5. 大・中・小 300語の厳選ワードリスト（全単語個別削除・追加同期対応）
+    // 5. 大・中・小 300語の厳選ワードリスト（必要打鍵数から大中小を自動分類・個別削除対応）
     // ---------------------------------------------------------------------
+    function getRequiredKeystrokes(reading) {
+      const matcher = new FlexibleRomajiMatcher(reading || "");
+      let minStrokes = 0;
+      for (const chunk of matcher.chunks) {
+        if (chunk.options && chunk.options.length > 0) {
+          minStrokes += Math.min(...chunk.options.map(opt => opt.length));
+        }
+      }
+      return minStrokes;
+    }
+
+    function classifyWordByKeystrokes(reading) {
+      const strokes = getRequiredKeystrokes(reading);
+      if (strokes <= 10) return "short";
+      if (strokes <= 19) return "medium";
+      return "long";
+    }
+
     const DEFAULT_WORDS = [
       // === 小 (SHORT: 100語) ===
       { id: "s1", category: "short", text: "看板", reading: "かんばん" },
@@ -2172,7 +2182,13 @@
     let customAdminWords = [];
     try {
       const savedCustom = localStorage.getItem("neontype_custom_words_v1");
-      if (savedCustom) customAdminWords = JSON.parse(savedCustom);
+      if (savedCustom) {
+        customAdminWords = JSON.parse(savedCustom).map(w => ({
+          ...w,
+          isCustom: true,
+          category: classifyWordByKeystrokes(w.reading)
+        }));
+      }
     } catch (e) {}
 
     let deletedDefaultWordIds = new Set();
@@ -2182,9 +2198,22 @@
     } catch (e) {}
 
     function getAllWords() {
-      const activeDefaults = DEFAULT_WORDS.filter(w => !deletedDefaultWordIds.has(w.id));
-      const combined = [...activeDefaults, ...customAdminWords];
-      return combined.length > 0 ? combined : [DEFAULT_WORDS[0]];
+      const activeDefaults = DEFAULT_WORDS
+        .filter(w => !deletedDefaultWordIds.has(w.id))
+        .map(w => ({
+          ...w,
+          isCustom: false,
+          category: classifyWordByKeystrokes(w.reading)
+        }));
+      const normalizedCustom = customAdminWords.map(w => ({
+        ...w,
+        isCustom: true,
+        category: classifyWordByKeystrokes(w.reading)
+      }));
+      const combined = [...activeDefaults, ...normalizedCustom];
+      if (combined.length > 0) return combined;
+      const fallback = DEFAULT_WORDS[0];
+      return [{ ...fallback, isCustom: false, category: classifyWordByKeystrokes(fallback.reading) }];
     }
 
     // ---------------------------------------------------------------------
@@ -4485,10 +4514,19 @@
 
       onValue(ref(db, "custom_words"), (snap) => {
         if (snap.exists()) {
-          customAdminWords = Object.values(snap.val());
+          customAdminWords = Object.entries(snap.val())
+            .filter(([, w]) => w && typeof w === "object")
+            .map(([fbKey, w]) => ({
+              ...w,
+              id: w.id || fbKey,
+              firebaseKey: fbKey,
+              isCustom: true,
+              category: classifyWordByKeystrokes(w.reading || "")
+            }));
           localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
         } else {
           customAdminWords = [];
+          localStorage.setItem("neontype_custom_words_v1", "[]");
         }
         if (currentView === "admin") renderAdminWordList();
       });
@@ -4730,13 +4768,15 @@
       }
       const matcher = new FlexibleRomajiMatcher(reading);
       const primary = matcher.getDisplayParts().remaining;
+      const strokes = getRequiredKeystrokes(reading);
+      const autoCat = classifyWordByKeystrokes(reading);
+      const catLabel = autoCat === "short" ? "小 (short)" : autoCat === "medium" ? "中 (medium)" : "大 (long)";
       const variantsSample = matcher.chunks.map(c => `[${c.options.join("/")}]`).join(" ");
-      previewEl.innerHTML = `<div>標準表示: <strong class="text-white">${escapeHtml(primary)}</strong></div><div class="text-[11px] text-slate-400 mt-0.5 break-all">許容パターン: ${escapeHtml(variantsSample)}</div>`;
+      previewEl.innerHTML = `<div>標準表示: <strong class="text-white">${escapeHtml(primary)}</strong> ／ 必要打鍵数: <strong class="text-emerald-300">${strokes}打鍵</strong> → 自動分類: <strong class="text-amber-300">${catLabel}</strong></div><div class="text-[11px] text-slate-400 mt-0.5 break-all">許容パターン: ${escapeHtml(variantsSample)}</div>`;
     };
 
     window.adminAddWord = async function() {
       if (!playerData.isAdmin) return;
-      const category = document.getElementById("admin-word-cat").value;
       const text = document.getElementById("admin-word-text").value.trim();
       const reading = normalizeKana(document.getElementById("admin-word-reading").value.trim());
 
@@ -4745,7 +4785,8 @@
         return;
       }
 
-      const wordId = "custom_" + Date.now();
+      const category = classifyWordByKeystrokes(reading);
+      const wordId = "custom_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
       const wordObj = { id: wordId, category, text, reading, isCustom: true };
 
       if (firebaseReady && db) {
@@ -4762,7 +4803,7 @@
       showToast(`ワード「${text}」を追加しました`, "RR");
     };
 
-    window.adminDeleteWord = async function(wordId, isCustom) {
+    window.adminDeleteWord = async function(wordId, isCustom, firebaseKey = "") {
       if (!playerData.isAdmin) return;
       const allActive = getAllWords();
       if (allActive.length <= 1) {
@@ -4772,31 +4813,34 @@
 
       if (isCustom) {
         if (firebaseReady && db) {
-          await remove(ref(db, `custom_words/${wordId}`));
-        } else {
-          customAdminWords = customAdminWords.filter(w => w.id !== wordId);
-          localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
+          const keysToRemove = new Set();
+          if (firebaseKey) keysToRemove.add(firebaseKey);
+          if (wordId) keysToRemove.add(wordId);
+          try {
+            const snap = await get(ref(db, "custom_words"));
+            if (snap.exists()) {
+              Object.entries(snap.val()).forEach(([k, v]) => {
+                if (k === wordId || k === firebaseKey || (v && (v.id === wordId || v.firebaseKey === firebaseKey))) {
+                  keysToRemove.add(k);
+                }
+              });
+            }
+          } catch (e) {}
+          for (const k of keysToRemove) {
+            await remove(ref(db, `custom_words/${k}`)).catch(() => {});
+          }
         }
+        customAdminWords = customAdminWords.filter(w => w.id !== wordId && w.firebaseKey !== firebaseKey);
+        localStorage.setItem("neontype_custom_words_v1", JSON.stringify(customAdminWords));
       } else {
         deletedDefaultWordIds.add(wordId);
         localStorage.setItem("neontype_deleted_default_words_v1", JSON.stringify(Array.from(deletedDefaultWordIds)));
         if (firebaseReady && db) {
-          await set(ref(db, `deleted_default_words/${wordId}`), true);
+          await set(ref(db, `deleted_default_words/${wordId}`), true).catch(() => {});
         }
       }
       renderAdminWordList();
       showToast("ワードを削除しました", "R");
-    };
-
-    window.adminRestoreDeletedDefaults = async function() {
-      if (!playerData.isAdmin) return;
-      deletedDefaultWordIds.clear();
-      localStorage.setItem("neontype_deleted_default_words_v1", "[]");
-      if (firebaseReady && db) {
-        await remove(ref(db, "deleted_default_words"));
-      }
-      renderAdminWordList();
-      showToast("削除された初期ワードをすべて復元しました", "RR");
     };
 
     window.filterAdminWords = function(cat) {
@@ -4806,27 +4850,24 @@
 
     function renderAdminWordList() {
       const all = getAllWords();
-      document.getElementById("admin-word-total").textContent = `計 ${all.length} 語 (カスタム ${customAdminWords.length} 語)`;
-
-      const restoreBtn = document.getElementById("btn-admin-restore-defaults");
-      if (restoreBtn) {
-        restoreBtn.classList.toggle("hidden", deletedDefaultWordIds.size === 0);
-      }
+      document.getElementById("admin-word-total").textContent = `計 ${all.length} 語 (追加 ${customAdminWords.length} 語)`;
 
       const filtered = adminWordFilter === "all" ? all : all.filter(w => w.category === adminWordFilter);
       const listEl = document.getElementById("admin-word-list");
 
       listEl.innerHTML = filtered.slice().reverse().map(w => {
+        const strokes = getRequiredKeystrokes(w.reading);
         const catBadge = w.category === "short" ? `<span class="text-cyan-400">[小]</span>` :
                          w.category === "medium" ? `<span class="text-amber-400">[中]</span>` :
                                                    `<span class="text-pink-400">[大]</span>`;
+        const fbKeyArg = escapeHtml(w.firebaseKey || w.id);
         return `
           <div class="p-2.5 flex items-center justify-between gap-2">
             <div>
               ${catBadge} <strong class="text-white">${escapeHtml(w.text)}</strong>
-              <span class="text-slate-400 ml-1">(${escapeHtml(w.reading)})</span>
+              <span class="text-slate-400 ml-1">(${escapeHtml(w.reading)} / ${strokes}打鍵)</span>
             </div>
-            <button onclick="adminDeleteWord('${escapeHtml(w.id)}', ${!!w.isCustom})" class="px-2.5 py-0.5 rounded bg-pink-950/60 border border-pink-500/40 hover:bg-pink-600 hover:text-white text-pink-300 text-[11px] shrink-0 transition">
+            <button onclick="adminDeleteWord('${escapeHtml(w.id)}', ${!!w.isCustom}, '${fbKeyArg}')" class="px-2.5 py-0.5 rounded bg-pink-950/60 border border-pink-500/40 hover:bg-pink-600 hover:text-white text-pink-300 text-[11px] shrink-0 transition">
               削除
             </button>
           </div>
