@@ -969,6 +969,14 @@
             <i class="fa-solid fa-code-branch"></i> タイトル画面バージョン表示のリアルタイム変更
           </h3>
           <div class="flex flex-col sm:flex-row gap-2">
+            <input id="admin-version-input" type="text" maxlength="24" placeholder="ver1.0" class="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-sm text-white font-mono-code focus:outline-none" />
+            <button onclick="adminUpdateVersion()" class="px-5 py-2 rounded-lg bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-400 hover:text-slate-950 font-bold text-xs transition shrink-0">
+              変更反映
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- ①.5 お知らせボックス投稿・編集管理（タイトル＋内容） -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-cyan-500/30 space-y-3">
         <div class="flex items-center justify-between gap-2">
