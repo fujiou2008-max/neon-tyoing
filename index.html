@@ -677,7 +677,7 @@
         </div>
 
         <!-- プレイ詳細スタッツ -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
           <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
             <div class="text-[11px] text-slate-400">SCORE</div>
             <div id="res-score" class="font-mono-code font-bold text-lg sm:text-xl text-cyan-300">0</div>
@@ -694,15 +694,19 @@
             <div class="text-[11px] text-slate-400">MISS RATE</div>
             <div id="res-miss-rate" class="font-mono-code font-bold text-lg sm:text-xl text-pink-400">0.0%</div>
           </div>
+          <div class="col-span-2 sm:col-span-1 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+            <div class="text-[11px] text-slate-400">MAX COMBO</div>
+            <div id="res-max-combo" class="font-mono-code font-bold text-lg sm:text-xl text-amber-300">0</div>
+          </div>
         </div>
 
-        <!-- リトライ & ホームボタン -->
-        <div class="grid grid-cols-2 gap-4 pt-2">
-          <button onclick="retryLastMode()" class="py-3.5 rounded-xl bg-cyan-500/15 border-neon-cyan text-cyan-300 font-orbitron font-bold tracking-wider hover:bg-cyan-400 hover:text-slate-950 transition">
-            RETRY
+        <!-- ホームへ戻る / リトライ ボタン -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <button onclick="retryLastMode()" class="py-3.5 rounded-xl bg-cyan-500/20 border-neon-cyan text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-sm transition">
+            <i class="fa-solid fa-rotate-right mr-1.5"></i>もう一度プレイ (リトライ)
           </button>
-          <button onclick="navigate('home')" class="py-3.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-200 font-orbitron font-bold tracking-wider transition">
-            HOME
+          <button onclick="navigate('home')" class="py-3.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-200 font-bold text-sm transition">
+            <i class="fa-solid fa-house mr-1.5"></i>ホーム画面へ戻る
           </button>
         </div>
       </div>
@@ -965,29 +969,29 @@
             <i class="fa-solid fa-code-branch"></i> タイトル画面バージョン表示のリアルタイム変更
           </h3>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="admin-version-input" type="text" maxlength="24" placeholder="例: ver1.1" class="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-sm font-mono-code text-white focus:outline-none" />
-            <button onclick="adminUpdateVersion()" class="px-5 py-2 rounded-lg bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-400 hover:text-slate-950 font-bold text-xs transition shrink-0">
-              バージョン更新
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ①.5 お知らせボックス投稿管理（タイトル＋内容） -->
+      <!-- ①.5 お知らせボックス投稿・編集管理（タイトル＋内容） -->
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-cyan-500/30 space-y-3">
-        <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
-          <i class="fa-solid fa-bell"></i> お知らせボックスへの投稿
-        </h3>
-        <div class="space-y-2">
-          <input id="admin-update-title" type="text" maxlength="60" placeholder="お知らせタイトル (例: ver1.1 新機能追加のお知らせ)" class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" />
-          <textarea id="admin-update-body" rows="3" maxlength="600" placeholder="お知らせ内容の詳細を入力..." class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg p-3 text-sm text-white focus:outline-none"></textarea>
-          <div class="flex justify-end">
-            <button onclick="adminPostUpdateNotice()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
+            <i class="fa-solid fa-bell"></i> <span id="admin-update-form-heading">お知らせボックスへの投稿</span>
+          </h3>
+          <span id="admin-update-editing-badge" class="hidden px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 text-[11px] font-bold">
+            編集中
+          </span>
+        </div>
+        <div class="space-y-2.5">
+          <input id="admin-update-title" type="text" maxlength="60" placeholder="お知らせタイトル (例: ver1.1 新機能追加のお知らせ)" class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none" />
+          <textarea id="admin-update-body" rows="7" maxlength="1200" placeholder="お知らせ内容の詳細を入力..." class="w-full min-h-[168px] bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg p-3.5 text-sm leading-relaxed text-white focus:outline-none resize-y"></textarea>
+          <div class="flex justify-end gap-2">
+            <button id="btn-cancel-edit-update" onclick="cancelEditAdminUpdateNotice()" class="hidden px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-bold text-xs transition">
+              編集をキャンセル
+            </button>
+            <button id="btn-submit-admin-update" onclick="adminPostUpdateNotice()" class="px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition">
               お知らせを投稿する
             </button>
           </div>
         </div>
-        <div id="admin-update-list" class="max-h-48 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs"></div>
+        <div id="admin-update-list" class="max-h-56 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs"></div>
       </div>
 
       <!-- ② & ③ プレイヤーリスト・オンライン状況・最終ログイン・DM確認 -->
@@ -2536,6 +2540,10 @@
       opponentMistypes: 0,
       lastProcessedOppMistypes: 0,
       lastOppMissComboAt: 0,
+      sharedWordSequence: [],
+      sharedWordIndex: 0,
+      sentComboGiftTotal: 0,
+      lastProcessedOppGiftTotal: 0,
       mySlot: "p1",
       oppSlot: "p2",
       matchUnsubscribe: null
@@ -2638,6 +2646,24 @@
     }
 
     function pickNextWord() {
+      // オンライン対戦時は両プレイヤーで完全に同一の単語列を順番に出題する
+      if (gameState.isOnline && Array.isArray(gameState.sharedWordSequence) && gameState.sharedWordSequence.length > 0) {
+        const seq = gameState.sharedWordSequence;
+        const rawItem = seq[gameState.sharedWordIndex % seq.length];
+        gameState.sharedWordIndex++;
+        const chosen = {
+          ...rawItem,
+          category: classifyWordByKeystrokes(rawItem.reading || "")
+        };
+        gameState.lastWordId = chosen.id;
+        gameState.currentWord = chosen;
+        gameState.matcher = new FlexibleRomajiMatcher(chosen.reading);
+        gameState.wordMistypes = 0;
+
+        renderCurrentWord();
+        return;
+      }
+
       const pool = getAllWords();
       let filtered = pool;
 
@@ -2895,7 +2921,7 @@
         if (gameState.matcher.isComplete()) {
           const isNoMiss = gameState.wordMistypes === 0;
           const cat = gameState.currentWord?.category;
-          const multiplier = cat === "long" ? 1.0 : (cat === "medium" ? 0.7 : 0.5);
+          const multiplier = cat === "long" ? 2.0 : (cat === "medium" ? 1.0 : 0.5);
           const completionBonus = Math.round(gameState.combo * multiplier);
           if (completionBonus > 0) {
             gameState.score += completionBonus;
@@ -2913,7 +2939,13 @@
         syncOnlineScore();
         updateGameHud();
       } else {
-        // ミスタイプ処理：コンボリセット＆打鍵音ピッチリセット＆お題枠内側が赤くフラッシュ
+        // ミスタイプ処理：オンライン時はミス前のコンボ×0.09（小数点以下切り捨て）を相手へ送る
+        const comboBeforeMiss = gameState.combo;
+        const giftCombo = Math.floor(comboBeforeMiss * 0.09);
+        if (gameState.isOnline && giftCombo > 0) {
+          gameState.sentComboGiftTotal = (gameState.sentComboGiftTotal || 0) + giftCombo;
+        }
+
         gameState.mistypesInSession++;
         gameState.wordMistypes++;
         gameState.combo = 0;
@@ -3138,11 +3170,31 @@
       document.getElementById("res-max-wpm").textContent = maxWpm.toFixed(1);
       document.getElementById("res-avg-wpm").textContent = avgWpm.toFixed(1);
       document.getElementById("res-miss-rate").textContent = `${missRate.toFixed(1)}%`;
+      document.getElementById("res-max-combo").textContent = gameState.maxComboInSession.toLocaleString();
     }
 
     // ---------------------------------------------------------------------
     // 11. オンライン対戦システム（Firebase Realtime Database・完全PvP・AIなし）
     // ---------------------------------------------------------------------
+    function buildSharedOnlineWordSequence(count = 160) {
+      const pool = getAllWords();
+      const seq = [];
+      let lastId = null;
+      for (let i = 0; i < count; i++) {
+        let candidates = pool.filter(w => w.id !== lastId);
+        if (candidates.length === 0) candidates = pool;
+        const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+        lastId = chosen.id;
+        seq.push({
+          id: chosen.id,
+          text: chosen.text,
+          reading: chosen.reading,
+          category: chosen.category
+        });
+      }
+      return seq;
+    }
+
     let activeQueueRef = null;
     let queueListenerUnsub = null;
     let vsTimerInterval = null;
@@ -3258,14 +3310,16 @@
               continue;
             }
 
+            const sharedWordSequence = buildSharedOnlineWordSequence(160);
             const matchRef = ref(db, `matches/${newMatchId}`);
             await set(matchRef, {
               matchId: newMatchId,
               mode: mode,
               status: "vs_intro",
               createdAt: Date.now(),
-              p1: { ...myProfilePayload, score: 0, mistypes: 0, finished: false },
-              p2: { ...opp, score: 0, mistypes: 0, finished: false }
+              wordSequence: sharedWordSequence,
+              p1: { ...myProfilePayload, score: 0, mistypes: 0, comboGiftTotal: 0, finished: false },
+              p2: { ...opp, score: 0, mistypes: 0, comboGiftTotal: 0, finished: false }
             });
 
             cleanupMatchmakingQueue();
@@ -3312,6 +3366,10 @@
       const opp = matchData[oppSlot];
       gameState.opponent = opp;
       gameState.opponentScore = 0;
+      gameState.sharedWordSequence = Array.isArray(matchData.wordSequence) && matchData.wordSequence.length > 0
+        ? matchData.wordSequence
+        : buildSharedOnlineWordSequence(160);
+      gameState.sharedWordIndex = 0;
 
       playBeepSound(980, 0.2);
       document.getElementById("matchmaking-searching").classList.add("hidden");
@@ -3361,6 +3419,9 @@
         opponentMistypes: 0,
         lastProcessedOppMistypes: 0,
         lastOppMissComboAt: 0,
+        sharedWordIndex: 0,
+        sentComboGiftTotal: 0,
+        lastProcessedOppGiftTotal: 0,
         combo: 0,
         maxComboInSession: 0,
         typedCharsInSession: 0,
@@ -3395,20 +3456,22 @@
           const oppMistypes = data[oppSlot].mistypes || 0;
           gameState.opponentMistypes = oppMistypes;
 
-          // 相手がミスしたとき自分のコンボに+3加算（0.5秒のクールダウン付き & お題枠内側黄色フラッシュ）
-          if (gameState.active && oppMistypes > gameState.lastProcessedOppMistypes) {
-            gameState.lastProcessedOppMistypes = oppMistypes;
+          // 相手がミスしたとき（ミス時の相手コンボ×0.09切り捨て分）を自分のコンボへ加算
+          const oppGiftTotal = data[oppSlot].comboGiftTotal || 0;
+          if (gameState.active && oppGiftTotal > gameState.lastProcessedOppGiftTotal) {
+            const receivedCombo = oppGiftTotal - gameState.lastProcessedOppGiftTotal;
+            gameState.lastProcessedOppGiftTotal = oppGiftTotal;
             const nowMs = performance.now();
-            if (nowMs - gameState.lastOppMissComboAt >= 500) {
+            if (nowMs - gameState.lastOppMissComboAt >= 500 && receivedCombo > 0) {
               gameState.lastOppMissComboAt = nowMs;
               const prevCombo = gameState.combo;
-              gameState.combo += 3;
+              gameState.combo += receivedCombo;
               if (gameState.combo > gameState.maxComboInSession) {
                 gameState.maxComboInSession = gameState.combo;
               }
               awardComboMilestoneBonuses(prevCombo, gameState.combo);
               triggerScreenEdgeFlash("yellow");
-              showStageBonusPopup("OPPONENT MISS! +3 COMBO", "text-yellow-300 border-yellow-400 bg-yellow-950/80", 0);
+              showStageBonusPopup(`OPPONENT MISS! +${receivedCombo} COMBO`, "text-yellow-300 border-yellow-400 bg-yellow-950/80", 0);
               syncOnlineScore();
             }
           }
@@ -3431,7 +3494,8 @@
       if (!gameState.isOnline || !firebaseReady || !db || !gameState.matchId) return;
       update(ref(db, `matches/${gameState.matchId}/${gameState.mySlot}`), {
         score: gameState.score,
-        mistypes: gameState.mistypesInSession
+        mistypes: gameState.mistypesInSession,
+        comboGiftTotal: gameState.sentComboGiftTotal || 0
       }).catch(() => {});
     }
 
@@ -3531,6 +3595,7 @@
       document.getElementById("res-max-wpm").textContent = maxWpm.toFixed(1);
       document.getElementById("res-avg-wpm").textContent = avgWpm.toFixed(1);
       document.getElementById("res-miss-rate").textContent = `${missRate.toFixed(1)}%`;
+      document.getElementById("res-max-combo").textContent = gameState.maxComboInSession.toLocaleString();
     }
 
     // ---------------------------------------------------------------------
@@ -4312,6 +4377,7 @@
     let allDmsCache = {};
     let adminWordFilter = "all";
     let updateNoticesCache = [];
+    let editingUpdateNoticeId = null;
 
     function renderUpdateNoticeModalList() {
       const box = document.getElementById("update-notice-modal-list");
@@ -4339,17 +4405,51 @@
         return;
       }
       listEl.innerHTML = updateNoticesCache.map(item => `
-        <div class="p-2.5 flex items-center justify-between gap-3">
+        <div class="p-3 flex items-center justify-between gap-3 ${editingUpdateNoticeId === item.id ? "bg-amber-950/25" : ""}">
           <div class="min-w-0">
             <div class="font-bold text-cyan-300 truncate">${escapeHtml(item.title)}</div>
             <div class="text-slate-400 truncate">${escapeHtml(item.content)}</div>
           </div>
-          <button onclick="adminDeleteUpdateNotice('${escapeHtml(item.id)}')" class="px-2 py-1 rounded bg-pink-950/60 border border-pink-500/40 text-pink-300 text-[11px] shrink-0">
-            削除
-          </button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="startEditAdminUpdateNotice('${escapeHtml(item.id)}')" class="px-2.5 py-1 rounded bg-amber-950/60 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[11px] font-bold transition">
+              編集
+            </button>
+            <button onclick="adminDeleteUpdateNotice('${escapeHtml(item.id)}')" class="px-2.5 py-1 rounded bg-pink-950/60 border border-pink-500/40 hover:bg-pink-600 hover:text-white text-pink-300 text-[11px] transition">
+              削除
+            </button>
+          </div>
         </div>
       `).join("");
     }
+
+    window.startEditAdminUpdateNotice = function(id) {
+      const target = updateNoticesCache.find(u => u.id === id);
+      if (!target) return;
+      editingUpdateNoticeId = id;
+      document.getElementById("admin-update-title").value = target.title || "";
+      document.getElementById("admin-update-body").value = target.content || "";
+      document.getElementById("admin-update-form-heading").textContent = "お知らせの編集";
+      document.getElementById("admin-update-editing-badge").classList.remove("hidden");
+      document.getElementById("btn-cancel-edit-update").classList.remove("hidden");
+      const submitBtn = document.getElementById("btn-submit-admin-update");
+      submitBtn.textContent = "変更を保存する";
+      submitBtn.className = "px-5 py-2 rounded-lg bg-amber-500/20 border border-amber-400 text-amber-300 hover:bg-amber-400 hover:text-slate-950 font-bold text-xs transition";
+      renderAdminUpdateList();
+      document.getElementById("admin-update-title").focus();
+    };
+
+    window.cancelEditAdminUpdateNotice = function() {
+      editingUpdateNoticeId = null;
+      document.getElementById("admin-update-title").value = "";
+      document.getElementById("admin-update-body").value = "";
+      document.getElementById("admin-update-form-heading").textContent = "お知らせボックスへの投稿";
+      document.getElementById("admin-update-editing-badge").classList.add("hidden");
+      document.getElementById("btn-cancel-edit-update").classList.add("hidden");
+      const submitBtn = document.getElementById("btn-submit-admin-update");
+      submitBtn.textContent = "お知らせを投稿する";
+      submitBtn.className = "px-5 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 font-bold text-xs transition";
+      renderAdminUpdateList();
+    };
 
     window.openUpdateNoticeModal = function() {
       if (isOnlineLockActive()) return;
@@ -4367,6 +4467,18 @@
         showToast("タイトルと内容の両方を入力してください", "GR");
         return;
       }
+
+      if (editingUpdateNoticeId) {
+        await update(ref(db, `system/updates/${editingUpdateNoticeId}`), {
+          title,
+          content,
+          updatedAt: Date.now()
+        });
+        cancelEditAdminUpdateNotice();
+        showToast("お知らせを更新しました", "GR");
+        return;
+      }
+
       await push(ref(db, "system/updates"), {
         title,
         content,
@@ -4379,6 +4491,9 @@
 
     window.adminDeleteUpdateNotice = async function(id) {
       if (!playerData.isAdmin || !firebaseReady || !db) return;
+      if (editingUpdateNoticeId === id) {
+        cancelEditAdminUpdateNotice();
+      }
       await remove(ref(db, `system/updates/${id}`));
       showToast("お知らせを削除しました", "R");
     };
@@ -4461,20 +4576,6 @@
         }
         const val = snap.val();
         if (val && (val.forceReset === true || val.username === "ResetPlayer")) {
-          remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
-          executeForcedClientReset();
-        }
-      });
-
-      onValue(ref(db, `players/${playerData.deviceId}`), (snap) => {
-        if (!snap.exists()) {
-          if (playerData.nameInitialized || playerData.username) {
-            executeForcedClientReset();
-          }
-          return;
-        }
-        const val = snap.val();
-        if (val && val.forceReset === true) {
           remove(ref(db, `players/${playerData.deviceId}`)).catch(() => {});
           executeForcedClientReset();
         }
