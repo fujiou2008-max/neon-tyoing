@@ -654,8 +654,16 @@
           <div id="result-solo-rank-box" class="space-y-1">
             <div class="text-xs text-slate-400">RANK EVALUATION</div>
             <div id="result-rank-letter" class="font-orbitron font-black text-6xl sm:text-7xl glow-cyan">S</div>
-            <div id="result-ranking-badge" class="hidden inline-block px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-bold animate-bounce mt-1">
-              🎉 ランキングに乗りました！
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <div id="result-new-record-badge" class="hidden inline-block px-4 py-1 rounded-full bg-pink-500/20 border border-pink-400 text-pink-200 text-xs font-black tracking-wider shadow-[0_0_16px_rgba(255,0,127,0.5)] animate-bounce">
+                <i class="fa-solid fa-crown text-amber-300 mr-1"></i>新記録！
+              </div>
+              <div id="result-ranking-badge" class="hidden inline-block px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-bold animate-bounce">
+                🎉 ランキングに乗りました！
+              </div>
+            </div>
+            <div id="result-best-score-display" class="text-[11px] font-mono-code text-slate-400 pt-0.5">
+              MODE BEST: 0
             </div>
           </div>
 
@@ -1021,7 +1029,7 @@
       <div class="p-5 rounded-xl bg-[#0a0f18] border border-pink-500/30 space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-pink-400 flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> 登録プレイヤー一覧 / オンライン監視 / 最終ログイン / 完全削除 / 要望DM
+            <i class="fa-solid fa-users"></i> 登録プレイヤー一覧 / オンライン監視 / 最終ログイン / BAN / 完全削除 / 要望DM
           </h3>
           <span id="admin-player-count" class="text-xs font-mono-code text-slate-400">0 Players</span>
         </div>
@@ -1034,13 +1042,19 @@
                 <th class="p-3">最終ログイン</th>
                 <th class="p-3">RATE / WPM</th>
                 <th class="p-3">要望DM</th>
-                <th class="p-3 text-right">操作 (完全削除)</th>
+                <th class="p-3 text-right">操作 (BAN / 完全削除)</th>
               </tr>
             </thead>
             <tbody id="admin-player-tbody" class="divide-y divide-slate-800">
               <!-- JSで実プレイヤーのみ描画（AIなし） -->
             </tbody>
           </table>
+        </div>
+        <div id="admin-banned-list-wrap" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
+          <div class="text-xs font-bold text-red-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-ban"></i> BAN中プレイヤー (<span id="admin-banned-count">0</span>)
+          </div>
+          <div id="admin-banned-list" class="flex flex-wrap gap-2 text-xs"></div>
         </div>
       </div>
 
@@ -1092,8 +1106,16 @@
             選択モードを一括削除
           </button>
         </div>
+        <div class="flex flex-wrap gap-1.5" id="admin-rank-mode-tabs">
+          <button type="button" onclick="selectAdminRankCleanupMode('FRASH')" data-armode="FRASH" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-amber-500/20 border border-amber-400 text-amber-200">FRASH</button>
+          <button type="button" onclick="selectAdminRankCleanupMode('SPEED')" data-armode="SPEED" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400">SPEED</button>
+          <button type="button" onclick="selectAdminRankCleanupMode('OVERDRIVE')" data-armode="OVERDRIVE" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400">OVERDRIVE</button>
+          <button type="button" onclick="selectAdminRankCleanupMode('MARATHON')" data-armode="MARATHON" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400">MARATHON</button>
+          <button type="button" onclick="selectAdminRankCleanupMode('SADDEN DEATH')" data-armode="SADDEN DEATH" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400">SADDEN DEATH</button>
+          <button type="button" onclick="selectAdminRankCleanupMode('RATE')" data-armode="RATE" class="armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400">RATE</button>
+        </div>
         <div class="flex flex-wrap gap-2 items-center">
-          <select id="admin-rank-mode-select" onchange="renderAdminRankingCleanup()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+          <select id="admin-rank-mode-select" onchange="selectAdminRankCleanupMode(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
             <option value="FRASH">FRASH</option>
             <option value="SPEED">SPEED</option>
             <option value="OVERDRIVE">OVERDRIVE</option>
@@ -1101,7 +1123,7 @@
             <option value="SADDEN DEATH">SADDEN DEATH</option>
             <option value="RATE">RATE (レート戦ランキング)</option>
           </select>
-          <span class="text-xs text-slate-400">選択モードの記録を削除できます</span>
+          <span id="admin-rank-cleanup-status" class="text-xs text-slate-400">選択モードの記録を削除できます</span>
         </div>
         <div id="admin-rank-cleanup-list" class="max-h-44 overflow-y-auto divide-y divide-slate-800 border border-slate-800 rounded-lg text-xs">
         </div>
@@ -1445,6 +1467,7 @@
     }
 
     let playerData = loadPlayerData();
+    let isResettingOwnData = false;
 
     // 過去データ互換ヘルパー：お知らせ・バージョン・フレンド系データ正規化
     function normalizeTimestampValue(ts) {
@@ -1541,6 +1564,7 @@
 
     // セーブデータをローカルストレージとFirebaseの両方へ自動保存
     function savePlayerData() {
+      if (isResettingOwnData) return;
       try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
       } catch (e) {
@@ -1548,6 +1572,7 @@
       }
 
       if (firebaseReady && db && playerData.nameInitialized && playerData.username) {
+        if (deletedPlayerIdsCache.has(playerData.deviceId)) return;
         const avgWpm = playerData.stats.wpmCount > 0
           ? Number((playerData.stats.wpmSum / playerData.stats.wpmCount).toFixed(1))
           : 0;
@@ -1784,6 +1809,35 @@
       osc.stop(now + duration + 0.02);
     }
 
+    // 新記録達成時の豪華なファンファーレ音
+    function playNewRecordFanfareSound() {
+      if (isMuted) return;
+      ensureAudioCtx();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const notes = [
+        { freq: 523.25, delay: 0.00, dur: 0.16, type: "triangle" },
+        { freq: 659.25, delay: 0.09, dur: 0.16, type: "triangle" },
+        { freq: 783.99, delay: 0.18, dur: 0.18, type: "triangle" },
+        { freq: 1046.50, delay: 0.28, dur: 0.48, type: "triangle" },
+        { freq: 1318.51, delay: 0.36, dur: 0.52, type: "sine" },
+        { freq: 1567.98, delay: 0.44, dur: 0.60, type: "sine" }
+      ];
+      notes.forEach(n => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = n.type;
+        osc.frequency.setValueAtTime(n.freq, now + n.delay);
+        gain.gain.setValueAtTime(0.001, now + n.delay);
+        gain.gain.linearRampToValueAtTime(0.2, now + n.delay + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.delay + n.dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + n.delay);
+        osc.stop(now + n.delay + n.dur + 0.03);
+      });
+    }
+
     // ---------------------------------------------------------------------
     // 4. 日本語かな→ローマ字 全通りゆらぎ対応エンジン
     // ---------------------------------------------------------------------
@@ -1797,7 +1851,7 @@
       "ま": ["ma"], "み": ["mi"], "む": ["mu"], "め": ["me"], "も": ["mo"],
       "や": ["ya"], "ゆ": ["yu"], "よ": ["yo"],
       "ら": ["ra"], "り": ["ri"], "る": ["ru"], "れ": ["re"], "ろ": ["ro"],
-      "わ": ["wa"], "を": ["wo"], "ん": ["nn", "n'"],
+      "わ": ["wa"], "を": ["wo"], "ん": ["nn", "n'", "xn"],
       "が": ["ga"], "ぎ": ["gi"], "ぐ": ["gu"], "げ": ["ge"], "ご": ["go"],
       "ざ": ["za"], "じ": ["zi", "ji"], "ず": ["zu"], "ぜ": ["ze"], "ぞ": ["zo"],
       "だ": ["da"], "ぢ": ["di"], "づ": ["du"], "で": ["de"], "ど": ["do"],
@@ -3218,11 +3272,16 @@
           s.saddenClearCount = (s.saddenClearCount || 0) + 1;
         }
 
+        if (!s.bestScores || typeof s.bestScores !== "object") {
+          s.bestScores = { FRASH: 0, SPEED: 0, OVERDRIVE: 0, MARATHON: 0, "SADDEN DEATH": 0 };
+        }
+        const prevBestScore = Number(s.bestScores[gameState.mode] || 0);
         let updatedBestScore = false;
-        if (gameState.score > (s.bestScores[gameState.mode] || 0)) {
+        if (gameState.score > 0 && gameState.score > prevBestScore) {
           s.bestScores[gameState.mode] = gameState.score;
           updatedBestScore = true;
         }
+        const currentModeBestScore = Number(s.bestScores[gameState.mode] || 0);
 
         savePlayerData();
         checkAndUnlockTitles({
@@ -3239,7 +3298,7 @@
           missRate
         );
 
-        showSoloResultScreen(gameState.mode, gameState.score, maxWpm, avgWpm, missRate, rankGrade, placedInTop50);
+        showSoloResultScreen(gameState.mode, gameState.score, maxWpm, avgWpm, missRate, rankGrade, placedInTop50, updatedBestScore, currentModeBestScore);
       } else {
         if (firebaseReady && db && matchId) {
           await update(ref(db, `matches/${matchId}/${gameState.mySlot}`), {
@@ -3314,19 +3373,28 @@
         set(ref(db, `leaderboards/${mode}`), objMap).catch(() => {});
       }
 
-      const topScore = top50.length > 0 ? Math.max(top50[0].score, 1000) : 1500;
-      const ratio = score / topScore;
-      let rankGrade = "D";
-      if (score === 0) rankGrade = "D";
-      else if (myRankIdx === 0 || ratio >= 0.85) rankGrade = "S";
-      else if (ratio >= 0.65) rankGrade = "A";
-      else if (ratio >= 0.45) rankGrade = "B";
-      else if (ratio >= 0.25) rankGrade = "C";
-
+      const rankGrade = evaluateSoloRank(mode, score);
       return { rankGrade, placedInTop50 };
     }
 
-    function showSoloResultScreen(mode, score, maxWpm, avgWpm, missRate, rankGrade, placedInTop50) {
+    function evaluateSoloRank(mode, score) {
+      if (score <= 0) return "D";
+      const thresholds = {
+        FRASH: [1400, 1000, 650, 350],
+        SPEED: [3000, 2200, 1500, 800],
+        OVERDRIVE: [9500, 7000, 4800, 2600],
+        MARATHON: [16000, 12000, 8200, 4500],
+        "SADDEN DEATH": [5200, 3600, 2200, 1000]
+      };
+      const [sTh, aTh, bTh, cTh] = thresholds[mode] || [3000, 2200, 1500, 800];
+      if (score >= sTh) return "S";
+      if (score >= aTh) return "A";
+      if (score >= bTh) return "B";
+      if (score >= cTh) return "C";
+      return "D";
+    }
+
+    function showSoloResultScreen(mode, score, maxWpm, avgWpm, missRate, rankGrade, placedInTop50, isNewRecord = false, modeBestScore = 0) {
       navigate("result");
       document.getElementById("result-mode-name").textContent = `${mode} RESULT`;
       document.getElementById("result-solo-rank-box").classList.remove("hidden");
@@ -3340,6 +3408,19 @@
         rankGrade === "B" ? "glow-orange" :
         rankGrade === "C" ? "text-slate-200" : "glow-magenta"
       );
+
+      const newRecEl = document.getElementById("result-new-record-badge");
+      if (newRecEl) {
+        newRecEl.classList.toggle("hidden", !isNewRecord);
+      }
+      if (isNewRecord) {
+        playNewRecordFanfareSound();
+      }
+
+      const bestDispEl = document.getElementById("result-best-score-display");
+      if (bestDispEl) {
+        bestDispEl.textContent = `${mode} BEST: ${Number(modeBestScore || 0).toLocaleString()} pts`;
+      }
 
       document.getElementById("result-ranking-badge").classList.toggle("hidden", !placedInTop50);
       document.getElementById("res-score").textContent = score.toLocaleString();
@@ -3854,7 +3935,7 @@
       if (isRateMode) {
         const renderRateListFromPlayers = (playersArr) => {
           const filtered = (playersArr || [])
-            .filter(p => p && p.username && !p.isBanned)
+            .filter(p => p && p.username && !isPlayerBannedById(p.deviceId) && !deletedPlayerIdsCache.has(p.deviceId))
             .map(p => ({
               ...p,
               rateVal: Number(p.rating ?? 1500),
@@ -3895,6 +3976,7 @@
         } catch (e) {}
       }
 
+      list = list.filter(item => item && !isPlayerBannedById(item.deviceId) && !deletedPlayerIdsCache.has(item.deviceId));
       list.sort((a, b) => b.score - a.score);
       const top50 = list.slice(0, 50);
       drawRankingRows(top50, false);
@@ -4569,30 +4651,41 @@
         "本当に自分のデータを削除しますか？",
         "※名前・アイコン・称号・戦績・ランキング記録がすべて初期化されます。この操作は取り消せません。",
         async () => {
+          isResettingOwnData = true;
           const devId = playerData.deviceId;
           localStorage.removeItem(SAVE_KEY);
           localStorage.removeItem("neontype_save");
 
           if (firebaseReady && db && devId) {
             try {
-              await remove(ref(db, `players/${devId}`));
+              await Promise.all([
+                remove(ref(db, `players/${devId}`)).catch(() => {}),
+                remove(ref(db, `friends/${devId}`)).catch(() => {}),
+                remove(ref(db, `friendRequests/${devId}`)).catch(() => {}),
+                remove(ref(db, `friendRequestsSent/${devId}`)).catch(() => {}),
+                remove(ref(db, `queues/CASUAL_OPEN/${devId}`)).catch(() => {}),
+                remove(ref(db, `queues/RATE/${devId}`)).catch(() => {})
+              ]);
               const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
               for (const m of modes) {
                 const snap = await get(ref(db, `leaderboards/${m}`));
                 if (snap.exists()) {
                   const obj = snap.val();
+                  const delPromises = [];
                   Object.entries(obj).forEach(([k, v]) => {
                     if (v && v.deviceId === devId) {
-                      remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {});
+                      delPromises.push(remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {}));
                     }
                   });
+                  if (delPromises.length > 0) await Promise.all(delPromises);
                 }
               }
             } catch (e) {}
           }
 
+          localStorage.removeItem("neontype_device_id");
           playerData = createDefaultPlayerData();
-          savePlayerData();
+          localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
           location.reload();
         }
       );
@@ -4713,9 +4806,18 @@
     // 管理者パネル機能（ニュース・バージョン・お知らせ・プレイヤー管理・ワード追加/削除・ランキング保守）
     // ---------------------------------------------------------------------
     let adminPlayersCache = [];
+    let bannedPlayerIdsCache = new Set();
+    let deletedPlayerIdsCache = new Set();
     let currentAdminWordFilter = "all";
     let updateNoticesCache = [];
     let editingUpdateNoticeId = null;
+
+    function isPlayerBannedById(deviceId) {
+      if (!deviceId) return false;
+      if (bannedPlayerIdsCache.has(deviceId)) return true;
+      const found = adminPlayersCache.find(p => p && p.deviceId === deviceId);
+      return Boolean(found && found.isBanned);
+    }
 
     function updateUnreadDmBadges() {
       const hasUnread = adminPlayersCache.some(p =>
@@ -4945,17 +5047,52 @@
     function renderAdminPlayersTable() {
       const tbody = document.getElementById("admin-player-tbody");
       const countEl = document.getElementById("admin-player-count");
+      const bannedWrap = document.getElementById("admin-banned-list-wrap");
+      const bannedCountEl = document.getElementById("admin-banned-count");
+      const bannedListEl = document.getElementById("admin-banned-list");
       if (!tbody) return;
 
-      countEl.textContent = `${adminPlayersCache.length} Players`;
+      const activePlayers = adminPlayersCache.filter(
+        p => p && p.deviceId && !isPlayerBannedById(p.deviceId) && !deletedPlayerIdsCache.has(p.deviceId)
+      );
+      const bannedIds = new Set(bannedPlayerIdsCache);
+      adminPlayersCache.forEach(p => {
+        if (p && p.deviceId && p.isBanned && !deletedPlayerIdsCache.has(p.deviceId)) bannedIds.add(p.deviceId);
+      });
+
+      if (bannedWrap && bannedCountEl && bannedListEl) {
+        const bannedArr = Array.from(bannedIds);
+        bannedCountEl.textContent = bannedArr.length;
+        if (bannedArr.length === 0) {
+          bannedWrap.classList.add("hidden");
+          bannedListEl.innerHTML = "";
+        } else {
+          bannedWrap.classList.remove("hidden");
+          bannedListEl.innerHTML = "";
+          bannedArr.forEach(bid => {
+            const bp = adminPlayersCache.find(item => item.deviceId === bid);
+            const chip = document.createElement("div");
+            chip.className = "px-2.5 py-1.5 rounded-lg bg-red-950/50 border border-red-500/40 flex items-center gap-2 text-red-200";
+            chip.innerHTML = `
+              <span class="font-bold">${escapeHtml(bp?.username || bid)}</span>
+              <span class="text-[10px] font-mono-code text-red-400/80">${escapeHtml(bid)}</span>
+              <button onclick="adminUnbanPlayer('${escapeHtml(bid)}')" class="px-2 py-0.5 rounded bg-emerald-950 hover:bg-emerald-700 border border-emerald-500/50 text-emerald-200 text-[10px] font-bold">解除</button>
+              <button onclick="adminDeletePlayerCompletely('${escapeHtml(bid)}')" class="px-2 py-0.5 rounded bg-red-900 hover:bg-red-700 border border-red-400/50 text-white text-[10px] font-bold">完全削除</button>
+            `;
+            bannedListEl.appendChild(chip);
+          });
+        }
+      }
+
+      countEl.textContent = `${activePlayers.length} Players`;
       tbody.innerHTML = "";
 
-      if (adminPlayersCache.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">プレイヤーデータがありません</td></tr>`;
+      if (activePlayers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">表示対象のプレイヤーデータがありません</td></tr>`;
         return;
       }
 
-      adminPlayersCache.forEach(p => {
+      activePlayers.forEach(p => {
         const isSelf = p.deviceId === playerData.deviceId;
         const lastSeenMs = normalizeTimestampValue(p.lastSeen);
         const isOnline = lastSeenMs > 0 && (Date.now() - lastSeenMs < 90000);
@@ -4981,9 +5118,14 @@
 
         const actionCellHtml = isSelf
           ? `<span class="text-[11px] font-mono-code text-slate-600">SELF</span>`
-          : `<button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-700 border border-red-500/50 text-red-200 font-bold">
-                完全削除
-              </button>`;
+          : `<div class="inline-flex items-center gap-1.5">
+                <button onclick="adminBanPlayer('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-amber-950/80 hover:bg-amber-700 border border-amber-500/50 text-amber-200 font-bold">
+                  BAN
+                </button>
+                <button onclick="adminDeletePlayerCompletely('${escapeHtml(p.deviceId)}')" class="px-2.5 py-1 rounded bg-red-950/80 hover:bg-red-700 border border-red-500/50 text-red-200 font-bold">
+                  完全削除
+                </button>
+              </div>`;
 
         const tr = document.createElement("tr");
         tr.className = "hover:bg-slate-900/70";
@@ -5045,47 +5187,45 @@
           return `
             <div class="p-2.5 rounded-lg border ${
               isAdmin
-                ? "bg-cyan-950/35 border-cyan-500/40 text-cyan-100"
+                ? "bg-pink-950/35 border-pink-500/40 text-pink-100"
                 : "bg-slate-900 border-slate-800 text-slate-200"
             }">
-              <div class="flex justify-between text-[10px] font-mono-code ${isAdmin ? "text-cyan-300" : "text-pink-300"} mb-0.5">
-                <span>${isAdmin ? "管理者 (返信)" : escapeHtml(d.senderName || p?.username || "Player")}</span>
+              <div class="flex justify-between text-[10px] font-mono-code ${isAdmin ? "text-pink-300" : "text-cyan-300"} mb-1">
+                <span>${isAdmin ? "管理者 (あなた)" : escapeHtml(d.senderName || p?.username || "Player")}</span>
                 <span>${escapeHtml(tStr)}</span>
               </div>
               <div class="whitespace-pre-wrap break-words">${escapeHtml(d.text || "")}</div>
             </div>
           `;
         }).join("");
+        listEl.scrollTop = listEl.scrollHeight;
       }
 
       document.getElementById("btn-send-admin-reply").onclick = async () => {
-        const replyText = document.getElementById("admin-reply-dm-textarea").value.trim();
-        if (!replyText) return;
-        if (firebaseReady && db) {
-          try {
-            await push(ref(db, `players/${deviceId}/adminDms`), {
-              from: "admin",
-              senderId: playerData.deviceId,
-              senderName: "Admin",
-              text: replyText,
-              timestamp: Date.now(),
-              unread: true
-            });
-            showToast("返信・メッセージを送信しました！", "RR");
-            document.getElementById("admin-reply-dm-textarea").value = "";
-            setTimeout(() => openAdminViewDm(deviceId), 150);
-          } catch (e) {
-            showToast("送信に失敗しました", "GR");
-          }
+        const replyTxt = document.getElementById("admin-reply-dm-textarea").value.trim();
+        if (!replyTxt || !firebaseReady || !db) return;
+        try {
+          await push(ref(db, `players/${deviceId}/adminDms`), {
+            from: "admin",
+            senderId: playerData.deviceId,
+            senderName: "Admin",
+            text: replyTxt,
+            timestamp: Date.now(),
+            unread: true
+          });
+          document.getElementById("admin-reply-dm-textarea").value = "";
+          showToast("プレイヤーへメッセージを送信しました！", "RR");
+        } catch (e) {
+          showToast("送信に失敗しました", "GR");
         }
       };
 
       document.getElementById("btn-clear-player-dms").onclick = async () => {
         if (firebaseReady && db) {
           await remove(ref(db, `players/${deviceId}/adminDms`)).catch(() => {});
-          showToast("DM履歴を消去しました", "R");
-          closeAdminViewDmModal();
         }
+        closeAdminViewDmModal();
+        showToast("DM履歴を消去しました", "R");
       };
 
       document.getElementById("modal-view-dm").classList.remove("hidden");
@@ -5094,6 +5234,49 @@
     window.closeAdminViewDmModal = function() {
       currentViewingDmPlayerId = null;
       document.getElementById("modal-view-dm").classList.add("hidden");
+    };
+
+    window.adminBanPlayer = async function(deviceId) {
+      if (!deviceId || deviceId === playerData.deviceId) return;
+      const targetPlayer = adminPlayersCache.find(item => item.deviceId === deviceId);
+      const targetName = targetPlayer?.username || deviceId;
+
+      bannedPlayerIdsCache.add(deviceId);
+      renderAdminPlayersTable();
+
+      if (firebaseReady && db) {
+        try {
+          await set(ref(db, `bannedPlayers/${deviceId}`), {
+            deviceId,
+            username: targetName,
+            bannedAt: Date.now()
+          });
+          await update(ref(db, `players/${deviceId}`), {
+            isBanned: true
+          }).catch(() => {});
+          showToast(`「${targetName}」をBANしました`, "SR");
+        } catch (e) {
+          showToast("BAN処理に失敗しました", "GR");
+        }
+      }
+    };
+
+    window.adminUnbanPlayer = async function(deviceId) {
+      if (!deviceId) return;
+      bannedPlayerIdsCache.delete(deviceId);
+      renderAdminPlayersTable();
+
+      if (firebaseReady && db) {
+        try {
+          await remove(ref(db, `bannedPlayers/${deviceId}`)).catch(() => {});
+          await update(ref(db, `players/${deviceId}`), {
+            isBanned: false
+          }).catch(() => {});
+          showToast("BANを解除しました", "RR");
+        } catch (e) {
+          showToast("BAN解除に失敗しました", "GR");
+        }
+      }
     };
 
     window.adminDeletePlayerCompletely = function(deviceId) {
@@ -5105,25 +5288,48 @@
         `「${targetName}」のデータを完全に削除しますか？`,
         "※プレイヤーデータ・ランキング記録・フレンド情報などが削除されます。この操作は取り消せません。",
         async () => {
+          deletedPlayerIdsCache.add(deviceId);
+          adminPlayersCache = adminPlayersCache.filter(item => item.deviceId !== deviceId);
+          bannedPlayerIdsCache.delete(deviceId);
+          renderAdminPlayersTable();
+
+          const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+          modes.forEach(m => {
+            try {
+              const localList = JSON.parse(localStorage.getItem(`neontype_lb_${m}`) || "[]");
+              const filteredLocal = localList.filter(item => item && item.deviceId !== deviceId);
+              localStorage.setItem(`neontype_lb_${m}`, JSON.stringify(filteredLocal));
+            } catch (e) {}
+          });
+
           if (firebaseReady && db) {
             try {
-              await remove(ref(db, `players/${deviceId}`));
-              await remove(ref(db, `friends/${deviceId}`));
-              await remove(ref(db, `friendRequests/${deviceId}`));
-              await remove(ref(db, `friendRequestsSent/${deviceId}`));
-              const modes = ["FRASH", "SPEED", "OVERDRIVE", "MARATHON", "SADDEN DEATH"];
+              await Promise.all([
+                set(ref(db, `deletedPlayers/${deviceId}`), { deletedAt: Date.now() }).catch(() => {}),
+                remove(ref(db, `players/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `bannedPlayers/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `friends/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `friendRequests/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `friendRequestsSent/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `queues/CASUAL_OPEN/${deviceId}`)).catch(() => {}),
+                remove(ref(db, `queues/RATE/${deviceId}`)).catch(() => {})
+              ]);
+
               for (const m of modes) {
                 const snap = await get(ref(db, `leaderboards/${m}`));
                 if (snap.exists()) {
                   const obj = snap.val();
+                  const delPromises = [];
                   Object.entries(obj).forEach(([k, v]) => {
                     if (v && v.deviceId === deviceId) {
-                      remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {});
+                      delPromises.push(remove(ref(db, `leaderboards/${m}/${k}`)).catch(() => {}));
                     }
                   });
+                  if (delPromises.length > 0) await Promise.all(delPromises);
                 }
               }
               showToast("プレイヤーデータを完全削除しました", "SR");
+              renderAdminRankingCleanup();
             } catch (e) {
               showToast("削除中にエラーが発生しました", "GR");
             }
@@ -5235,26 +5441,64 @@
       });
     }
 
-    async function renderAdminRankingCleanup() {
+    let currentAdminRankCleanupMode = "FRASH";
+
+    window.selectAdminRankCleanupMode = function(mode) {
+      currentAdminRankCleanupMode = mode || "FRASH";
+      const sel = document.getElementById("admin-rank-mode-select");
+      if (sel && sel.value !== currentAdminRankCleanupMode) {
+        sel.value = currentAdminRankCleanupMode;
+      }
+      document.querySelectorAll(".armode-tab").forEach(btn => {
+        const active = btn.dataset.armode === currentAdminRankCleanupMode;
+        btn.className = active
+          ? "armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-amber-500/20 border border-amber-400 text-amber-200"
+          : "armode-tab px-3 py-1 rounded-lg font-orbitron text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-400";
+      });
+      renderAdminRankingCleanup();
+    };
+
+    window.renderAdminRankingCleanup = async function() {
       const sel = document.getElementById("admin-rank-mode-select");
       const listEl = document.getElementById("admin-rank-cleanup-list");
-      if (!sel || !listEl) return;
-      const mode = sel.value;
+      const statusEl = document.getElementById("admin-rank-cleanup-status");
+      if (!listEl) return;
+      const mode = (sel && sel.value) ? sel.value : currentAdminRankCleanupMode;
+      currentAdminRankCleanupMode = mode;
       listEl.innerHTML = `<div class="p-3 text-slate-400">読み込み中...</div>`;
 
       if (mode === "RATE") {
-        const rateList = [...latestRatePlayersCache];
+        let rateSource = adminPlayersCache;
+        if ((!rateSource || rateSource.length === 0) && firebaseReady && db) {
+          try {
+            const pSnap = await get(ref(db, "players"));
+            if (pSnap.exists()) {
+              rateSource = Object.values(pSnap.val());
+            }
+          } catch (e) {}
+        }
+        const rateList = (rateSource || [])
+          .filter(p => p && p.username && !isPlayerBannedById(p.deviceId) && !deletedPlayerIdsCache.has(p.deviceId))
+          .map(p => ({
+            ...p,
+            rateVal: Number(p.rating ?? 1500),
+            lastRateBattleAt: Number(p.lastRateBattleAt ?? 0)
+          }))
+          .filter(p => p.rateVal !== 1500 || p.lastRateBattleAt > 0 || (p.modePlays && (p.modePlays.RATE || 0) > 0) || (p.rateWins || 0) > 0)
+          .sort((a, b) => b.rateVal - a.rateVal);
+
+        if (statusEl) statusEl.textContent = `RATE ランキング表示中 (${rateList.length} 件)`;
         if (!rateList.length) {
           listEl.innerHTML = `<div class="p-3 text-slate-500">レートランキングデータはありません</div>`;
           return;
         }
         listEl.innerHTML = "";
-        rateList.forEach((entry) => {
+        rateList.forEach((entry, idx) => {
           const rVal = Number(entry.rateVal ?? entry.rating ?? 1500);
           const row = document.createElement("div");
           row.className = "p-2 flex items-center justify-between gap-2";
           row.innerHTML = `
-            <span class="font-mono-code text-slate-200">${escapeHtml(entry.username)} - <strong class="text-amber-300">RATE ${rVal}</strong></span>
+            <span class="font-mono-code text-slate-200">#${idx + 1} ${escapeHtml(entry.username)} - <strong class="text-amber-300">RATE ${rVal}</strong></span>
             <button onclick="adminDeleteRateEntry('${escapeHtml(entry.deviceId)}')" class="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-red-300 text-[11px]">RATEリセット</button>
           `;
           listEl.appendChild(row);
@@ -5267,27 +5511,42 @@
         try {
           const snap = await get(ref(db, `leaderboards/${mode}`));
           if (snap.exists()) {
-            entries = Object.entries(snap.val()).map(([k, v]) => ({ key: k, ...v }));
+            const rawVal = snap.val();
+            const rawList = Array.isArray(rawVal)
+              ? rawVal.map((v, idx) => (v ? { key: String(idx), ...v } : null))
+              : Object.entries(rawVal).map(([k, v]) => (v ? { key: k, ...v } : null));
+            entries = rawList.filter(item => item && !deletedPlayerIdsCache.has(item.deviceId));
           }
         } catch (e) {}
       }
 
+      if (entries.length === 0) {
+        try {
+          const localList = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+          entries = localList
+            .filter(item => item && !deletedPlayerIdsCache.has(item.deviceId))
+            .map((v, idx) => ({ key: `local_${idx}`, ...v }));
+        } catch (e) {}
+      }
+
+      if (statusEl) statusEl.textContent = `${mode} ランキング表示中 (${entries.length} 件)`;
       if (!entries.length) {
-        listEl.innerHTML = `<div class="p-3 text-slate-500">このモードのランキングデータはありません</div>`;
+        listEl.innerHTML = `<div class="p-3 text-slate-500">${escapeHtml(mode)} のランキングデータはありません</div>`;
         return;
       }
 
+      entries.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
       listEl.innerHTML = "";
-      entries.forEach(item => {
+      entries.forEach((item, idx) => {
         const row = document.createElement("div");
         row.className = "p-2 flex items-center justify-between gap-2";
         row.innerHTML = `
-          <span class="font-mono-code text-slate-200">${escapeHtml(item.username)} - <strong class="text-cyan-300">${Number(item.score || 0).toLocaleString()} pts</strong></span>
-          <button onclick="adminDeleteSingleRankEntry('${escapeHtml(mode)}', '${escapeHtml(item.key)}')" class="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-red-300 text-[11px]">記録削除</button>
+          <span class="font-mono-code text-slate-200">#${idx + 1} ${escapeHtml(item.username || "Player")} - <strong class="text-cyan-300">${Number(item.score || 0).toLocaleString()} pts</strong></span>
+          <button onclick="adminDeleteSingleRankEntry('${escapeHtml(mode)}', '${escapeHtml(item.key)}', '${escapeHtml(item.deviceId || "")}')" class="px-2 py-0.5 rounded bg-red-950/80 border border-red-500/50 text-red-300 text-[11px]">記録削除</button>
         `;
         listEl.appendChild(row);
       });
-    }
+    };
 
     window.adminDeleteRateEntry = async function(deviceId) {
       if (!firebaseReady || !db || !deviceId) return;
@@ -5309,9 +5568,18 @@
       } catch (e) {}
     };
 
-    window.adminDeleteSingleRankEntry = async function(mode, rankKey) {
-      if (!firebaseReady || !db) return;
-      await remove(ref(db, `leaderboards/${mode}/${rankKey}`)).catch(() => {});
+    window.adminDeleteSingleRankEntry = async function(mode, rankKey, targetDeviceId = "") {
+      try {
+        const localList = JSON.parse(localStorage.getItem(`neontype_lb_${mode}`) || "[]");
+        const filteredLocal = localList.filter(item =>
+          item && (targetDeviceId ? item.deviceId !== targetDeviceId : true)
+        );
+        localStorage.setItem(`neontype_lb_${mode}`, JSON.stringify(filteredLocal));
+      } catch (e) {}
+
+      if (firebaseReady && db && rankKey && !rankKey.startsWith("local_")) {
+        await remove(ref(db, `leaderboards/${mode}/${rankKey}`)).catch(() => {});
+      }
       showToast("ランキング記録を削除しました", "R");
       renderAdminRankingCleanup();
     };
@@ -5320,20 +5588,21 @@
       const mode = document.getElementById("admin-rank-mode-select").value;
       if (mode === "RATE") {
         if (!firebaseReady || !db) return;
-        for (const p of latestRatePlayersCache) {
-          if (p && p.deviceId) {
-            await update(ref(db, `players/${p.deviceId}`), {
-              rating: 1500,
-              rateWins: 0,
-              lastRateBattleAt: 0
-            }).catch(() => {});
-            if (p.deviceId === playerData.deviceId) {
-              playerData.rating = 1500;
-              playerData.stats.rateWins = 0;
-              playerData.lastRateBattleAt = 0;
-              savePlayerData();
-              refreshAllProfileUI();
-            }
+        const targets = adminPlayersCache.filter(
+          p => p && p.deviceId && !isPlayerBannedById(p.deviceId) && !deletedPlayerIdsCache.has(p.deviceId)
+        );
+        for (const p of targets) {
+          await update(ref(db, `players/${p.deviceId}`), {
+            rating: 1500,
+            rateWins: 0,
+            lastRateBattleAt: 0
+          }).catch(() => {});
+          if (p.deviceId === playerData.deviceId) {
+            playerData.rating = 1500;
+            playerData.stats.rateWins = 0;
+            playerData.lastRateBattleAt = 0;
+            savePlayerData();
+            refreshAllProfileUI();
           }
         }
         showToast("RATEランキングを全リセットしました", "R");
@@ -5465,28 +5734,82 @@
         }
       });
 
+      onValue(ref(db, "deletedPlayers"), (snap) => {
+        deletedPlayerIdsCache.clear();
+        if (snap.exists()) {
+          const val = snap.val();
+          Object.entries(val).forEach(([key, entry]) => {
+            if (entry === false || entry == null) return;
+            deletedPlayerIdsCache.add(key);
+          });
+        }
+        if (deletedPlayerIdsCache.has(playerData.deviceId) && !isResettingOwnData) {
+          isResettingOwnData = true;
+          localStorage.removeItem(SAVE_KEY);
+          localStorage.removeItem("neontype_save");
+          localStorage.removeItem("neontype_device_id");
+          playerData = createDefaultPlayerData();
+          localStorage.setItem(SAVE_KEY, JSON.stringify(playerData));
+          location.reload();
+          return;
+        }
+        if (currentView === "admin") {
+          renderAdminPlayersTable();
+          renderAdminRankingCleanup();
+        }
+      });
+
       onValue(ref(db, "players"), (snap) => {
         if (!snap.exists()) {
           adminPlayersCache = [];
         } else {
-          adminPlayersCache = Object.values(snap.val());
+          adminPlayersCache = Object.values(snap.val()).filter(
+            p => p && p.deviceId && !deletedPlayerIdsCache.has(p.deviceId)
+          );
         }
 
         const meRemote = adminPlayersCache.find(p => p.deviceId === playerData.deviceId);
-        if (meRemote && meRemote.isBanned) {
+        const isMeBanned = Boolean(meRemote?.isBanned || bannedPlayerIdsCache.has(playerData.deviceId));
+        if (isMeBanned) {
           playerData.isBanned = true;
           savePlayerData();
           document.getElementById("ban-lock-screen").classList.remove("hidden");
           stopGameLoops();
+        } else if (playerData.isBanned && meRemote && meRemote.isBanned === false) {
+          playerData.isBanned = false;
+          savePlayerData();
+          document.getElementById("ban-lock-screen").classList.add("hidden");
         }
 
         updateUnreadDmBadges();
         if (currentView === "admin") {
           renderAdminPlayersTable();
+          renderAdminRankingCleanup();
           if (currentViewingDmPlayerId) {
             const modalVisible = !document.getElementById("modal-view-dm").classList.contains("hidden");
             if (modalVisible) openAdminViewDm(currentViewingDmPlayerId);
           }
+        }
+      });
+
+      onValue(ref(db, "bannedPlayers"), (snap) => {
+        bannedPlayerIdsCache.clear();
+        if (snap.exists()) {
+          const val = snap.val();
+          Object.entries(val).forEach(([key, entry]) => {
+            if (entry === false || entry == null) return;
+            const id = typeof entry === "object" && entry.deviceId ? entry.deviceId : key;
+            bannedPlayerIdsCache.add(id);
+          });
+        }
+        if (bannedPlayerIdsCache.has(playerData.deviceId)) {
+          playerData.isBanned = true;
+          savePlayerData();
+          document.getElementById("ban-lock-screen").classList.remove("hidden");
+          stopGameLoops();
+        }
+        if (currentView === "admin") {
+          renderAdminPlayersTable();
         }
       });
 
