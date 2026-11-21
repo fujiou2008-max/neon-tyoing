@@ -337,13 +337,13 @@
           <h1 class="font-orbitron font-black text-5xl sm:text-7xl md:text-8xl tracking-wider glow-cyan">
             NEON<span class="glow-magenta">TYPE</span>
           </h1>
-          <div class="h-0.5 w-48 sm:w-72 mx-auto bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-        </div>
-
-        <div class="pt-4 flex flex-col items-center gap-4">
-          <button onclick="startApp()" class="font-orbitron font-bold text-lg sm:text-2xl tracking-[0.25em] px-12 py-4 rounded-xl bg-cyan-500/10 text-cyan-300 border-neon-cyan hover:bg-cyan-400 hover:text-slate-950 transition-all duration-200 shadow-lg">
+        <div class="pt-4 flex flex-col items-center gap-2">
+          <button id="btn-start-app" onclick="startApp()" class="font-orbitron font-bold text-lg sm:text-2xl tracking-[0.25em] px-12 py-4 rounded-xl bg-cyan-500/10 text-cyan-300 border-neon-cyan hover:bg-cyan-400 hover:text-slate-950 transition-all duration-200 shadow-lg">
             START
           </button>
+          <span class="font-mono-code text-[11px] sm:text-xs tracking-[0.22em] text-slate-400/80 uppercase">
+            tap or enter
+          </span>
         </div>
       </div>
 
@@ -2580,6 +2580,23 @@
 
     window.handleHeaderLogoClick = function() {
       if (isOnlineLockActive()) return;
+      if (currentView === "home") {
+        stopGameLoops();
+        cleanupMatchmakingQueue();
+        if (rankingUnsubscribe) {
+          rankingUnsubscribe();
+          rankingUnsubscribe = null;
+        }
+        currentView = "start";
+        const views = ["start", "home", "matchmaking", "game", "result", "ranking", "titles", "friends", "mypage", "admin"];
+        views.forEach(v => {
+          const el = document.getElementById(`view-${v}`);
+          if (el) el.classList.toggle("hidden", v !== "start");
+        });
+        document.getElementById("news-ticker-bar").classList.add("hidden");
+        document.getElementById("main-header").classList.add("hidden");
+        return;
+      }
       navigate("home");
     };
 
@@ -3076,17 +3093,30 @@
         confirmRetire();
         return;
       }
-
-      if (currentView === "start" && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if ((currentView === "start" || document.getElementById("news-ticker-bar")?.classList.contains("hidden")) && (e.key === "Enter" || e.code === "Enter" || e.code === "NumpadEnter") && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const initModal = document.getElementById("modal-initial-name");
-        if (!initModal || initModal.classList.contains("hidden")) {
+        const delModal = document.getElementById("modal-delete-confirm");
+        const activeTag = document.activeElement?.tagName;
+        const initClosed = !initModal || initModal.classList.contains("hidden");
+        const delClosed = !delModal || delModal.classList.contains("hidden");
+        if (initClosed && delClosed && activeTag !== "INPUT" && activeTag !== "TEXTAREA") {
           e.preventDefault();
           startApp();
           return;
         }
       }
 
+      if (currentView === "result" && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const activeTag = document.activeElement?.tagName;
+        if (activeTag !== "INPUT" && activeTag !== "TEXTAREA") {
+          e.preventDefault();
+          retryLastMode();
+          return;
+        }
+      }
+
       if (currentView !== "game") return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       if (gameState.waitingSpace && e.code === "Space") {
         e.preventDefault();
@@ -3096,7 +3126,7 @@
 
       if (!gameState.active) return;
 
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key.length === 1 && /^[a-zA-Z0-9\-'.,!?/ ]$/.test(e.key)) {
         e.preventDefault();
         processTypedCharacter(e.key);
       }
